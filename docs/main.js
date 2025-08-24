@@ -1,6 +1,7 @@
 import vk from '../dist/index.js';
 import { initNavigation } from './navigation.js';
 import { initContent } from './content.js';
+import { version } from './version.js';
 import Prism from 'prismjs';
 import 'prismjs/components/prism-javascript.js';
 import 'prismjs/themes/prism-tomorrow.css';
@@ -12,6 +13,8 @@ window.vk = vk;
 function init() {
   initNavigation();
   initContent();
+  initSidebarFooter();
+  
   // Run syntax highlighting after content is loaded to catch all code blocks
   setTimeout(() => {
     initSyntaxHighlighting();
@@ -93,6 +96,53 @@ function initExampleToggles() {
       button.setAttribute('data-view', 'demo');
     }
   });
+}
+
+// Initialize sidebar footer functionality
+function initSidebarFooter() {
+  // Display version
+  const versionDisplay = vk('#version-display');
+  versionDisplay.text(`v${version}`);
+
+  // Initialize theme toggle
+  initThemeToggle();
+}
+
+// Initialize theme toggle functionality
+function initThemeToggle() {
+  const themeToggle = vk('#theme-toggle');
+  const themeIconLight = vk('#theme-icon-light');
+  const themeIconDark = vk('#theme-icon-dark');
+  const themeLabel = vk('#theme-label');
+  
+  // Get current theme from localStorage or default to light
+  let currentTheme = localStorage.getItem('theme') || 'light';
+  
+  // Apply the current theme on load
+  applyTheme(currentTheme);
+  
+  // Handle theme toggle click
+  themeToggle.on('click', () => {
+    currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+    applyTheme(currentTheme);
+    localStorage.setItem('theme', currentTheme);
+  });
+  
+  function applyTheme(theme) {
+    const body = document.body;
+    
+    if (theme === 'dark') {
+      body.classList.add('dark-theme');
+      themeIconLight.addClass('hidden');
+      themeIconDark.removeClass('hidden');
+      themeLabel.text('Dark Theme');
+    } else {
+      body.classList.remove('dark-theme');
+      themeIconLight.removeClass('hidden');
+      themeIconDark.addClass('hidden');
+      themeLabel.text('Light Theme');
+    }
+  }
 }
 
 // Start when DOM is ready

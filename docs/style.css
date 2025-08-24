@@ -113,3 +113,69 @@
 .input {
   @apply block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary;
 }
+
+/* Dark theme styles */
+.dark-theme {
+  @apply bg-gray-900 text-gray-100;
+}
+
+.dark-theme nav {
+  @apply bg-gray-800 border-gray-700;
+}
+
+.dark-theme .nav-link {
+  @apply text-gray-300 hover:bg-gray-700 hover:text-gray-100;
+}
+
+.dark-theme .nav-link.active {
+  @apply bg-primary text-white;
+}
+
+.dark-theme main {
+  @apply bg-gray-900;
+}
+
+.dark-theme h1,
+.dark-theme h2,
+.dark-theme h3,
+.dark-theme h4 {
+  @apply text-gray-100;
+}
+
+.dark-theme .section-title {
+  @apply border-gray-700;
+}
+
+.dark-theme p,
+.dark-theme li,
+.dark-theme span {
+  @apply text-gray-300;
+}
+
+.dark-theme .example-container {
+  @apply border-gray-700 bg-gray-800;
+}
+
+.dark-theme .example-header {
+  @apply bg-gray-800 border-gray-700;
+}
+
+.dark-theme .example-demo {
+  @apply bg-gray-800;
+}
+
+.dark-theme .example-code {
+  @apply bg-gray-900 border-gray-700;
+}
+
+.dark-theme .btn-secondary {
+  @apply bg-gray-600 text-gray-200 hover:bg-gray-500;
+}
+
+.dark-theme code:not(.code-block code) {
+  @apply bg-gray-700 text-gray-200;
+}
+
+.dark-theme #theme-toggle {
+  @apply bg-gray-700 text-gray-200 hover:bg-gray-600;
+}
