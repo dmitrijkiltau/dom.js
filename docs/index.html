@@ -92,6 +92,20 @@
     </div>
   </template>
 
+  <template id="advanced-card-template">
+    <div class="border rounded-lg p-4 bg-white shadow-sm" data-attr-class="statusClass">
+      <div class="flex justify-between items-start mb-2">
+        <h3 class="text-lg font-semibold" data-text="title"></h3>
+        <span class="text-xs px-2 py-1 rounded" data-attr-class="statusBadge" data-text="status"></span>
+      </div>
+      <div class="text-gray-600 mb-3" data-html="content"></div>
+      <div class="flex justify-between text-sm text-gray-500">
+        <span>Priority: <span data-text="priority" class="font-medium"></span>/5</span>
+        <span data-text="dueDate"></span>
+      </div>
+    </div>
+  </template>
+
   <script type="module" src="./main.js"></script>
 </body>
 </html>
