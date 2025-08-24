@@ -57,7 +57,8 @@ function initExampleToggles() {
     const demoSection = container.querySelector('.example-demo');
     const codeSection = container.querySelector('.example-code');
     const toggleText = container.querySelector('.toggle-text');
-    const toggleIcon = container.querySelector('.toggle-icon');
+    const codeIcon = container.querySelector('.code-icon');
+    const cubeIcon = container.querySelector('.cube-icon');
     const currentView = button.getAttribute('data-view');
     
     if (currentView === 'demo') {
@@ -77,14 +78,18 @@ function initExampleToggles() {
         }
       }
       if (toggleText) toggleText.textContent = 'Show Demo';
-      if (toggleIcon) toggleIcon.classList.add('rotated');
+      // Switch to cube icon (showing demo)
+      if (codeIcon) codeIcon.style.display = 'none';
+      if (cubeIcon) cubeIcon.style.display = 'block';
       button.setAttribute('data-view', 'code');
     } else {
       // Switch to demo view
       if (demoSection) demoSection.style.display = 'block';
       if (codeSection) codeSection.style.display = 'none';
       if (toggleText) toggleText.textContent = 'Show Code';
-      if (toggleIcon) toggleIcon.classList.remove('rotated');
+      // Switch to code icon (showing code)
+      if (codeIcon) codeIcon.style.display = 'block';
+      if (cubeIcon) cubeIcon.style.display = 'none';
       button.setAttribute('data-view', 'demo');
     }
   });
