@@ -3,7 +3,7 @@ import { initNavigation } from './navigation.js';
 import { initContent } from './content.js';
 import Prism from 'prismjs';
 import 'prismjs/components/prism-javascript.js';
-import 'prismjs/themes/prism-tomorrow.css';
+import 'prismjs/themes/prism-coy.css';
 
 // Make vk globally available for console debugging
 window.vk = vk;
@@ -12,6 +12,10 @@ window.vk = vk;
 function init() {
   initNavigation();
   initContent();
+  // Run syntax highlighting after content is loaded to catch all code blocks
+  setTimeout(() => {
+    initSyntaxHighlighting();
+  }, 100);
   initExampleToggles();
 
   // Smooth scrolling for internal links
@@ -23,6 +27,20 @@ function init() {
     if (targetElement) {
       targetElement.scrollIntoView({ behavior: 'smooth' });
     }
+  });
+}
+
+// Initialize syntax highlighting for all code blocks
+function initSyntaxHighlighting() {
+  // Highlight all code blocks that don't have the 'highlighted' class
+  const codeBlocks = document.querySelectorAll('pre code:not(.highlighted)');
+  codeBlocks.forEach(codeBlock => {
+    // Add language-javascript class if no language class exists
+    if (!codeBlock.className.includes('language-')) {
+      codeBlock.classList.add('language-javascript');
+    }
+    Prism.highlightElement(codeBlock);
+    codeBlock.classList.add('highlighted');
   });
 }
 
@@ -50,6 +68,10 @@ function initExampleToggles() {
         // Apply syntax highlighting to code blocks
         const codeBlock = codeSection.querySelector('code');
         if (codeBlock && !codeBlock.classList.contains('highlighted')) {
+          // Add language-javascript class if no language class exists
+          if (!codeBlock.className.includes('language-')) {
+            codeBlock.classList.add('language-javascript');
+          }
           Prism.highlightElement(codeBlock);
           codeBlock.classList.add('highlighted');
         }
