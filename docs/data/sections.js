@@ -258,7 +258,7 @@ dom('.fade').animate([
     content: `
       <p class="text-gray-700 mb-4">
         Extend dom.js with custom functionality using the plugin system.
-        Plugins can add new methods to the vk object and VKCollection prototype.
+        Plugins can add new methods to the dom object and VKCollection prototype.
       </p>
       <div class="space-y-4">
         <div>
@@ -271,7 +271,7 @@ dom('.fade').animate([
           <h4 class="text-lg font-semibold mb-2">Creating Plugins</h4>
           <pre class="code-block"><code>// Create a plugin
 use((api) => {
-  // Add method to vk object
+  // Add method to dom object
   api.myUtility = function(selector, options) {
     return this(selector).addClass('my-class');
   };

@@ -95,8 +95,8 @@ use((api) => {
 });
 
 // Usage
-vk.flash('#element', { duration: 600, iterations: 2 });
-vk.typewriter('#output', 'Hello World!', { speed: 100 });`
+dom.flash('#element', { duration: 600, iterations: 2 });
+dom.typewriter('#output', 'Hello World!', { speed: 100 });`
   });
 
   pluginSection.append(pluginExample);
@@ -197,7 +197,7 @@ vk.typewriter('#output', 'Hello World!', { speed: 100 });`
 
   // Add plugin demo functionality
   dom('#flash-demo').on('click', () => {
-    vk.flash('#flash-target', { duration: 600, iterations: 2 });
+    dom.flash('#flash-target', { duration: 600, iterations: 2 });
   });
 
   dom('#typewriter-demo').on('click', () => {
@@ -209,19 +209,19 @@ vk.typewriter('#output', 'Hello World!', { speed: 100 });`
       'Customize to your heart\'s content!'
     ];
     const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-    vk.typewriter('#typewriter-target', randomMessage, { speed: 60 });
+    dom.typewriter('#typewriter-target', randomMessage, { speed: 60 });
   });
 
   dom('#toast-success').on('click', () => {
-    vk.toast('Operation completed successfully!', { type: 'success', duration: 4000 });
+    dom.toast('Operation completed successfully!', { type: 'success', duration: 4000 });
   });
 
   dom('#toast-warning').on('click', () => {
-    vk.toast('Please check your input data.', { type: 'warning', duration: 5000 });
+    dom.toast('Please check your input data.', { type: 'warning', duration: 5000 });
   });
 
   dom('#toast-error').on('click', () => {
-    vk.toast('An error occurred during processing.', { type: 'error', duration: 6000 });
+    dom.toast('An error occurred during processing.', { type: 'error', duration: 6000 });
   });
 
   // Advanced plugin example
@@ -489,7 +489,7 @@ dom('#content').highlight('vanilla-kit');`
   });
 
   // Initialize counter
-  counterInstance = vk.counter('#counter-display', { initial: 0, min: -10, max: 100, step: 1 });
+  counterInstance = dom.counter('#counter-display', { initial: 0, min: -10, max: 100, step: 1 });
 
   dom('#counter-increment').on('click', () => {
     counterInstance.increment();
