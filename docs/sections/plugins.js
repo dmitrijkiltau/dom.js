@@ -25,7 +25,7 @@ export function addPluginExamples() {
           <div class="space-y-2">
             <h5 class="font-medium">Flash Effect Plugin</h5>
             <button id="flash-demo" class="btn btn-primary">Flash Element</button>
-            <div id="flash-target" class="w-16 h-16 bg-yellow-400 rounded mx-auto flex items-center justify-center text-sm font-bold">
+            <div id="flash-target" class="w-full h-16 bg-yellow-400 rounded mx-auto flex items-center justify-center text-sm font-bold">
               FLASH
             </div>
           </div>
@@ -33,7 +33,7 @@ export function addPluginExamples() {
           <div class="space-y-2">
             <h5 class="font-medium">Typewriter Plugin</h5>
             <button id="typewriter-demo" class="btn btn-primary">Start Typing</button>
-            <div id="typewriter-target" class="h-16 bg-gray-100 rounded p-3 text-sm font-mono border min-h-[60px]">
+            <div id="typewriter-target" class="h-16 bg-gray-100 rounded p-3 text-sm font-mono border border-gray-300 min-h-[60px]">
               Click button to see effect...
             </div>
           </div>
@@ -150,7 +150,7 @@ vk.typewriter('#output', 'Hello World!', { speed: 100 });`
       const toast = document.createElement('div');
       toast.className = `
         ${typeClasses[type] || typeClasses.info}
-        border rounded-lg p-4 shadow-lg max-w-sm cursor-pointer
+        border border-gray-300 rounded-lg p-4 shadow-lg max-w-sm cursor-pointer
         transform transition-all duration-300 translate-x-full opacity-0
       `.replace(/\s+/g, ' ').trim();
       
@@ -232,7 +232,7 @@ vk.typewriter('#output', 'Hello World!', { speed: 100 });`
           <div class="space-y-2">
             <h5 class="font-medium">Draggable Plugin</h5>
             <button id="toggle-draggable" class="btn btn-primary text-sm">Toggle Draggable</button>
-            <div class="demo-area border rounded p-4 h-32 bg-gray-50 relative">
+            <div class="demo-area border border-gray-300 rounded p-4 h-32 bg-gray-50 relative">
               <div id="draggable-box" class="w-12 h-12 bg-indigo-500 rounded cursor-move absolute top-2 left-2 flex items-center justify-center text-white text-xs font-bold select-none">
                 DRAG
               </div>
@@ -242,7 +242,7 @@ vk.typewriter('#output', 'Hello World!', { speed: 100 });`
           <div class="space-y-2">
             <h5 class="font-medium">Highlight Plugin</h5>
             <input id="search-text" placeholder="Type to highlight..." class="input text-sm">
-            <div class="demo-area border rounded p-3 h-32 bg-white text-sm overflow-y-auto" id="highlight-content">
+            <div class="demo-area border border-gray-300 rounded p-3 h-32 bg-gray-100 text-sm overflow-y-auto" id="highlight-content">
               <p>vanilla-kit is a lightweight, modern DOM manipulation library that provides a jQuery-like API with ES modules support and no dependencies.</p>
               <p>It's designed for modern browsers and offers a chainable, intuitive API for DOM manipulation, templating, forms, events, HTTP requests, and animations.</p>
             </div>
@@ -256,7 +256,7 @@ vk.typewriter('#output', 'Hello World!', { speed: 100 });`
             <button id="counter-decrement" class="btn btn-secondary text-sm">Decrement</button>
             <button id="counter-reset" class="btn btn-secondary text-sm">Reset</button>
           </div>
-          <div class="demo-area border rounded p-4 bg-gray-50 text-center">
+          <div class="demo-area border border-gray-300 rounded p-4 bg-gray-50 text-center">
             <div id="counter-display" class="text-2xl font-bold">0</div>
             <div class="text-sm text-gray-600 mt-2">Current Count</div>
           </div>

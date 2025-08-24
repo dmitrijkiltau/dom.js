@@ -51,9 +51,9 @@ vk('#demo-btn-2')
     demo: `
       <div class="space-y-2">
         <div class="example-list space-y-2">
-          <div class="p-3 border rounded">Item 1</div>
-          <div class="p-3 border rounded">Item 2</div>
-          <div class="p-3 border rounded">Item 3</div>
+          <div class="p-3 border border-gray-300 rounded">Item 1</div>
+          <div class="p-3 border border-gray-300 rounded">Item 2</div>
+          <div class="p-3 border border-gray-300 rounded">Item 3</div>
         </div>
         <button id="collection-demo" class="btn btn-primary">Manipulate Collection</button>
       </div>

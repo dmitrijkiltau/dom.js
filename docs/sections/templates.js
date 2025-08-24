@@ -122,7 +122,7 @@ vk('#items-list').append(
       </div>
 
       <template id="advanced-card-template">
-        <div class="border rounded-lg p-4 bg-white shadow-sm" data-attr-class="statusClass">
+        <div class="border border-gray-300 rounded-lg p-4 bg-gray-100 shadow-sm" data-attr-class="statusClass">
           <div class="flex justify-between items-start mb-2">
             <h3 class="text-lg font-semibold" data-text="title"></h3>
             <span class="text-xs px-2 py-1 rounded" data-attr-class="statusBadge" data-text="status"></span>
@@ -137,7 +137,7 @@ vk('#items-list').append(
     `,
     code: `// Advanced template with conditional classes
 <template id="advanced-card-template">
-  <div class="border rounded-lg p-4" data-attr-class="statusClass">
+  <div class="border border-gray-300 rounded-lg p-4" data-attr-class="statusClass">
     <h3 class="text-lg font-semibold" data-text="title"></h3>
     <span data-attr-class="statusBadge" data-text="status"></span>
     <div data-html="content"></div>

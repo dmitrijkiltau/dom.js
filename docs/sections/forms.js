@@ -171,7 +171,7 @@ console.log(data);`
           <button id="clear-dynamic" class="btn btn-danger">Clear</button>
         </div>
         
-        <form id="dynamic-form" class="space-y-4 border p-4 rounded">
+        <form id="dynamic-form" class="space-y-4 border border-gray-300 p-4 rounded">
           <div class="dynamic-sections"></div>
         </form>
         
@@ -232,7 +232,7 @@ const data = serializeForm(form.el());`
   vk('#add-section').on('click', () => {
     sectionCounter++;
     const sectionHtml = `
-      <div class="section-group border rounded p-3 bg-gray-50">
+      <div class="section-group border border-gray-300 rounded p-3 bg-gray-50">
         <div class="flex justify-between items-center mb-2">
           <h4 class="font-medium">Section ${sectionCounter}</h4>
           <button type="button" class="text-red-500 hover:text-red-700 remove-section">Remove Section</button>
@@ -255,7 +255,7 @@ const data = serializeForm(form.el());`
   vk('#serialize-dynamic').on('click', () => {
     const data = serializeForm(vk('#dynamic-form').el());
     vk('#dynamic-results').removeClass('hidden').html(`
-      <div class="p-4 bg-green-50 border border-green-200 rounded">
+      <div class="p-4 bg-green-50 border border-gray-300 border-green-200 rounded">
         <h5 class="font-semibold text-green-900 mb-2">Serialized Data:</h5>
         <pre class="text-sm text-green-800 whitespace-pre-wrap overflow-x-auto">${JSON.stringify(data, null, 2)}</pre>
       </div>

@@ -34,7 +34,7 @@ export function addHttpExamples() {
           <button id="fetch-specific" class="btn btn-primary">Fetch Specific Post</button>
         </div>
         
-        <div id="http-results" class="p-4 bg-gray-50 border rounded min-h-[150px] overflow-auto">
+        <div id="http-results" class="p-4 bg-gray-50 border border-gray-300 rounded min-h-[150px] overflow-auto">
           <p class="text-gray-500 text-center">Click a button above to see results...</p>
         </div>
         
@@ -103,11 +103,11 @@ const html = await response.html();     // DOM Element`
   }
 
   function showResult(title, content, isError = false) {
-    const bgColor = isError ? 'bg-red-50 border-red-200' : 'bg-white';
+    const bgColor = isError ? 'bg-red-50 border-red-200' : 'bg-gray-100';
     const titleColor = isError ? 'text-red-800' : 'text-gray-800';
 
     vk('#http-results').html(`
-      <div class="${bgColor} border rounded p-4">
+      <div class="${bgColor} border border-gray-300 rounded p-4">
         <h5 class="font-semibold ${titleColor} mb-2">${title}</h5>
         <div class="text-sm text-gray-700">
           ${typeof content === 'string' ? content : `<pre class="whitespace-pre-wrap overflow-x-auto">${JSON.stringify(content, null, 2)}</pre>`}
@@ -280,7 +280,7 @@ const html = await response.html();     // DOM Element`
           <button id="parallel-requests" class="btn btn-secondary">Parallel Requests Demo</button>
         </div>
         
-        <div id="advanced-results" class="p-4 bg-gray-50 border rounded min-h-[150px] overflow-auto">
+        <div id="advanced-results" class="p-4 bg-gray-50 border border-gray-300 rounded min-h-[150px] overflow-auto">
           <p class="text-gray-500 text-center">Configure and send a request...</p>
         </div>
       </div>
