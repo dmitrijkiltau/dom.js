@@ -1,6 +1,9 @@
 import vk from '../dist/index.js';
 import { initNavigation } from './navigation.js';
 import { initContent } from './content.js';
+import Prism from 'prismjs';
+import 'prismjs/components/prism-javascript.js';
+import 'prismjs/themes/prism-tomorrow.css';
 
 // Make vk globally available for console debugging
 window.vk = vk;
@@ -42,7 +45,15 @@ function initExampleToggles() {
     if (currentView === 'demo') {
       // Switch to code view
       if (demoSection) demoSection.style.display = 'none';
-      if (codeSection) codeSection.style.display = 'block';
+      if (codeSection) {
+        codeSection.style.display = 'block';
+        // Apply syntax highlighting to code blocks
+        const codeBlock = codeSection.querySelector('code');
+        if (codeBlock && !codeBlock.classList.contains('highlighted')) {
+          Prism.highlightElement(codeBlock);
+          codeBlock.classList.add('highlighted');
+        }
+      }
       if (toggleText) toggleText.textContent = 'Show Demo';
       if (toggleIcon) toggleIcon.classList.add('rotated');
       button.setAttribute('data-view', 'code');
