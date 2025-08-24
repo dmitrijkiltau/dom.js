@@ -15,6 +15,7 @@ export class VKCollection {
   }
 
   // Basic DOM read helpers
+  get length(): number { return this.elements.length; }
   el<T extends Element = Element>(): T | undefined { return this.elements[0] as T | undefined; }
   first(): VKCollection { return new VKCollection(this.elements.length ? [this.elements[0]] : []); }
   eq(i: number): VKCollection { return new VKCollection(this.elements[i] ? [this.elements[i]] : []); }
@@ -58,8 +59,14 @@ export class VKCollection {
   }
 
   // Classes
-  addClass(...names: string[]): this { return this.each(el => el.classList.add(...names)); }
-  removeClass(...names: string[]): this { return this.each(el => el.classList.remove(...names)); }
+  addClass(...names: string[]): this { 
+    const allNames = names.flatMap(name => name.split(/\s+/).filter(Boolean));
+    return this.each(el => el.classList.add(...allNames)); 
+  }
+  removeClass(...names: string[]): this { 
+    const allNames = names.flatMap(name => name.split(/\s+/).filter(Boolean));
+    return this.each(el => el.classList.remove(...allNames)); 
+  }
   toggleClass(name: string, force?: boolean): this { return this.each(el => el.classList.toggle(name, force)); }
   hasClass(name: string): boolean { return !!this.elements[0]?.classList.contains(name); }
 

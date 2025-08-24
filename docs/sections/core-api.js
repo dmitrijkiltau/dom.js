@@ -50,7 +50,7 @@ vk('#demo-btn-2')
     description: 'Chain methods for DOM manipulation',
     demo: `
       <div class="space-y-2">
-        <div class="example-list">
+        <div class="example-list space-y-2">
           <div class="p-3 border rounded">Item 1</div>
           <div class="p-3 border rounded">Item 2</div>
           <div class="p-3 border rounded">Item 3</div>
@@ -79,9 +79,13 @@ const allElements = items.elements; // Array of all elements`
   vk('#collection-demo').on('click', () => {
     const items = vk('.example-list div');
     if (items.hasClass('bg-blue-100')) {
-      items.removeClass('bg-blue-100').css('border-color', '').text((el, idx) => `Item ${idx + 1}`);
+      items.removeClass('bg-blue-100').css('border-color', '').each((el, idx) => {
+        el.textContent = `Item ${idx + 1}`;
+      });
     } else {
-      items.addClass('bg-blue-100').css('border-color', '#3b82f6').text((el, idx) => `Updated Item ${idx + 1}`);
+      items.addClass('bg-blue-100').css('border-color', '#3b82f6').each((el, idx) => {
+        el.textContent = `Updated Item ${idx + 1}`;
+      });
     }
   });
 

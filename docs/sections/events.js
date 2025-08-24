@@ -85,6 +85,7 @@ vk(element).off('click', handler);`
 
   // Event delegation for dynamic buttons
   vk('#button-container').on('click', 'button', (ev, el, idx) => {
+    if (!eventsEnabled) return;
     const buttonId = el.getAttribute('data-button-id');
     vk(el).toggleClass('bg-green-200');
     logEvent(`Dynamic Button ${buttonId} clicked (index: ${idx})`);

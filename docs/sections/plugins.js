@@ -265,7 +265,7 @@ vk.typewriter('#output', 'Hello World!', { speed: 100 });`
     `,
     code: `// Draggable plugin with state
 use((api) => {
-  api.prototype.draggable = function(options = {}) {
+  api.VKCollection.prototype.draggable = function(options = {}) {
     const { containment = null, axis = 'both' } = options;
     
     return this.each((el) => {
@@ -314,7 +314,7 @@ use((api) => {
 
 // Highlight plugin
 use((api) => {
-  api.prototype.highlight = function(text, className = 'bg-yellow-200') {
+  api.VKCollection.prototype.highlight = function(text, className = 'bg-yellow-200') {
     return this.each((el) => {
       const regex = new RegExp(\`(\${text.replace(/[.*+?^()|[\\]\\\\]/g, '\\\\$&')})\`, 'gi');
       el.innerHTML = el.innerHTML.replace(regex, \`<mark class="\${className}">$1</mark>\`);
@@ -329,9 +329,9 @@ vk('#content').highlight('vanilla-kit');`
 
   pluginSection.append(advancedExample);
 
-  // Define advanced plugins
+  // Define advanced plugins FIRST before using them
   use((api) => {
-    api.prototype.draggable = function(options = {}) {
+    api.VKCollection.prototype.draggable = function(options = {}) {
       const { axis = 'both' } = options;
       
       return this.each((el) => {
@@ -387,7 +387,7 @@ vk('#content').highlight('vanilla-kit');`
       });
     };
 
-    api.prototype.undraggable = function() {
+    api.VKCollection.prototype.undraggable = function() {
       return this.each((el) => {
         if (el._draggableCleanup) {
           el._draggableCleanup();
@@ -400,7 +400,7 @@ vk('#content').highlight('vanilla-kit');`
   });
 
   use((api) => {
-    api.prototype.highlight = function(text, className = 'bg-yellow-200') {
+    api.VKCollection.prototype.highlight = function(text, className = 'bg-yellow-200') {
       return this.each((el) => {
         // First, remove existing highlights
         el.innerHTML = el.innerHTML.replace(/<mark class="[^"]*">([^<]*)<\/mark>/gi, '$1');
@@ -429,26 +429,23 @@ vk('#content').highlight('vanilla-kit');`
         increment() {
           if (max === null || value + step <= max) {
             value += step;
-            element._counterValue = value;
             element.textContent = value;
+            element._counterValue = value;
           }
-          return this;
         },
         
         decrement() {
           if (min === null || value - step >= min) {
             value -= step;
-            element._counterValue = value;
             element.textContent = value;
+            element._counterValue = value;
           }
-          return this;
         },
         
         reset() {
           value = initial;
-          element._counterValue = value;
           element.textContent = value;
-          return this;
+          element._counterValue = value;
         },
         
         getValue() {
@@ -458,10 +455,9 @@ vk('#content').highlight('vanilla-kit');`
         setValue(newValue) {
           if ((min === null || newValue >= min) && (max === null || newValue <= max)) {
             value = newValue;
-            element._counterValue = value;
             element.textContent = value;
+            element._counterValue = value;
           }
-          return this;
         }
       };
     };
