@@ -8,20 +8,31 @@
   --color-success: #10b981;
   --color-warning: #f59e0b;
   --color-danger: #ef4444;
-  
-  --color-gray-50: #f8fafc;
-  --color-gray-100: #f1f5f9;
-  --color-gray-200: #e2e8f0;
-  --color-gray-300: #cbd5e1;
-  --color-gray-400: #94a3b8;
-  --color-gray-500: #64748b;
-  --color-gray-600: #475569;
-  --color-gray-700: #334155;
-  --color-gray-800: #1e293b;
-  --color-gray-900: #0f172a;
-  
-  --font-family-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-  --font-family-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  --color-gray-50: light-dark(#f8fafc, #0f172a);
+  --color-gray-100: light-dark(#f1f5f9, #1e293b);
+  --color-gray-200: light-dark(#e2e8f0, #334155);
+  --color-gray-300: light-dark(#cbd5e1, #475569);
+  --color-gray-400: light-dark(#94a3b8, #64748b);
+  --color-gray-500: light-dark(#64748b, #94a3b8);
+  --color-gray-600: light-dark(#475569, #cbd5e1);
+  --color-gray-700: light-dark(#334155, #e2e8f0);
+  --color-gray-800: light-dark(#1e293b, #f1f5f9);
+  --color-gray-900: light-dark(#0f172a, #f8fafc);
+
+  --font-family-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --font-family-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+/* Set color scheme to support light-dark() function */
+:root {
+  color-scheme: light;
+}
+
+:root.dark {
+  color-scheme: dark;
 }
 
 /* Custom styles for documentation */
@@ -32,14 +43,14 @@
 
 .nav-link {
   @apply block px-3 py-2 rounded-md text-sm font-medium transition-colors;
-}
 
-.nav-link:hover {
-  @apply bg-gray-100 text-gray-900;
-}
+  &:hover {
+    @apply bg-gray-200 text-gray-900;
+  }
 
-.nav-link.active {
-  @apply bg-primary text-white;
+  &.active {
+    @apply bg-primary text-white;
+  }
 }
 
 .section {
@@ -59,7 +70,7 @@
 }
 
 .example-header {
-  @apply p-6 bg-white border-b border-gray-200 flex justify-between items-start;
+  @apply p-6 bg-gray-200 border-b border-gray-200 flex justify-between items-start;
 }
 
 .example-title-section {
@@ -79,7 +90,7 @@
 }
 
 .example-demo {
-  @apply p-6 bg-white;
+  @apply p-6 bg-gray-100;
 }
 
 .example-code {
@@ -112,70 +123,4 @@
 
 .input {
   @apply block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary;
-}
-
-/* Dark theme styles */
-.dark-theme {
-  @apply bg-gray-900 text-gray-100;
-}
-
-.dark-theme nav {
-  @apply bg-gray-800 border-gray-700;
-}
-
-.dark-theme .nav-link {
-  @apply text-gray-300 hover:bg-gray-700 hover:text-gray-100;
-}
-
-.dark-theme .nav-link.active {
-  @apply bg-primary text-white;
-}
-
-.dark-theme main {
-  @apply bg-gray-900;
-}
-
-.dark-theme h1,
-.dark-theme h2,
-.dark-theme h3,
-.dark-theme h4 {
-  @apply text-gray-100;
-}
-
-.dark-theme .section-title {
-  @apply border-gray-700;
-}
-
-.dark-theme p,
-.dark-theme li,
-.dark-theme span {
-  @apply text-gray-300;
-}
-
-.dark-theme .example-container {
-  @apply border-gray-700 bg-gray-800;
-}
-
-.dark-theme .example-header {
-  @apply bg-gray-800 border-gray-700;
-}
-
-.dark-theme .example-demo {
-  @apply bg-gray-800;
-}
-
-.dark-theme .example-code {
-  @apply bg-gray-900 border-gray-700;
-}
-
-.dark-theme .btn-secondary {
-  @apply bg-gray-600 text-gray-200 hover:bg-gray-500;
-}
-
-.dark-theme code:not(.code-block code) {
-  @apply bg-gray-700 text-gray-200;
-}
-
-.dark-theme #theme-toggle {
-  @apply bg-gray-700 text-gray-200 hover:bg-gray-600;
 }

@@ -8,6 +8,7 @@ export function addFormExamples() {
   if (formSection.length === 0) return;
 
   formSection.append(renderSubsection({
+    id: 'form-utilities-overview',
     title: 'Form Utilities',
     content: `
       <p class="text-gray-700 mb-4">
@@ -17,6 +18,7 @@ export function addFormExamples() {
   }));
 
   const formExample = renderExample({
+    id: 'form-handling-example',
     title: 'Form Handling',
     description: 'Serialize forms and handle submissions',
     demo: `
@@ -160,6 +162,7 @@ console.log(data);`
 
   // Dynamic form example
   const dynamicExample = renderExample({
+    id: 'dynamic-form-example',
     title: 'Dynamic Form Building',
     description: 'Build forms dynamically and handle complex structures',
     demo: `
@@ -171,7 +174,7 @@ console.log(data);`
           <button id="clear-dynamic" class="btn btn-danger">Clear</button>
         </div>
         
-        <form id="dynamic-form" class="space-y-4 border p-4 rounded">
+        <form id="dynamic-form" class="space-y-4 border border-gray-300 p-4 rounded">
           <div class="dynamic-sections"></div>
         </form>
         
@@ -222,7 +225,7 @@ const data = serializeForm(form.el());`
             <option value="number">Number</option>
             <option value="email">Email</option>
           </select>
-          <button type="button" class="text-red-500 hover:text-red-700 px-2 remove-field">×</button>
+          <button type="button" class="text-red-500 hover:text-red-700 px-2 remove-field">&times;</button>
         </div>
       </div>
     `;
@@ -232,7 +235,7 @@ const data = serializeForm(form.el());`
   vk('#add-section').on('click', () => {
     sectionCounter++;
     const sectionHtml = `
-      <div class="section-group border rounded p-3 bg-gray-50">
+      <div class="section-group border border-gray-300 rounded p-3 bg-gray-50">
         <div class="flex justify-between items-center mb-2">
           <h4 class="font-medium">Section ${sectionCounter}</h4>
           <button type="button" class="text-red-500 hover:text-red-700 remove-section">Remove Section</button>

@@ -129,15 +129,15 @@ function initThemeToggle() {
   });
   
   function applyTheme(theme) {
-    const body = document.body;
+    const root = document.documentElement;
     
     if (theme === 'dark') {
-      body.classList.add('dark-theme');
+      root.classList.add('dark');
       themeIconLight.addClass('hidden');
       themeIconDark.removeClass('hidden');
       themeLabel.text('Dark Theme');
     } else {
-      body.classList.remove('dark-theme');
+      root.classList.remove('dark');
       themeIconLight.removeClass('hidden');
       themeIconDark.addClass('hidden');
       themeLabel.text('Light Theme');

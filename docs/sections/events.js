@@ -8,6 +8,7 @@ export function addEventExamples() {
   if (eventSection.length === 0) return;
 
   eventSection.append(renderSubsection({
+    id: 'event-handling-overview',
     title: 'Event Handling',
     content: `
       <p class="text-gray-700 mb-4">
@@ -17,6 +18,7 @@ export function addEventExamples() {
   }));
 
   const eventExample = renderExample({
+    id: 'event-handling-example',
     title: 'Event Handling',
     description: 'Bind events to elements with delegation support',
     demo: `
@@ -26,8 +28,8 @@ export function addEventExamples() {
           <button id="clear-buttons" class="btn btn-secondary">Clear All</button>
           <button id="toggle-events" class="btn btn-secondary">Toggle Events</button>
         </div>
-        <div id="button-container" class="space-y-2 p-4 border rounded min-h-[100px] bg-gray-50"></div>
-        <div id="event-log" class="text-sm text-gray-600 max-h-32 overflow-y-auto bg-white p-3 border rounded"></div>
+        <div id="button-container" class="space-y-2 p-4 border border-gray-300 rounded min-h-[100px] bg-gray-50"></div>
+        <div id="event-log" class="text-sm text-gray-600 max-h-32 overflow-y-auto bg-gray-100 p-3 border border-gray-300 rounded"></div>
       </div>
     `,
     code: `import { on, off } from '@dmitrijkiltau/vanilla-kit';
@@ -113,6 +115,7 @@ vk(element).off('click', handler);`
 
   // Advanced event handling example
   const advancedExample = renderExample({
+    id: 'advanced-event-handling-example',
     title: 'Advanced Event Patterns',
     description: 'Complex event handling patterns and techniques',
     demo: `
@@ -131,14 +134,14 @@ vk(element).off('click', handler);`
           </div>
         </div>
         
-        <div class="scroll-zone border p-4 h-32 overflow-y-auto bg-gray-50">
+        <div class="scroll-zone border border-gray-300 p-4 h-32 overflow-y-auto bg-gray-50">
           <h4 class="font-medium mb-2">Scroll Events</h4>
           <div class="space-y-2">
-            ${Array.from({ length: 20 }, (_, i) => `<div class="p-2 bg-white rounded">Item ${i + 1}</div>`).join('')}
+            ${Array.from({ length: 20 }, (_, i) => `<div class="p-2 bg-gray-100 rounded">Item ${i + 1}</div>`).join('')}
           </div>
         </div>
         
-        <div id="advanced-event-log" class="text-sm text-gray-600 max-h-24 overflow-y-auto bg-white p-3 border rounded"></div>
+        <div id="advanced-event-log" class="text-sm text-gray-600 max-h-24 overflow-y-auto bg-gray-100 p-3 border border-gray-300 rounded"></div>
       </div>
     `,
     code: `// Multiple event types on same element

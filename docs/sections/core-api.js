@@ -7,6 +7,7 @@ export function addCoreApiExamples() {
 
   // Basic selector example
   const basicExample = renderExample({
+    id: 'basic-selection-example',
     title: 'Basic Selection',
     description: 'Select elements using CSS selectors',
     demo: `
@@ -46,14 +47,15 @@ vk('#demo-btn-2')
 
   // Collection methods example
   const collectionExample = renderExample({
+    id: 'vkcollection-methods-example',
     title: 'VKCollection Methods',
     description: 'Chain methods for DOM manipulation',
     demo: `
       <div class="space-y-2">
         <div class="example-list space-y-2">
-          <div class="p-3 border rounded">Item 1</div>
-          <div class="p-3 border rounded">Item 2</div>
-          <div class="p-3 border rounded">Item 3</div>
+          <div class="p-3 border border-gray-300 rounded">Item 1</div>
+          <div class="p-3 border border-gray-300 rounded">Item 2</div>
+          <div class="p-3 border border-gray-300 rounded">Item 3</div>
         </div>
         <button id="collection-demo" class="btn btn-primary">Manipulate Collection</button>
       </div>
@@ -91,6 +93,7 @@ const allElements = items.elements; // Array of all elements`
 
   // Element access example
   const accessExample = renderExample({
+    id: 'element-access-example',
     title: 'Element Access',
     description: 'Access underlying DOM elements',
     demo: `

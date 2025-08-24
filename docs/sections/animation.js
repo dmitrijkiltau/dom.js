@@ -8,6 +8,7 @@ export function addAnimationExamples() {
   if (animationSection.length === 0) return;
 
   animationSection.append(renderSubsection({
+    id: 'animation-overview',
     title: 'Animation',
     content: `
       <p class="text-gray-700 mb-4">
@@ -17,6 +18,7 @@ export function addAnimationExamples() {
   }));
 
   const animationExample = renderExample({
+    id: 'basic-animations-example',
     title: 'Basic Animations',
     description: 'Simple animations using keyframes',
     demo: `
@@ -29,7 +31,7 @@ export function addAnimationExamples() {
               <button id="bounce-demo" class="btn btn-primary text-xs">Bounce</button>
               <button id="rotate-demo" class="btn btn-primary text-xs">Rotate</button>
             </div>
-            <div class="demo-area border rounded p-4 h-24 bg-gray-50 relative overflow-hidden">
+            <div class="demo-area border border-gray-300 rounded p-4 h-24 bg-gray-50 relative overflow-hidden">
               <div id="move-box" class="w-12 h-12 bg-blue-500 rounded absolute top-2 left-2 flex items-center justify-center text-white text-xs font-bold">
                 BOX
               </div>
@@ -43,7 +45,7 @@ export function addAnimationExamples() {
               <button id="scale-demo" class="btn btn-primary text-xs">Scale</button>
               <button id="pulse-demo" class="btn btn-primary text-xs">Pulse</button>
             </div>
-            <div class="demo-area border rounded p-4 h-24 bg-gray-50 flex items-center justify-center">
+            <div class="demo-area border border-gray-300 rounded p-4 h-24 bg-gray-50 flex items-center justify-center">
               <div id="appear-box" class="w-16 h-16 bg-green-500 rounded-lg flex items-center justify-center text-white text-xs font-bold">
                 DEMO
               </div>
@@ -54,7 +56,7 @@ export function addAnimationExamples() {
         <div class="space-y-2">
           <h5 class="font-medium">Sequential Animations</h5>
           <button id="sequence-demo" class="btn btn-primary">Run Sequence</button>
-          <div class="demo-area border rounded p-4 h-32 bg-gray-50 relative overflow-hidden">
+          <div class="demo-area border border-gray-300 rounded p-4 h-32 bg-gray-50 relative overflow-hidden">
             <div id="sequence-box" class="w-12 h-12 bg-red-500 rounded absolute top-2 left-2 flex items-center justify-center text-white text-xs font-bold">
               SEQ
             </div>
@@ -232,6 +234,7 @@ vk('#spinner').animate([
 
   // Advanced animation example
   const advancedExample = renderExample({
+    id: 'advanced-animations-example',
     title: 'Advanced Animation Techniques',
     description: 'Complex animations with timing and control',
     demo: `
@@ -245,7 +248,7 @@ vk('#spinner').animate([
               <button id="bounce-ease-demo" class="btn btn-secondary text-xs">Bounce</button>
               <button id="elastic-demo" class="btn btn-secondary text-xs">Elastic</button>
             </div>
-            <div class="demo-area border rounded p-2 h-20 bg-gray-50 relative overflow-hidden">
+            <div class="demo-area border border-gray-300 rounded p-2 h-20 bg-gray-50 relative overflow-hidden">
               <div id="timing-box" class="w-8 h-8 bg-purple-500 rounded absolute top-2 left-2"></div>
             </div>
           </div>
@@ -256,7 +259,7 @@ vk('#spinner').animate([
               <button id="hover-demo" class="btn btn-secondary text-xs w-full">Hover Me</button>
               <button id="click-demo" class="btn btn-secondary text-xs w-full">Click Me</button>
             </div>
-            <div class="demo-area border rounded p-4 h-20 bg-gray-50 relative">
+            <div class="demo-area border border-gray-300 rounded p-4 h-20 bg-gray-50 relative">
               <div id="interactive-box" class="w-12 h-12 bg-indigo-500 rounded-lg mx-auto cursor-pointer hover:shadow-lg transition-shadow"></div>
             </div>
           </div>
@@ -265,7 +268,7 @@ vk('#spinner').animate([
         <div class="space-y-2">
           <h5 class="font-medium">Loading Animation</h5>
           <button id="loading-demo" class="btn btn-primary">Show Loading Animation</button>
-          <div class="demo-area border rounded p-4 h-24 bg-gray-50 flex items-center justify-center">
+          <div class="demo-area border border-gray-300 rounded p-4 h-24 bg-gray-50 flex items-center justify-center">
             <div id="loading-container" class="hidden">
               <div class="flex space-x-1">
                 <div class="loading-dot w-3 h-3 bg-blue-500 rounded-full"></div>
@@ -323,35 +326,43 @@ animation.addEventListener('finish', () => {
   animationSection.append(advancedExample);
 
   // Timing function demos
-  vk('#ease-demo').on('click', () => {
-    vk('#timing-box').css('left', '8px');
-    vk('#timing-box').animate([
+  vk('#ease-demo').on('click', (ev, el) => {
+    const timingBox = vk('#timing-box');
+    const areaWidth = vk('.demo-area').el().clientWidth - timingBox.el().clientWidth - 16; // Calculate the available width for the timing box
+    timingBox.css('left', '8px');
+    timingBox.animate([
       { transform: 'translateX(0px)' },
-      { transform: 'translateX(120px)' }
+      { transform: `translateX(${areaWidth}px)` }
     ], { duration: 1500, easing: 'ease-in-out', fill: 'forwards' });
   });
 
   vk('#linear-demo').on('click', () => {
-    vk('#timing-box').css('left', '8px');
-    vk('#timing-box').animate([
+    const timingBox = vk('#timing-box');
+    const areaWidth = vk('.demo-area').el().clientWidth - timingBox.el().clientWidth - 16; // Calculate the available width for the timing box
+    timingBox.css('left', '8px');
+    timingBox.animate([
       { transform: 'translateX(0px)' },
-      { transform: 'translateX(120px)' }
+      { transform: `translateX(${areaWidth}px)` }
     ], { duration: 1500, easing: 'linear', fill: 'forwards' });
   });
 
   vk('#bounce-ease-demo').on('click', () => {
-    vk('#timing-box').css('left', '8px');
-    vk('#timing-box').animate([
+    const timingBox = vk('#timing-box');
+    const areaWidth = vk('.demo-area').el().clientWidth - timingBox.el().clientWidth - 16; // Calculate the available width for the timing box
+    timingBox.css('left', '8px');
+    timingBox.animate([
       { transform: 'translateX(0px)' },
-      { transform: 'translateX(120px)' }
+      { transform: `translateX(${areaWidth}px)` }
     ], { duration: 1500, easing: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)', fill: 'forwards' });
   });
 
   vk('#elastic-demo').on('click', () => {
-    vk('#timing-box').css('left', '8px');
-    vk('#timing-box').animate([
+    const timingBox = vk('#timing-box');
+    const areaWidth = vk('.demo-area').el().clientWidth - timingBox.el().clientWidth - 16; // Calculate the available width for the timing box
+    timingBox.css('left', '8px');
+    timingBox.animate([
       { transform: 'translateX(0px)' },
-      { transform: 'translateX(120px)' }
+      { transform: `translateX(${areaWidth}px)` }
     ], { duration: 2000, easing: 'cubic-bezier(0.175, 0.885, 0.32, 1.275)', fill: 'forwards' });
   });
 
@@ -383,12 +394,12 @@ animation.addEventListener('finish', () => {
   vk('#loading-demo').on('click', () => {
     const container = vk('#loading-container');
     const placeholder = vk('#loading-placeholder');
-    
+
     if (container.hasClass('hidden')) {
       // Start loading animation
       container.removeClass('hidden');
       placeholder.addClass('hidden');
-      
+
       const dots = vk('.loading-dot');
       dots.each((el, idx) => {
         vk(el).animate([
@@ -402,20 +413,20 @@ animation.addEventListener('finish', () => {
           easing: 'ease-in-out'
         });
       });
-      
+
       vk('#loading-demo').text('Stop Loading');
     } else {
       // Stop loading animation
       container.addClass('hidden');
       placeholder.removeClass('hidden');
-      
+
       // Cancel all animations
       const dots = vk('.loading-dot');
       dots.each((el) => {
         const animations = el.getAnimations();
         animations.forEach(anim => anim.cancel());
       });
-      
+
       vk('#loading-demo').text('Show Loading Animation');
     }
   });
