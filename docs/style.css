@@ -84,6 +84,10 @@
 
 .example-code {
   @apply bg-gray-50 border-t border-gray-200;
+
+  & .code-block {
+    @apply mb-0 -mt-2;
+  }
 }
 
 .toggle-demo-code {
