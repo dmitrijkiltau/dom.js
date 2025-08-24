@@ -58,12 +58,44 @@
   @apply border border-gray-200 rounded-lg overflow-hidden;
 }
 
+.example-header {
+  @apply p-6 bg-white border-b border-gray-200 flex justify-between items-start;
+}
+
+.example-title-section {
+  @apply flex-1;
+}
+
+.example-title-section h4 {
+  @apply mb-3;
+}
+
+.example-title-section p {
+  @apply mb-0;
+}
+
+.example-toggle {
+  @apply flex-shrink-0 ml-4;
+}
+
 .example-demo {
   @apply p-6 bg-white;
 }
 
 .example-code {
   @apply bg-gray-50 border-t border-gray-200;
+
+  & .code-block {
+    @apply mb-0 -mt-2;
+  }
+}
+
+.toggle-demo-code {
+  @apply text-sm;
+}
+
+.toggle-icon.rotated {
+  @apply rotate-180;
 }
 
 .btn {

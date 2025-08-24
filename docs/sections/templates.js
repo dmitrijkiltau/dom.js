@@ -185,15 +185,15 @@ const card = renderCard({
 
     if (title.trim()) {
       const statusClasses = {
-        active: 'border-green-200 bg-green-50',
-        pending: 'border-yellow-200 bg-yellow-50',
-        inactive: 'border-gray-200 bg-gray-50'
+        active: 'p-4 rounded-lg border-green-200 bg-green-50',
+        pending: 'p-4 rounded-lg border-yellow-200 bg-yellow-50',
+        inactive: 'p-4 rounded-lg border-gray-200 bg-gray-50'
       };
 
       const statusBadges = {
-        active: 'bg-green-100 text-green-800',
-        pending: 'bg-yellow-100 text-yellow-800',
-        inactive: 'bg-gray-100 text-gray-800'
+        active: 'py-1 px-3 text-sm rounded-lg bg-green-100 text-green-800',
+        pending: 'py-1 px-3 text-sm rounded-lg bg-yellow-100 text-yellow-800',
+        inactive: 'py-1 px-3 text-sm rounded-lg bg-gray-100 text-gray-800'
       };
 
       const card = renderTemplate('#advanced-card-template', {

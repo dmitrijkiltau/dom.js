@@ -54,17 +54,26 @@
   </template>
 
   <template id="example-template">
-    <div class="example-container mb-6">
+    <div class="example-container mb-6" data-example-id="">
+      <div class="example-header">
+        <div class="example-title-section">
+          <h4 class="text-lg font-semibold mb-3 text-gray-800" data-text="title"></h4>
+          <p class="text-gray-600 mb-4" data-text="description"></p>
+        </div>
+        <div class="example-toggle">
+          <button class="toggle-demo-code btn btn-secondary" data-view="demo">
+            <span class="toggle-text">Show Code</span>
+            <svg class="toggle-icon w-4 h-4 ml-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
       <div class="example-demo">
-        <h4 class="text-lg font-semibold mb-3 text-gray-800" data-text="title"></h4>
-        <p class="text-gray-600 mb-4" data-text="description"></p>
         <div data-html="demo"></div>
       </div>
-      <div class="example-code">
-        <div class="px-4 py-3 bg-gray-100 border-b border-gray-200">
-          <span class="text-sm font-medium text-gray-700">Code</span>
-        </div>
-        <pre class="code-block rounded-none"><code data-text="code"></code></pre>
+      <div class="example-code" style="display: none;">
+        <pre class="code-block rounded-none"><code data-text="code" class="language-javascript"></code></pre>
       </div>
     </div>
   </template>

@@ -8,7 +8,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@dmitrijkiltau/vanilla-kit": "file:.."
+    "@dmitrijkiltau/vanilla-kit": "file:..",
+    "prismjs": "^1.30.0"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.12",
