@@ -8,7 +8,7 @@ export function addHttpExamples() {
   if (httpSection.length === 0) return;
 
   httpSection.append(renderSubsection({
-    id: 'http-utilities',
+    id: 'http-utilities-overview',
     title: 'HTTP Utilities',
     content: `
       <p class="text-gray-700 mb-4">
@@ -18,6 +18,7 @@ export function addHttpExamples() {
   }));
 
   const httpExample = renderExample({
+    id: 'http-requests-example',
     title: 'HTTP Requests',
     description: 'Fetch data and handle responses',
     demo: `
@@ -244,6 +245,7 @@ const html = await response.html();     // DOM Element`
 
   // Advanced HTTP example
   const advancedExample = renderExample({
+    id: 'advanced-http-patterns-example',
     title: 'Advanced HTTP Patterns',
     description: 'Headers, authentication, and response handling',
     demo: `

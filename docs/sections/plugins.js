@@ -8,6 +8,7 @@ export function addPluginExamples() {
   if (pluginSection.length === 0) return;
 
   pluginSection.append(renderSubsection({
+    id: 'plugin-system-overview',
     title: 'Plugin System',
     content: `
       <p class="text-gray-700 mb-4">
@@ -17,6 +18,7 @@ export function addPluginExamples() {
   }));
 
   const pluginExample = renderExample({
+    id: 'creating-plugins-example',
     title: 'Creating Plugins',
     description: 'Add custom methods to vanilla-kit',
     demo: `
@@ -224,6 +226,7 @@ vk.typewriter('#output', 'Hello World!', { speed: 100 });`
 
   // Advanced plugin example
   const advancedExample = renderExample({
+    id: 'advanced-plugin-patterns-example',
     title: 'Advanced Plugin Patterns',
     description: 'Complex plugins with state management and chaining',
     demo: `

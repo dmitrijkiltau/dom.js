@@ -8,6 +8,7 @@ export function addEventExamples() {
   if (eventSection.length === 0) return;
 
   eventSection.append(renderSubsection({
+    id: 'event-handling-overview',
     title: 'Event Handling',
     content: `
       <p class="text-gray-700 mb-4">
@@ -17,6 +18,7 @@ export function addEventExamples() {
   }));
 
   const eventExample = renderExample({
+    id: 'event-handling-example',
     title: 'Event Handling',
     description: 'Bind events to elements with delegation support',
     demo: `
@@ -113,6 +115,7 @@ vk(element).off('click', handler);`
 
   // Advanced event handling example
   const advancedExample = renderExample({
+    id: 'advanced-event-handling-example',
     title: 'Advanced Event Patterns',
     description: 'Complex event handling patterns and techniques',
     demo: `

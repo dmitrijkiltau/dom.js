@@ -8,6 +8,7 @@ export function addAnimationExamples() {
   if (animationSection.length === 0) return;
 
   animationSection.append(renderSubsection({
+    id: 'animation-overview',
     title: 'Animation',
     content: `
       <p class="text-gray-700 mb-4">
@@ -17,6 +18,7 @@ export function addAnimationExamples() {
   }));
 
   const animationExample = renderExample({
+    id: 'basic-animations-example',
     title: 'Basic Animations',
     description: 'Simple animations using keyframes',
     demo: `
@@ -232,6 +234,7 @@ vk('#spinner').animate([
 
   // Advanced animation example
   const advancedExample = renderExample({
+    id: 'advanced-animations-example',
     title: 'Advanced Animation Techniques',
     description: 'Complex animations with timing and control',
     demo: `

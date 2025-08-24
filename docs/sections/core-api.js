@@ -7,6 +7,7 @@ export function addCoreApiExamples() {
 
   // Basic selector example
   const basicExample = renderExample({
+    id: 'basic-selection-example',
     title: 'Basic Selection',
     description: 'Select elements using CSS selectors',
     demo: `
@@ -46,6 +47,7 @@ vk('#demo-btn-2')
 
   // Collection methods example
   const collectionExample = renderExample({
+    id: 'vkcollection-methods-example',
     title: 'VKCollection Methods',
     description: 'Chain methods for DOM manipulation',
     demo: `
@@ -91,6 +93,7 @@ const allElements = items.elements; // Array of all elements`
 
   // Element access example
   const accessExample = renderExample({
+    id: 'element-access-example',
     title: 'Element Access',
     description: 'Access underlying DOM elements',
     demo: `

@@ -8,6 +8,7 @@ export function addFormExamples() {
   if (formSection.length === 0) return;
 
   formSection.append(renderSubsection({
+    id: 'form-utilities-overview',
     title: 'Form Utilities',
     content: `
       <p class="text-gray-700 mb-4">
@@ -17,6 +18,7 @@ export function addFormExamples() {
   }));
 
   const formExample = renderExample({
+    id: 'form-handling-example',
     title: 'Form Handling',
     description: 'Serialize forms and handle submissions',
     demo: `
@@ -160,6 +162,7 @@ console.log(data);`
 
   // Dynamic form example
   const dynamicExample = renderExample({
+    id: 'dynamic-form-example',
     title: 'Dynamic Form Building',
     description: 'Build forms dynamically and handle complex structures',
     demo: `

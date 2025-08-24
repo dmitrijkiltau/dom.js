@@ -8,6 +8,7 @@ export function addTemplateExamples() {
   if (templateSection.length === 0) return;
 
   templateSection.append(renderSubsection({
+    id: 'template-system-overview',
     title: 'Template System',
     content: `
       <p class="text-gray-700 mb-4">
@@ -17,6 +18,7 @@ export function addTemplateExamples() {
   }));
 
   const templateExample = renderExample({
+    id: 'template-rendering-example',
     title: 'Template Rendering',
     description: 'Create reusable templates with data binding',
     demo: `
@@ -90,6 +92,7 @@ vk('#items-list').append(
 
   // Advanced template binding example
   const advancedExample = renderExample({
+    id: 'advanced-template-binding-example',
     title: 'Advanced Data Binding',
     description: 'Complex templates with multiple binding types',
     demo: `
