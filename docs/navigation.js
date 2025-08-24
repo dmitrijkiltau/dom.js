@@ -10,22 +10,6 @@ export function initNavigation() {
     navMenu.append(renderNavItem(item));
   }
 
-  // Handle navigation clicks
-  vk('#nav-menu').on('click', 'a', (ev, el) => {
-    ev.preventDefault();
-    const href = el.getAttribute('href');
-    const targetId = href.substring(1); // Remove #
-    const targetElement = document.getElementById(targetId);
-
-    if (targetElement) {
-      targetElement.scrollIntoView({ behavior: 'smooth' });
-
-      // Update active state
-      vk('#nav-menu .nav-link').removeClass('active');
-      vk(el).addClass('active');
-    }
-  });
-
   // Update active navigation on scroll
   let ticking = false;
   function updateActiveNav() {

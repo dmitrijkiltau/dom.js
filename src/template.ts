@@ -35,10 +35,17 @@ function applyBindings(root: Element, data: TemplateData) {
     }
     for (const attr of Array.from(el.attributes)) {
       if (attr.name.startsWith('data-attr-')) {
-        const name = attr.name.replace('data-attr-', '');
+        const original = attr.name;
+        const name = original.replace('data-attr-', '');
         const key = attr.value;
         const val = get(data, key);
-        if (val == null) el.removeAttribute(name); else el.setAttribute(name, String(val));
+        if (val == null) {
+          el.removeAttribute(name);
+        } else {
+          el.setAttribute(name, String(val));
+        }
+        // remove the template binding attribute after applying
+        el.removeAttribute(original);
       }
     }
   }

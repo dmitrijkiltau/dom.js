@@ -8,6 +8,7 @@ export function addHttpExamples() {
   if (httpSection.length === 0) return;
 
   httpSection.append(renderSubsection({
+    id: 'http-utilities',
     title: 'HTTP Utilities',
     content: `
       <p class="text-gray-700 mb-4">
