@@ -9,6 +9,7 @@ window.vk = vk;
 function init() {
   initNavigation();
   initContent();
+  initExampleToggles();
 
   // Smooth scrolling for internal links
   vk(document).on('click', 'a[href^="#"]', (ev, el) => {
@@ -18,6 +19,40 @@ function init() {
 
     if (targetElement) {
       targetElement.scrollIntoView({ behavior: 'smooth' });
+    }
+  });
+}
+
+// Initialize example toggle functionality
+function initExampleToggles() {
+  // Handle toggle button clicks using event delegation
+  vk(document).on('click', '.toggle-demo-code', (ev, button) => {
+    ev.preventDefault();
+    
+    // Find the example container using native DOM traversal
+    const container = button.closest('.example-container');
+    if (!container) return;
+    
+    const demoSection = container.querySelector('.example-demo');
+    const codeSection = container.querySelector('.example-code');
+    const toggleText = container.querySelector('.toggle-text');
+    const toggleIcon = container.querySelector('.toggle-icon');
+    const currentView = button.getAttribute('data-view');
+    
+    if (currentView === 'demo') {
+      // Switch to code view
+      if (demoSection) demoSection.style.display = 'none';
+      if (codeSection) codeSection.style.display = 'block';
+      if (toggleText) toggleText.textContent = 'Show Demo';
+      if (toggleIcon) toggleIcon.classList.add('rotated');
+      button.setAttribute('data-view', 'code');
+    } else {
+      // Switch to demo view
+      if (demoSection) demoSection.style.display = 'block';
+      if (codeSection) codeSection.style.display = 'none';
+      if (toggleText) toggleText.textContent = 'Show Code';
+      if (toggleIcon) toggleIcon.classList.remove('rotated');
+      button.setAttribute('data-view', 'demo');
     }
   });
 }
