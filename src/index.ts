@@ -1,4 +1,9 @@
 import { MaybeArray, Selector, EventTargetish } from './types';
+import { isString, isElement, isDocument, isWindow } from './utils';
+import { VKCollection } from './collection';
+import { renderTemplate, useTemplate, tpl } from './template';
+import { serializeForm, toQueryString, onSubmit } from './forms';
+import { animate } from './motion';
 
 // ——— Core selector ———
 export function vk(input?: Selector): VKCollection {

@@ -1,60 +1,122 @@
 import { CSSInput, CSSValue, Handler } from './types';
+import { camelToKebab, toArray, isElement } from './utils';
 
-addClass(...names: string[]): this { return this.each(el => el.classList.add(...names)); }
-removeClass(...names: string[]): this { return this.each(el => el.classList.remove(...names)); }
-toggleClass(name: string, force ?: boolean): this { return this.each(el => el.classList.toggle(name, force)); }
-hasClass(name: string): boolean { return !!this.elements[0]?.classList.contains(name); }
+export class VKCollection {
+  elements: Element[];
 
-css(nameOrInput: string | CSSInput, value ?: CSSValue | null): any {
-  if (typeof nameOrInput === 'string') {
-    if (value === undefined) return getComputedStyle(this.elements[0] as Element).getPropertyValue(camelToKebab(nameOrInput)).trim();
+  constructor(input: ArrayLike<Element> | Element[] | null | undefined) {
+    this.elements = toArray(input);
+  }
+
+  // Core iterator
+  each(fn: (el: Element, idx: number) => void): this {
+    for (let i = 0; i < this.elements.length; i++) fn(this.elements[i], i);
+    return this;
+  }
+
+  // Basic DOM read helpers
+  el<T extends Element = Element>(): T | undefined { return this.elements[0] as T | undefined; }
+  first(): VKCollection { return new VKCollection(this.elements.length ? [this.elements[0]] : []); }
+  eq(i: number): VKCollection { return new VKCollection(this.elements[i] ? [this.elements[i]] : []); }
+  find(selector: string): VKCollection {
+    const found: Element[] = [];
+    for (const el of this.elements) found.push(...toArray(el.querySelectorAll(selector)));
+    return new VKCollection(found);
+  }
+
+  // Content
+  text(value?: string | number | null): any {
+    if (value === undefined) return (this.elements[0] as HTMLElement | undefined)?.textContent ?? '';
+    return this.each(el => (el as HTMLElement).textContent = value == null ? '' : String(value));
+  }
+  html(value?: string | number | null): any {
+    if (value === undefined) return (this.elements[0] as HTMLElement | undefined)?.innerHTML ?? '';
+    return this.each(el => (el as HTMLElement).innerHTML = value == null ? '' : String(value));
+  }
+
+  append(child: string | Node | VKCollection): this {
+    for (const el of this.elements) {
+      if (child == null) continue;
+      if (typeof child === 'string') (el as HTMLElement).insertAdjacentHTML('beforeend', child);
+      else if (child instanceof VKCollection) for (const n of child.elements) el.appendChild(n);
+      else el.appendChild(child);
+    }
+    return this;
+  }
+  appendTo(target: Element | VKCollection): this {
+    if (target instanceof VKCollection) target.append(this);
+    else if (isElement(target)) target.append(...this.elements);
+    return this;
+  }
+
+  // Attributes
+  attr(name: string, value?: string | number | null): any {
+    if (value === undefined) return this.elements[0]?.getAttribute(name) ?? null;
     return this.each(el => {
-      const s = (el as HTMLElement).style;
-      const prop = camelToKebab(nameOrInput);
-      if (value === null) s.removeProperty(prop); else s.setProperty(prop, String(value));
+      if (value == null) el.removeAttribute(name); else el.setAttribute(name, String(value));
     });
   }
-  const map = nameOrInput;
-  return this.each(el => {
-    const s = (el as HTMLElement).style;
-    for (const [k, v] of Object.entries(map)) {
-      const prop = camelToKebab(k);
-      if (v == null) s.removeProperty(prop); else s.setProperty(prop, String(v));
+
+  // Classes
+  addClass(...names: string[]): this { return this.each(el => el.classList.add(...names)); }
+  removeClass(...names: string[]): this { return this.each(el => el.classList.remove(...names)); }
+  toggleClass(name: string, force?: boolean): this { return this.each(el => el.classList.toggle(name, force)); }
+  hasClass(name: string): boolean { return !!this.elements[0]?.classList.contains(name); }
+
+  // CSS
+  css(nameOrInput: string | CSSInput, value?: CSSValue | null): any {
+    if (typeof nameOrInput === 'string') {
+      if (value === undefined) return getComputedStyle(this.elements[0] as Element).getPropertyValue(camelToKebab(nameOrInput)).trim();
+      return this.each(el => {
+        const s = (el as HTMLElement).style;
+        const prop = camelToKebab(nameOrInput);
+        if (value === null) s.removeProperty(prop); else s.setProperty(prop, String(value));
+      });
     }
-  });
-}
-
-show(display: string = ''): this { return this.each(el => (el as HTMLElement).style.display = display); }
-hide(): this { return this.each(el => (el as HTMLElement).style.display = 'none'); }
-toggle(force ?: boolean): this {
-  return this.each(el => {
-    const h = (el as HTMLElement).style.display === 'none' || getComputedStyle(el).display === 'none';
-    const shouldShow = force ?? h;
-    (el as HTMLElement).style.display = shouldShow ? '' : 'none';
-  });
-}
-
-on(type: string, selectorOrHandler: any, maybeHandler ?: any): this {
-  if (typeof selectorOrHandler === 'function') {
-    const handler = selectorOrHandler as Handler;
-    return this.each((el, i) => el.addEventListener(type, (ev) => handler(ev, el, i)));
+    const map = nameOrInput;
+    return this.each(el => {
+      const s = (el as HTMLElement).style;
+      for (const [k, v] of Object.entries(map)) {
+        const prop = camelToKebab(k);
+        if (v == null) s.removeProperty(prop); else s.setProperty(prop, String(v));
+      }
+    });
   }
-  const selector = String(selectorOrHandler);
-  const handler = maybeHandler as Handler;
-  return this.each((el) => el.addEventListener(type, (ev) => {
-    const target = ev.target as Element | null;
-    if (!target) return;
-    const match = target.closest(selector);
-    if (match && el.contains(match)) handler(ev, match, this.elements.indexOf(match));
-  }));
+
+  show(display: string = ''): this { return this.each(el => (el as HTMLElement).style.display = display); }
+  hide(): this { return this.each(el => (el as HTMLElement).style.display = 'none'); }
+  toggle(force?: boolean): this {
+    return this.each(el => {
+      const h = (el as HTMLElement).style.display === 'none' || getComputedStyle(el).display === 'none';
+      const shouldShow = force ?? h;
+      (el as HTMLElement).style.display = shouldShow ? '' : 'none';
+    });
+  }
+
+  // Events (direct + delegated)
+  on(type: string, selectorOrHandler: any, maybeHandler?: any): this {
+    if (typeof selectorOrHandler === 'function') {
+      const handler = selectorOrHandler as Handler;
+      return this.each((el, i) => el.addEventListener(type, (ev) => handler(ev, el, i)));
+    }
+    const selector = String(selectorOrHandler);
+    const handler = maybeHandler as Handler;
+    return this.each((el) => el.addEventListener(type, (ev) => {
+      const target = ev.target as Element | null;
+      if (!target) return;
+      const match = target.closest(selector);
+      if (match && el.contains(match)) handler(ev, match, this.elements.indexOf(match));
+    }));
+  }
+  off(type: string, handler: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): this {
+    return this.each(el => el.removeEventListener(type, handler, options));
+  }
+
+  data(name: string, value?: string | number | null): any {
+    const key = name.startsWith('data-') ? name : `data-${name}`;
+    if (value === undefined) return this.attr(key);
+    return this.attr(key, value as any);
+  }
 }
 
-off(type: string, handler: EventListenerOrEventListenerObject, options ?: boolean | EventListenerOptions): this {
-  return this.each(el => el.removeEventListener(type, handler, options));
-}
-
-data(name: string, value ?: string | number | null): any {
-  const key = name.startsWith('data-') ? name : `data-${name}`;
-  if (value === undefined) return this.attr(key);
-  return this.attr(key, value as any);
-}
+export default VKCollection;
