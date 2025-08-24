@@ -50,7 +50,7 @@ vk('#demo-btn-2')
     description: 'Chain methods for DOM manipulation',
     demo: `
       <div class="space-y-2">
-        <div class="example-list">
+        <div class="example-list space-y-2">
           <div class="p-3 border rounded">Item 1</div>
           <div class="p-3 border rounded">Item 2</div>
           <div class="p-3 border rounded">Item 3</div>

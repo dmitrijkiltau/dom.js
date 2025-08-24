@@ -329,7 +329,7 @@ vk('#content').highlight('vanilla-kit');`
 
   pluginSection.append(advancedExample);
 
-  // Define advanced plugins
+  // Define advanced plugins FIRST before using them
   use((api) => {
     api.prototype.draggable = function(options = {}) {
       const { axis = 'both' } = options;
@@ -429,26 +429,23 @@ vk('#content').highlight('vanilla-kit');`
         increment() {
           if (max === null || value + step <= max) {
             value += step;
-            element._counterValue = value;
             element.textContent = value;
+            element._counterValue = value;
           }
-          return this;
         },
         
         decrement() {
           if (min === null || value - step >= min) {
             value -= step;
-            element._counterValue = value;
             element.textContent = value;
+            element._counterValue = value;
           }
-          return this;
         },
         
         reset() {
           value = initial;
-          element._counterValue = value;
           element.textContent = value;
-          return this;
+          element._counterValue = value;
         },
         
         getValue() {
@@ -458,10 +455,9 @@ vk('#content').highlight('vanilla-kit');`
         setValue(newValue) {
           if ((min === null || newValue >= min) && (max === null || newValue <= max)) {
             value = newValue;
-            element._counterValue = value;
             element.textContent = value;
+            element._counterValue = value;
           }
-          return this;
         }
       };
     };
