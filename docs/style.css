@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #5b8aff;
+  --color-primary-dark: #4a73d9;
+  --color-secondary: #64748b;
+  --color-accent: #06b6d4;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  
+  --color-gray-50: #f8fafc;
+  --color-gray-100: #f1f5f9;
+  --color-gray-200: #e2e8f0;
+  --color-gray-300: #cbd5e1;
+  --color-gray-400: #94a3b8;
+  --color-gray-500: #64748b;
+  --color-gray-600: #475569;
+  --color-gray-700: #334155;
+  --color-gray-800: #1e293b;
+  --color-gray-900: #0f172a;
+  
+  --font-family-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --font-family-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+/* Custom styles for documentation */
+.code-block {
+  @apply bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto;
+  font-family: var(--font-family-mono);
+}
+
+.nav-link {
+  @apply block px-3 py-2 rounded-md text-sm font-medium transition-colors;
+}
+
+.nav-link:hover {
+  @apply bg-gray-100 text-gray-900;
+}
+
+.nav-link.active {
+  @apply bg-primary text-white;
+}
+
+.section {
+  @apply mb-12;
+}
+
+.section-title {
+  @apply text-3xl font-bold mb-6 text-gray-900 border-b border-gray-200 pb-3;
+}
+
+.subsection-title {
+  @apply text-2xl font-semibold mb-4 text-gray-800;
+}
+
+.example-container {
+  @apply border border-gray-200 rounded-lg overflow-hidden;
+}
+
+.example-demo {
+  @apply p-6 bg-white;
+}
+
+.example-code {
+  @apply bg-gray-50 border-t border-gray-200;
+}
+
+.btn {
+  @apply inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors;
+}
+
+.btn-primary {
+  @apply bg-primary text-white hover:bg-primary-dark focus:ring-primary;
+}
+
+.btn-secondary {
+  @apply bg-gray-300 text-gray-700 hover:bg-gray-400 focus:ring-gray-500;
+}
+
+.input {
+  @apply block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary;
+}

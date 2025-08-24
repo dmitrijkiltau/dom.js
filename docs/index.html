@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>vanilla-kit Documentation</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body class="bg-gray-50 font-sans">
+  <div class="min-h-screen flex">
+    <!-- Sidebar Navigation -->
+    <nav class="w-64 bg-white shadow-sm border-r border-gray-200 fixed h-full overflow-y-auto">
+      <div class="p-6">
+        <h1 class="text-2xl font-bold text-gray-900 mb-6">vanilla-kit</h1>
+        <ul id="nav-menu" class="space-y-1"></ul>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-1 ml-64">
+      <div class="max-w-4xl mx-auto px-6 py-8">
+        <!-- Header -->
+        <header class="mb-8">
+          <h1 class="text-4xl font-bold text-gray-900 mb-4">vanilla-kit Documentation</h1>
+          <p class="text-xl text-gray-600">A tiny, intuitive, chainable DOM utility for modern browsers</p>
+        </header>
+
+        <!-- Content sections will be rendered here -->
+        <div id="content"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Templates for navigation items -->
+  <template id="nav-item-template">
+    <li>
+      <a data-text="title" data-attr-href="href" class="nav-link"></a>
+    </li>
+  </template>
+
+  <!-- Templates for content sections -->
+  <template id="section-template">
+    <section class="section" data-attr-id="id">
+      <h2 class="section-title" data-text="title"></h2>
+      <div data-html="content"></div>
+    </section>
+  </template>
+
+  <template id="subsection-template">
+    <div class="mb-8" data-attr-id="id">
+      <h3 class="subsection-title" data-text="title"></h3>
+      <div data-html="content"></div>
+    </div>
+  </template>
+
+  <template id="example-template">
+    <div class="example-container mb-6">
+      <div class="example-demo">
+        <h4 class="text-lg font-semibold mb-3 text-gray-800" data-text="title"></h4>
+        <p class="text-gray-600 mb-4" data-text="description"></p>
+        <div data-html="demo"></div>
+      </div>
+      <div class="example-code">
+        <div class="px-4 py-3 bg-gray-100 border-b border-gray-200">
+          <span class="text-sm font-medium text-gray-700">Code</span>
+        </div>
+        <pre class="code-block rounded-none"><code data-text="code"></code></pre>
+      </div>
+    </div>
+  </template>
+
+  <!-- Interactive demo templates -->
+  <template id="template-demo-item">
+    <div class="p-3 bg-blue-50 border border-blue-200 rounded mb-2">
+      <h5 class="font-semibold text-blue-900" data-text="name"></h5>
+      <p class="text-sm text-blue-700" data-text="description"></p>
+      <a data-attr-href="url" data-text="url" class="text-blue-600 hover:text-blue-800 text-sm underline" target="_blank"></a>
+    </div>
+  </template>
+
+  <template id="form-result-template">
+    <div class="p-4 bg-green-50 border border-green-200 rounded mb-4">
+      <h5 class="font-semibold text-green-900 mb-2">Form Submission Result:</h5>
+      <pre class="text-sm text-green-800 whitespace-pre-wrap" data-text="result"></pre>
+    </div>
+  </template>
+
+  <template id="message-template">
+    <div class="p-3 mb-3 bg-yellow-50 border border-yellow-200 rounded animate-fadeIn">
+      <span data-text="text" class="text-yellow-800"></span>
+      <button class="float-right text-yellow-600 hover:text-yellow-800 ml-2" onclick="this.parentElement.remove()">&times;</button>
+    </div>
+  </template>
+
+  <template id="advanced-card-template">
+    <div class="border rounded-lg p-4 bg-white shadow-sm" data-attr-class="statusClass">
+      <div class="flex justify-between items-start mb-2">
+        <h3 class="text-lg font-semibold" data-text="title"></h3>
+        <span class="text-xs px-2 py-1 rounded" data-attr-class="statusBadge" data-text="status"></span>
+      </div>
+      <div class="text-gray-600 mb-3" data-html="content"></div>
+      <div class="flex justify-between text-sm text-gray-500">
+        <span>Priority: <span data-text="priority" class="font-medium"></span>/5</span>
+        <span data-text="dueDate"></span>
+      </div>
+    </div>
+  </template>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
