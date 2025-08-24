@@ -1,0 +1,18 @@
+{
+  "name": "vanilla-kit-docs",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@dmitrijkiltau/vanilla-kit": "file:.."
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0-alpha.35",
+    "tailwindcss": "^4.0.0-alpha.35",
+    "vite": "^7.1.3"
+  }
+}
