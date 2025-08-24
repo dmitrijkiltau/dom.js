@@ -6,7 +6,7 @@ import { serializeForm, toQueryString, onSubmit } from './forms';
 import { animate } from './motion';
 
 // ——— Core selector ———
-export function vk(input?: Selector): VKCollection {
+export function dom(input?: Selector): VKCollection {
   if (!input) return new VKCollection([]);
   if (isString(input)) return new VKCollection(document.querySelectorAll(input));
   if (isElement(input)) return new VKCollection([input]);
@@ -84,13 +84,13 @@ function appendChildren(el: Element, kids: MaybeArray<string | Node | VKCollecti
 }
 
 // ——— Plugin system ———
-export type Plugin = (api: typeof vk) => void;
+export type Plugin = (api: typeof dom) => void;
 const _plugins = new Set<Plugin>();
 export function use(plugin: Plugin) { if (!_plugins.has(plugin)) { plugin(api); _plugins.add(plugin); } }
 
 // ——— API bag (default export) ———
-const api = Object.assign(function core(input?: Selector) { return vk(input); }, {
-  vk, create, on, off, http,
+const api = Object.assign(function core(input?: Selector) { return dom(input); }, {
+  dom, create, on, off, http,
   renderTemplate, useTemplate, tpl,
   serializeForm, toQueryString, onSubmit,
   animate,
@@ -105,4 +105,4 @@ const api = Object.assign(function core(input?: Selector) { return vk(input); },
 
 // ——— Exports ———
 export { VKCollection, renderTemplate, useTemplate, tpl, serializeForm, toQueryString, onSubmit, animate };
-export default api as typeof vk & typeof api;
+export default api as typeof dom & typeof api;

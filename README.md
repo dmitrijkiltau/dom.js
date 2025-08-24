@@ -1,8 +1,8 @@
-# vanilla-kit
+# dom.js
 
 A tiny, intuitive, chainable DOM utility for modern browsers (like jQuery, but ESM and no $).
 
-[![npm version](https://badge.fury.io/js/@dmitrijkiltau%2Fvanilla-kit.svg)](https://www.npmjs.com/package/@dmitrijkiltau/vanilla-kit)
+[![npm version](https://badge.fury.io/js/@dmitrijkiltau%2Fdom.js.svg)](https://www.npmjs.com/package/@dmitrijkiltau/dom.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Features
@@ -23,31 +23,31 @@ A tiny, intuitive, chainable DOM utility for modern browsers (like jQuery, but E
 ### npm
 
 ```bash
-npm install @dmitrijkiltau/vanilla-kit
+npm install @dmitrijkiltau/dom.js
 ```
 
 ### ES Module Import
 
 ```js
-import vk from '@dmitrijkiltau/vanilla-kit';
+import dom from '@dmitrijkiltau/dom.js';
 
 // Or import specific functions
-import vk, { renderTemplate, onSubmit, http } from '@dmitrijkiltau/vanilla-kit';
+import dom, { renderTemplate, onSubmit, http } from '@dmitrijkiltau/dom.js';
 ```
 
 ### CDN (ES Module)
 
 ```js
-import vk from 'https://unpkg.com/@dmitrijkiltau/vanilla-kit/dist/index.js';
+import dom from 'https://unpkg.com/@dmitrijkiltau/dom.js/dist/index.js';
 ```
 
 ## Quick Start
 
 ```js
-import vk from '@dmitrijkiltau/vanilla-kit';
+import dom from '@dmitrijkiltau/dom.js';
 
 // Select elements and chain operations
-vk('.my-elements')
+dom('.my-elements')
   .addClass('active')
   .on('click', (ev, el) => {
     console.log('Clicked:', el);
@@ -56,51 +56,51 @@ vk('.my-elements')
 
 ## Core API
 
-The core of vanilla-kit is the `vk()` function, which selects elements and returns a VKCollection for chaining operations.
+The core of dom.js is the `dom()` function, which selects elements and returns a VKCollection for chaining operations.
 
 ### Basic Selection
 
 ```js
 // Select elements
-vk('.items')              // by class
-vk('#app')                // by id
-vk('div')                 // by tag
-vk(element)               // wrap existing element
-vk([el1, el2])           // wrap multiple elements
+dom('.items')              // by class
+dom('#app')                // by id
+dom('div')                 // by tag
+dom(element)               // wrap existing element
+dom([el1, el2])           // wrap multiple elements
 
 // Chain operations
-vk('.cards')
+dom('.cards')
   .addClass('animate')
   .css('opacity', '0.8')
-  .on('mouseenter', (ev, el) => vk(el).addClass('hover'));
+  .on('mouseenter', (ev, el) => dom(el).addClass('hover'));
 ```
 
 ### VKCollection Methods
 
 ```js
 // DOM manipulation
-vk('.items').addClass('active')
-vk('.items').removeClass('inactive')
-vk('.items').toggleClass('visible')
-vk('.items').css('color', 'red')
-vk('.items').attr('data-id', '123')
-vk('.items').html('<span>New content</span>')
-vk('.items').text('New text')
-vk('.items').append('<div>Child</div>')
-vk('.items').remove()
+dom('.items').addClass('active')
+dom('.items').removeClass('inactive')
+dom('.items').toggleClass('visible')
+dom('.items').css('color', 'red')
+dom('.items').attr('data-id', '123')
+dom('.items').html('<span>New content</span>')
+dom('.items').text('New text')
+dom('.items').append('<div>Child</div>')
+dom('.items').remove()
 
 // Event handling
-vk('.btn').on('click', handler)
-vk('.btn').off('click', handler)
+dom('.btn').on('click', handler)
+dom('.btn').off('click', handler)
 
 // Utilities
-vk('.items').each((el, idx) => console.log(el))
-vk('.items').filter('.active')
-vk('.items').find('.child')
-vk('.items').first()
-vk('.items').last()
-vk('.items').eq(0)
-vk('.items').el() // get first element
+dom('.items').each((el, idx) => console.log(el))
+dom('.items').filter('.active')
+dom('.items').find('.child')
+dom('.items').first()
+dom('.items').last()
+dom('.items').eq(0)
+dom('.items').el() // get first element
 ```
 
 ## Templates
@@ -118,14 +118,14 @@ HTML template system with data binding using `data-text`, `data-attr-*`, and `da
 ```
 
 ```js
-import { renderTemplate, useTemplate, tpl } from '@dmitrijkiltau/vanilla-kit';
+import { renderTemplate, useTemplate, tpl } from '@dmitrijkiltau/dom.js';
 
 // Render once
-vk('#list').append(renderTemplate('#row', { title: 'Docs', url: '/docs' }));
+dom('#list').append(renderTemplate('#row', { title: 'Docs', url: '/docs' }));
 
 // Create reusable render function
 const renderRow = useTemplate('#row');
-vk('#list').append(renderRow({ title: 'Home', url: '/' }));
+dom('#list').append(renderRow({ title: 'Home', url: '/' }));
 
 // Get template element
 const template = tpl('#row'); // returns HTMLTemplateElement
@@ -138,7 +138,7 @@ Comprehensive form handling with serialization and submission utilities.
 ### Form Handling
 
 ```js
-import { onSubmit, serializeForm, toQueryString } from '@dmitrijkiltau/vanilla-kit';
+import { onSubmit, serializeForm, toQueryString } from '@dmitrijkiltau/dom.js';
 
 // Handle form submission
 onSubmit('#contact', async (data, ev) => {
@@ -164,13 +164,13 @@ const queryString = toQueryString(formData); // converts to URL query string
 Event handling with support for delegation and various target types.
 
 ```js
-import { on, off } from '@dmitrijkiltau/vanilla-kit';
+import { on, off } from '@dmitrijkiltau/dom.js';
 
 // Event binding - target can be window, document, Element, or VKCollection
 on(window, 'scroll', handler);
 on(document, 'click', handler);
 on('.buttons', 'click', handler);
-on(vk('.items'), 'mouseenter', handler);
+on(dom('.items'), 'mouseenter', handler);
 
 // Event removal
 off(window, 'scroll', handler);
@@ -181,7 +181,7 @@ off(window, 'scroll', handler);
 Simple fetch wrapper with response helpers and automatic JSON handling.
 
 ```js
-import { http } from '@dmitrijkiltau/vanilla-kit';
+import { http } from '@dmitrijkiltau/dom.js';
 
 // GET request
 const response = await http.get('/api/users');
@@ -216,10 +216,10 @@ await http.delete('/api/items/1');
 Web Animations API integration for smooth animations.
 
 ```js
-import { animate } from '@dmitrijkiltau/vanilla-kit';
+import { animate } from '@dmitrijkiltau/dom.js';
 
 // Animate elements
-vk('.notice').animate([
+dom('.notice').animate([
   { opacity: 0, transform: 'translateY(-20px)' },
   { opacity: 1, transform: 'translateY(0)' }
 ], {
@@ -233,14 +233,14 @@ animate(element, keyframes, options);
 
 ## Plugin System
 
-Extend vanilla-kit with custom functionality.
+Extend dom.js with custom functionality.
 
 ```js
-import { use } from '@dmitrijkiltau/vanilla-kit';
+import { use } from '@dmitrijkiltau/dom.js';
 
 // Create a plugin
 use((api) => {
-  // Add method to vk object
+  // Add method to dom object
   api.flash = function(selector) {
     return this(selector).animate([
       { opacity: 0 }, 
@@ -255,22 +255,22 @@ use((api) => {
 });
 
 // Use the plugin
-vk.flash('.message');
-vk('.items').highlight();
+dom.flash('.message');
+dom('.items').highlight();
 ```
 
 ## TypeScript Tips
 
-- Use `vk(sel).el<HTMLButtonElement>()` for type-safe element access
+- Use `dom(sel).el<HTMLButtonElement>()` for type-safe element access
 - Event handler signature: `(ev: Event, el: Element, idx: number)`
-- You can wrap elements locally: `const $ = vk(el)`
+- You can wrap elements locally: `const $ = dom(el)`
 
 Example:
 
 ```ts
-vk('.buttons').on('click', (ev, el, idx) => {
+dom('.buttons').on('click', (ev, el, idx) => {
   const button = el as HTMLButtonElement;
-  const $ = vk(el); // wrap for chaining
+  const $ = dom(el); // wrap for chaining
   $.addClass('clicked');
 });
 ```
