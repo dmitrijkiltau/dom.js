@@ -33,7 +33,7 @@
     "vanilla",
     "jquery-alternative"
   ],
-  "author": "",
+  "author": "Dmitrij Kiltau",
   "license": "MIT",
   "devDependencies": {
     "tsup": "^8.5.0",
