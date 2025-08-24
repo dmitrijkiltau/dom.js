@@ -28,10 +28,6 @@
 - Event handler signature: `(ev: Event, el: Element, idx: number)`.
 - You can wrap elements locally: `const $ = vk(el)`.
 
-## Build & Demo
-- **Build library:** `npm run build` (outputs ESM, CJS, and d.ts to `dist/`)
-- **Run demo:** `npm run demo` (starts Vite in `./demo`)
-
 ## Conventions & Structure
 - Keep modules focused; avoid monolithic files.
 - Prefer composable, functional utilities over classes.

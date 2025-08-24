@@ -138,7 +138,7 @@ console.log(data);`
   formSection.append(formExample);
 
   // Add form demo functionality
-  vk(window).on('DOMContentLoaded', () => onSubmit('#demo-form', (data, event) => {
+  onSubmit('#demo-form', (data, event) => {
     event.preventDefault();
 
     const resultTemplate = useTemplate('#form-result-template');
@@ -156,7 +156,7 @@ console.log(data);`
         <code class="text-sm text-blue-800 break-all">${queryString}</code>
       </div>
     `);
-  }));;
+  });
 
   // Dynamic form example
   const dynamicExample = renderExample({

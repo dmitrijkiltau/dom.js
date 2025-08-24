@@ -21,7 +21,6 @@
     "build": "tsup src/index.ts --format esm,cjs --dts --minify --sourcemap",
     "dev": "tsup src/index.ts --format esm --dts --watch",
     "test": "node ./tests/sanity.mjs",
-    "demo": "vite demo",
     "docs:dev": "cd docs && npm run dev",
     "docs:build": "cd docs && npm run build",
     "docs:preview": "cd docs && npm run preview",

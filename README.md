@@ -75,18 +75,6 @@ use((api) => {
 
 ---
 
-## Demo & Build
-
-```bash
-# Demo starten
-npm run demo # startet Vite im Ordner ./demo
-
-# Library bauen
-npm run build # erzeugt dist/ (esm + cjs + d.ts)
-```
-
----
-
 ## Browser‑Support & Größe
 
 - Ziel: **ES2020** (evergreen Browser)
