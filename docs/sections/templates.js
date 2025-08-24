@@ -1,10 +1,10 @@
-import vk, { useTemplate, renderTemplate } from '../../dist/index.js';
+import dom, { useTemplate, renderTemplate } from '../../dist/index.js';
 
 const renderExample = useTemplate('#example-template');
 const renderSubsection = useTemplate('#subsection-template');
 
 export function addTemplateExamples() {
-  const templateSection = vk('#templates');
+  const templateSection = dom('#templates');
   if (templateSection.length === 0) return;
 
   templateSection.append(renderSubsection({
@@ -54,10 +54,10 @@ const item = renderItem({
   description: 'A sample description'
 });
 
-vk('#items-list').append(item);
+dom('#items-list').append(item);
 
 // Or use renderTemplate directly
-vk('#items-list').append(
+dom('#items-list').append(
   renderTemplate('#template-demo-item', { 
     name: 'Another Item', 
     url: '#',
@@ -69,10 +69,10 @@ vk('#items-list').append(
   templateSection.append(templateExample);
 
   // Add template demo functionality
-  vk('#add-item').on('click', () => {
-    const name = vk('#item-name').el().value;
-    const url = vk('#item-url').el().value;
-    const description = vk('#item-description').el().value;
+  dom('#add-item').on('click', () => {
+    const name = dom('#item-name').el().value;
+    const url = dom('#item-url').el().value;
+    const description = dom('#item-description').el().value;
 
     if (name.trim()) {
       const item = renderTemplate('#template-demo-item', {
@@ -81,12 +81,12 @@ vk('#items-list').append(
         description: description || 'No description provided'
       });
 
-      vk('#items-list').append(item);
+      dom('#items-list').append(item);
 
       // Clear inputs
-      vk('#item-name').el().value = '';
-      vk('#item-url').el().value = '';
-      vk('#item-description').el().value = '';
+      dom('#item-name').el().value = '';
+      dom('#item-url').el().value = '';
+      dom('#item-description').el().value = '';
     }
   });
 
@@ -174,17 +174,17 @@ const card = renderCard({
 
   // Set today's date as default after the advanced example is in the DOM
   const today = new Date().toISOString().split('T')[0];
-  const dateInput = vk('#card-date');
+  const dateInput = dom('#card-date');
   if (dateInput.length > 0) {
     dateInput.el().value = today;
   }
 
-  vk('#create-card').on('click', () => {
-    const title = vk('#card-title').el().value;
-    const status = vk('#card-status').el().value;
-    const priority = vk('#card-priority').el().value;
-    const content = vk('#card-content').el().value;
-    const dueDate = vk('#card-date').el().value;
+  dom('#create-card').on('click', () => {
+    const title = dom('#card-title').el().value;
+    const status = dom('#card-status').el().value;
+    const priority = dom('#card-priority').el().value;
+    const content = dom('#card-content').el().value;
+    const dueDate = dom('#card-date').el().value;
 
     if (title.trim()) {
       const statusClasses = {
@@ -209,7 +209,7 @@ const card = renderCard({
         statusBadge: statusBadges[status]
       });
 
-      vk('#cards-container').append(card);
+      dom('#cards-container').append(card);
     }
   });
 }

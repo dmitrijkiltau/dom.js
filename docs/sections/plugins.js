@@ -1,10 +1,10 @@
-import vk, { useTemplate, use } from '../../dist/index.js';
+import dom, { useTemplate, use } from '../../dist/index.js';
 
 const renderExample = useTemplate('#example-template');
 const renderSubsection = useTemplate('#subsection-template');
 
 export function addPluginExamples() {
-  const pluginSection = vk('#plugins');
+  const pluginSection = dom('#plugins');
   if (pluginSection.length === 0) return;
 
   pluginSection.append(renderSubsection({
@@ -196,11 +196,11 @@ vk.typewriter('#output', 'Hello World!', { speed: 100 });`
   });
 
   // Add plugin demo functionality
-  vk('#flash-demo').on('click', () => {
+  dom('#flash-demo').on('click', () => {
     vk.flash('#flash-target', { duration: 600, iterations: 2 });
   });
 
-  vk('#typewriter-demo').on('click', () => {
+  dom('#typewriter-demo').on('click', () => {
     const messages = [
       'Hello from vanilla-kit!',
       'This is a typewriter effect!',
@@ -212,15 +212,15 @@ vk.typewriter('#output', 'Hello World!', { speed: 100 });`
     vk.typewriter('#typewriter-target', randomMessage, { speed: 60 });
   });
 
-  vk('#toast-success').on('click', () => {
+  dom('#toast-success').on('click', () => {
     vk.toast('Operation completed successfully!', { type: 'success', duration: 4000 });
   });
 
-  vk('#toast-warning').on('click', () => {
+  dom('#toast-warning').on('click', () => {
     vk.toast('Please check your input data.', { type: 'warning', duration: 5000 });
   });
 
-  vk('#toast-error').on('click', () => {
+  dom('#toast-error').on('click', () => {
     vk.toast('An error occurred during processing.', { type: 'error', duration: 6000 });
   });
 
@@ -326,8 +326,8 @@ use((api) => {
 });
 
 // Usage
-vk('#draggable-element').draggable({ axis: 'x' });
-vk('#content').highlight('vanilla-kit');`
+dom('#draggable-element').draggable({ axis: 'x' });
+dom('#content').highlight('vanilla-kit');`
   });
 
   pluginSection.append(advancedExample);
@@ -470,36 +470,36 @@ vk('#content').highlight('vanilla-kit');`
   let isDraggableEnabled = false;
   let counterInstance;
 
-  vk('#toggle-draggable').on('click', () => {
-    const box = vk('#draggable-box');
+  dom('#toggle-draggable').on('click', () => {
+    const box = dom('#draggable-box');
     if (isDraggableEnabled) {
       box.undraggable();
-      vk('#toggle-draggable').text('Enable Draggable');
+      dom('#toggle-draggable').text('Enable Draggable');
       isDraggableEnabled = false;
     } else {
       box.draggable();
-      vk('#toggle-draggable').text('Disable Draggable');
+      dom('#toggle-draggable').text('Disable Draggable');
       isDraggableEnabled = true;
     }
   });
 
-  vk('#search-text').on('input', (e) => {
+  dom('#search-text').on('input', (e) => {
     const searchText = e.target.value;
-    vk('#highlight-content').highlight(searchText);
+    dom('#highlight-content').highlight(searchText);
   });
 
   // Initialize counter
   counterInstance = vk.counter('#counter-display', { initial: 0, min: -10, max: 100, step: 1 });
 
-  vk('#counter-increment').on('click', () => {
+  dom('#counter-increment').on('click', () => {
     counterInstance.increment();
   });
 
-  vk('#counter-decrement').on('click', () => {
+  dom('#counter-decrement').on('click', () => {
     counterInstance.decrement();
   });
 
-  vk('#counter-reset').on('click', () => {
+  dom('#counter-reset').on('click', () => {
     counterInstance.reset();
   });
 }

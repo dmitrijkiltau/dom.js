@@ -1,10 +1,10 @@
-import vk, { useTemplate, onSubmit, serializeForm, toQueryString } from '../../dist/index.js';
+import dom, { useTemplate, onSubmit, serializeForm, toQueryString } from '../../dist/index.js';
 
 const renderExample = useTemplate('#example-template');
 const renderSubsection = useTemplate('#subsection-template');
 
 export function addFormExamples() {
-  const formSection = vk('#forms');
+  const formSection = dom('#forms');
   if (formSection.length === 0) return;
 
   formSection.append(renderSubsection({
@@ -132,7 +132,7 @@ onSubmit('#demo-form', async (data, event) => {
 });
 
 // Manual form serialization
-const form = vk('#demo-form').el();
+const form = dom('#demo-form').el();
 const data = serializeForm(form);
 console.log(data);`
   });
@@ -148,11 +148,11 @@ console.log(data);`
       result: JSON.stringify(data, null, 2)
     });
 
-    vk('#form-results').html('').append(result);
+    dom('#form-results').html('').append(result);
 
     // Show query string version
     const queryString = toQueryString(data);
-    vk('#form-results').append(`
+    dom('#form-results').append(`
       <div class="p-4 bg-blue-50 border border-blue-200 rounded">
         <h5 class="font-semibold text-blue-900 mb-2">Query String:</h5>
         <code class="text-sm text-blue-800 break-all">${queryString}</code>
@@ -182,7 +182,7 @@ console.log(data);`
       </div>
     `,
     code: `// Build forms dynamically
-const form = vk('#dynamic-form');
+const form = dom('#dynamic-form');
 
 // Add input field
 const addField = (name, type = 'text', placeholder = '') => {
@@ -201,7 +201,7 @@ const addField = (name, type = 'text', placeholder = '') => {
 
 // Handle dynamic removal
 form.on('click', '.remove-field', (ev, el) => {
-  vk(el).closest('.field-group').remove();
+  dom(el).closest('.field-group').remove();
 });
 
 // Serialize anytime
@@ -213,7 +213,7 @@ const data = serializeForm(form.el());`
   let fieldCounter = 0;
   let sectionCounter = 0;
 
-  vk('#add-field').on('click', () => {
+  dom('#add-field').on('click', () => {
     fieldCounter++;
     const fieldHtml = `
       <div class="field-group border-l-2 border-blue-200 pl-4 py-2">
@@ -229,10 +229,10 @@ const data = serializeForm(form.el());`
         </div>
       </div>
     `;
-    vk('.dynamic-sections').append(fieldHtml);
+    dom('.dynamic-sections').append(fieldHtml);
   });
 
-  vk('#add-section').on('click', () => {
+  dom('#add-section').on('click', () => {
     sectionCounter++;
     const sectionHtml = `
       <div class="section-group border border-gray-300 rounded p-3 bg-gray-50">
@@ -244,20 +244,20 @@ const data = serializeForm(form.el());`
         <textarea name="section_${sectionCounter}_content" class="input" rows="2" placeholder="Section content..."></textarea>
       </div>
     `;
-    vk('.dynamic-sections').append(sectionHtml);
+    dom('.dynamic-sections').append(sectionHtml);
   });
 
-  vk('#dynamic-form').on('click', '.remove-field', (ev, el) => {
-    vk(el).closest('.field-group').remove();
+  dom('#dynamic-form').on('click', '.remove-field', (ev, el) => {
+    dom(el).closest('.field-group').remove();
   });
 
-  vk('#dynamic-form').on('click', '.remove-section', (ev, el) => {
-    vk(el).closest('.section-group').remove();
+  dom('#dynamic-form').on('click', '.remove-section', (ev, el) => {
+    dom(el).closest('.section-group').remove();
   });
 
-  vk('#serialize-dynamic').on('click', () => {
-    const data = serializeForm(vk('#dynamic-form').el());
-    vk('#dynamic-results').removeClass('hidden').html(`
+  dom('#serialize-dynamic').on('click', () => {
+    const data = serializeForm(dom('#dynamic-form').el());
+    dom('#dynamic-results').removeClass('hidden').html(`
       <div class="p-4 bg-green-50 border border-green-200 rounded">
         <h5 class="font-semibold text-green-900 mb-2">Serialized Data:</h5>
         <pre class="text-sm text-green-800 whitespace-pre-wrap overflow-x-auto">${JSON.stringify(data, null, 2)}</pre>
@@ -265,9 +265,9 @@ const data = serializeForm(form.el());`
     `);
   });
 
-  vk('#clear-dynamic').on('click', () => {
-    vk('.dynamic-sections').html('');
-    vk('#dynamic-results').addClass('hidden');
+  dom('#clear-dynamic').on('click', () => {
+    dom('.dynamic-sections').html('');
+    dom('#dynamic-results').addClass('hidden');
     fieldCounter = 0;
     sectionCounter = 0;
   });

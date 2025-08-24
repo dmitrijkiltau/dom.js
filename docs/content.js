@@ -1,4 +1,4 @@
-import vk, { useTemplate } from '../dist/index.js';
+import dom, { useTemplate } from '../dist/index.js';
 import { sections } from './data/sections.js';
 import { addCoreApiExamples } from './sections/core-api.js';
 import { addTemplateExamples } from './sections/templates.js';
@@ -11,7 +11,7 @@ import { addPluginExamples } from './sections/plugins.js';
 const renderSection = useTemplate('#section-template');
 
 export function initContent() {
-  const content = vk('#content');
+  const content = dom('#content');
 
   for (const section of sections) {
     content.append(renderSection(section));

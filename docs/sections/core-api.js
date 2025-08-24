@@ -1,9 +1,9 @@
-import vk, { useTemplate } from '../../dist/index.js';
+import dom, { useTemplate } from '../../dist/index.js';
 
 const renderExample = useTemplate('#example-template');
 
 export function addCoreApiExamples() {
-  const coreSection = vk('#core-api');
+  const coreSection = dom('#core-api');
 
   // Basic selector example
   const basicExample = renderExample({
@@ -21,16 +21,16 @@ export function addCoreApiExamples() {
       </div>
     `,
     code: `// Select by ID
-vk('#demo-btn-1').addClass('highlighted');
+dom('#demo-btn-1').addClass('highlighted');
 
 // Select by class
-vk('.demo-text').css('color', 'blue');
+dom('.demo-text').css('color', 'blue');
 
 // Select multiple elements
-vk('button').addClass('selected');
+dom('button').addClass('selected');
 
 // Method chaining
-vk('#demo-btn-2')
+dom('#demo-btn-2')
   .addClass('active')
   .css('background', '#10b981')
   .text('Updated!');`
@@ -39,10 +39,10 @@ vk('#demo-btn-2')
   coreSection.append(basicExample);
 
   // Add interactivity to the example
-  vk('#select-demo').on('click', () => {
-    vk('#demo-btn-1').toggleClass('bg-yellow-200');
-    vk('.demo-text').css('color', vk('.demo-text').css('color') === 'rgb(59, 130, 246)' ? '' : 'rgb(59, 130, 246)');
-    vk('#demo-btn-2').text(vk('#demo-btn-2').text() === 'Button 2' ? 'Updated!' : 'Button 2');
+  dom('#select-demo').on('click', () => {
+    dom('#demo-btn-1').toggleClass('bg-yellow-200');
+    dom('.demo-text').css('color', dom('.demo-text').css('color') === 'rgb(59, 130, 246)' ? '' : 'rgb(59, 130, 246)');
+    dom('#demo-btn-2').text(dom('#demo-btn-2').text() === 'Button 2' ? 'Updated!' : 'Button 2');
   });
 
   // Collection methods example
@@ -61,14 +61,14 @@ vk('#demo-btn-2')
       </div>
     `,
     code: `// Get collection
-const items = vk('.example-list div');
+const items = dom('.example-list div');
 
 // Chain operations
 items
   .addClass('bg-blue-100')
   .css('border-color', '#3b82f6')
   .each((el, idx) => {
-    vk(el).text(\`Updated Item \${idx + 1}\`);
+    dom(el).text(\`Updated Item \${idx + 1}\`);
   });
 
 // Access individual elements
@@ -78,8 +78,8 @@ const allElements = items.elements; // Array of all elements`
 
   coreSection.append(collectionExample);
 
-  vk('#collection-demo').on('click', () => {
-    const items = vk('.example-list div');
+  dom('#collection-demo').on('click', () => {
+    const items = dom('.example-list div');
     if (items.hasClass('bg-blue-100')) {
       items.removeClass('bg-blue-100').css('border-color', '').each((el, idx) => {
         el.textContent = `Item ${idx + 1}`;
@@ -108,7 +108,7 @@ const allElements = items.elements; // Array of all elements`
       </div>
     `,
     code: `// Get VKCollection
-const elements = vk('.access-examples span');
+const elements = dom('.access-examples span');
 
 // Get first element
 const first = elements.el(); // HTMLElement
@@ -128,12 +128,12 @@ console.log('Total count:', count);`
 
   coreSection.append(accessExample);
 
-  vk('#access-demo').on('click', () => {
-    const elements = vk('.access-examples span');
+  dom('#access-demo').on('click', () => {
+    const elements = dom('.access-examples span');
     const first = elements.el();
     const count = elements.length;
     
-    vk('#access-output').html(`
+    dom('#access-output').html(`
       <div>First element: <strong>${first.textContent}</strong></div>
       <div>Total count: <strong>${count}</strong></div>
       <div>All elements: <strong>${elements.elements.map(el => el.textContent).join(', ')}</strong></div>

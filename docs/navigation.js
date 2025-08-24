@@ -1,10 +1,10 @@
-import vk, { useTemplate } from '../dist/index.js';
+import dom, { useTemplate } from '../dist/index.js';
 import { navigationItems } from './data/navigation.js';
 
 const renderNavItem = useTemplate('#nav-item-template');
 
 export function initNavigation() {
-  const navMenu = vk('#nav-menu');
+  const navMenu = dom('#nav-menu');
   
   for (const item of navigationItems) {
     navMenu.append(renderNavItem(item));
@@ -29,8 +29,8 @@ export function initNavigation() {
           }
         }
 
-        vk('#nav-menu .nav-link').removeClass('active');
-        vk(`#nav-menu a[href="#${activeSection?.id}"]`).addClass('active');
+        dom('#nav-menu .nav-link').removeClass('active');
+        dom(`#nav-menu a[href="#${activeSection?.id}"]`).addClass('active');
 
         ticking = false;
       });
