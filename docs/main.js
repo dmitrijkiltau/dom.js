@@ -1,4 +1,4 @@
-import vk, { renderTemplate, useTemplate, onSubmit, toQueryString, http, use } from '@dmitrijkiltau/vanilla-kit';
+import vk, { renderTemplate, useTemplate, onSubmit, toQueryString, http, use } from '../dist/index.js';
 
 // Make vk globally available for console debugging
 window.vk = vk;
