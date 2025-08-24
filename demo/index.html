@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>vanilla-kit demo</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <h1>vanilla-kit demo</h1>
+
+    <div class="panel" id="list-demo">
+      <header>Template Rendering</header>
+      <p>Render list rows from a template with data bindings.</p>
+      <ul id="list"></ul>
+      <div class="list-tools">
+        <div id="list-count" aria-live="polite" class="count">Items: 0</div>
+        <button id="toggle-theme" type="button" class="secondary small" title="Toggle theme">Toggle Theme</button>
+      </div>
+      <form id="add-row" class="row add-form">
+        <input name="title" placeholder="Title" required />
+        <input name="url" placeholder="URL (/docs)" required />
+        <button>Add</button>
+      </form>
+      <template id="row">
+        <li class="fade-in">
+          <a data-text="title" data-attr-href="url" target="_blank" rel="noopener"></a>
+          <button class="remove" data-attr-data-id="id" title="Remove">×</button>
+        </li>
+      </template>
+    </div>
+
+    <div class="panel" id="form-demo">
+      <header>Form Utilities</header>
+      <form id="contact" class="demo-form">
+        <div class="row">
+          <label><span>Name</span><input name="name" required value="Jane Doe" /></label>
+          <label><span>Email</span><input name="email" type="email" required value="jane@example.com" /></label>
+        </div>
+        <label><span>Tags</span><select name="tags" multiple size="3">
+          <option value="alpha">alpha</option>
+          <option value="beta" selected>beta</option>
+          <option value="stable" selected>stable</option>
+        </select></label>
+        <label><span>Message</span><textarea name="message" rows="3" placeholder="Your message...">Hello there! This is a default demo message.</textarea></label>
+        <div class="row">
+          <button type="submit">Send (serialize)</button>
+          <button type="button" id="clear">Clear</button>
+        </div>
+      </form>
+  <pre id="form-output" class="form-output" aria-live="polite"></pre>
+    </div>
+
+    <div class="panel" id="events-demo">
+      <header>Events & Animation</header>
+      <p>Delegated events + animation helper:</p>
+      <div class="stack" id="messages"></div>
+      <div style="margin-top:.5rem;">
+        <button id="push-msg">Push message</button>
+        <button id="flash" class="danger">Flash (plugin)</button>
+      </div>
+      <template id="msg-tpl">
+        <div class="notice fade-in" data-text="text"></div>
+      </template>
+    </div>
+
+    <footer>Open console to explore global vk variable.</footer>
+
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>
