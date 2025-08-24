@@ -3,7 +3,7 @@ import { initNavigation } from './navigation.js';
 import { initContent } from './content.js';
 import Prism from 'prismjs';
 import 'prismjs/components/prism-javascript.js';
-import 'prismjs/themes/prism-coy.css';
+import 'prismjs/themes/prism-tomorrow.css';
 
 // Make vk globally available for console debugging
 window.vk = vk;
