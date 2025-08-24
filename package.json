@@ -1,0 +1,41 @@
+{
+  "name": "@dmitrijkiltau/vanilla-kit",
+  "version": "0.2.0",
+  "description": "A tiny, intuitive, chainable DOM utility for modern browsers (like jQuery, but ESM and no $).",
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --minify --sourcemap",
+    "dev": "tsup src/index.ts --format esm --dts --watch",
+    "test": "node ./tests/sanity.mjs",
+    "demo": "vite demo"
+  },
+  "keywords": [
+    "dom",
+    "utility",
+    "chainable",
+    "vanilla",
+    "jquery-alternative"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.3",
+    "vite-tsconfig-paths": "^5.1.4"
+  }
+}
