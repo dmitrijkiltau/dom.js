@@ -222,7 +222,7 @@ const data = serializeForm(form.el());`
             <option value="number">Number</option>
             <option value="email">Email</option>
           </select>
-          <button type="button" class="text-red-500 hover:text-red-700 px-2 remove-field">×</button>
+          <button type="button" class="text-red-500 hover:text-red-700 px-2 remove-field">&times;</button>
         </div>
       </div>
     `;
@@ -255,7 +255,7 @@ const data = serializeForm(form.el());`
   vk('#serialize-dynamic').on('click', () => {
     const data = serializeForm(vk('#dynamic-form').el());
     vk('#dynamic-results').removeClass('hidden').html(`
-      <div class="p-4 bg-green-50 border border-gray-300 border-green-200 rounded">
+      <div class="p-4 bg-green-50 border border-green-200 rounded">
         <h5 class="font-semibold text-green-900 mb-2">Serialized Data:</h5>
         <pre class="text-sm text-green-800 whitespace-pre-wrap overflow-x-auto">${JSON.stringify(data, null, 2)}</pre>
       </div>
