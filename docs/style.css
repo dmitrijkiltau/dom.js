@@ -29,16 +29,19 @@
 /* Set color scheme to support light-dark() function */
 :root {
   color-scheme: light;
+
+  &.dark {
+    color-scheme: dark;
+  }
 }
 
-:root.dark {
-  color-scheme: dark;
+html, body {
+  @apply text-[16px];
 }
 
 /* Custom styles for documentation */
 .code-block {
-  @apply bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto;
-  font-family: var(--font-family-mono);
+  @apply font-mono bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto;
 }
 
 .nav-link {
