@@ -48,7 +48,7 @@ npm run docs:build
 
 1. **Getting Started** - Introduction to vanilla-kit
 2. **Installation** - How to install and import
-3. **Core API** - Basic selector and VKCollection methods  
+3. **Core API** - Basic selector and DOMCollection methods  
 4. **Templates** - HTML template system with data binding
 5. **Forms** - Form handling and serialization
 6. **Events** - Event binding and delegation

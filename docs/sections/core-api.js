@@ -48,7 +48,7 @@ dom('#demo-btn-2')
   // Collection methods example
   const collectionExample = renderExample({
     id: 'vkcollection-methods-example',
-    title: 'VKCollection Methods',
+    title: 'DOMCollection Methods',
     description: 'Chain methods for DOM manipulation',
     demo: `
       <div class="space-y-2">
@@ -107,7 +107,7 @@ const allElements = items.elements; // Array of all elements`
         <div id="access-output" class="text-sm text-gray-600"></div>
       </div>
     `,
-    code: `// Get VKCollection
+    code: `// Get DOMCollection
 const elements = dom('.access-examples span');
 
 // Get first element

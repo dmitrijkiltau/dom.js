@@ -56,7 +56,7 @@ dom('.my-elements')
 
 ## Core API
 
-The core of dom.js is the `dom()` function, which selects elements and returns a VKCollection for chaining operations.
+The core of dom.js is the `dom()` function, which selects elements and returns a DOMCollection for chaining operations.
 
 ### Basic Selection
 
@@ -75,7 +75,7 @@ dom('.cards')
   .on('mouseenter', (ev, el) => dom(el).addClass('hover'));
 ```
 
-### VKCollection Methods
+### DOMCollection Methods
 
 ```js
 // DOM manipulation
@@ -166,7 +166,7 @@ Event handling with support for delegation and various target types.
 ```js
 import { on, off } from '@dmitrijkiltau/dom.js';
 
-// Event binding - target can be window, document, Element, or VKCollection
+// Event binding - target can be window, document, Element, or DOMCollection
 on(window, 'scroll', handler);
 on(document, 'click', handler);
 on('.buttons', 'click', handler);
@@ -248,7 +248,7 @@ use((api) => {
     ], { duration: 150 });
   };
   
-  // Add method to VKCollection prototype
+  // Add method to DOMCollection prototype
   api.prototype.highlight = function() {
     return this.addClass('highlight');
   };
@@ -297,7 +297,7 @@ npm run docs:dev
 
 ## Roadmap
 
-- [ ] `.serialize()` method directly on `VKCollection`
+- [ ] `.serialize()` method directly on `DOMCollection`
 - [ ] `once()` event helper
 - [ ] Lightweight `morph()`/`swap()` for HTML snippets
 - [ ] Additional animation utilities

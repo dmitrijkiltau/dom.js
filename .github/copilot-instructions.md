@@ -4,7 +4,7 @@ Concise operational knowledge for AI agents contributing to this repo. Focus on 
 
 ## 1. Architecture & Modules
 - Library lives in `src/` (one concern per file):
-	- `collection.ts` (core chainable wrapper `VKCollection`)
+	- `collection.ts` (core chainable wrapper `DOMCollection`)
 	- `index.ts` (public API assembly + plugin system + HTTP wrapper)
 	- `template.ts` (HTML `<template>` binding engine)
 	- `forms.ts` (serialization & submit helper)
@@ -14,9 +14,9 @@ Concise operational knowledge for AI agents contributing to this repo. Focus on 
 - Docs site (`docs/`) is a separate Vite app consuming the built library (never import raw `src/` in docs).
 
 ## 2. Public API Surface (exported from `index.ts`)
-`vk`, `create`, `on`, `off`, `http` (with .get/.post/.put/.patch/.delete), templating (`renderTemplate`, `useTemplate`, `tpl`), forms (`serializeForm`, `toQueryString`, `onSubmit`), `animate`, `VKCollection`, plus plugin extension via `use(plugin)`.
+`dom`, `create`, `on`, `off`, `http` (with .get/.post/.put/.patch/.delete), templating (`renderTemplate`, `useTemplate`, `tpl`), forms (`serializeForm`, `toQueryString`, `onSubmit`), `animate`, `DOMCollection`, plus plugin extension via `use(plugin)`.
 
-## 3. VKCollection Patterns
+## 3. DOMCollection Patterns
 - Always return `this` for chainable mutators.
 - Iterate with plain `for` loops; avoid `forEach` (performance + style consistency).
 - Methods work on an internal `elements: Element[]` array; creation wraps selectors, single elements, NodeLists, arrays, or window/document.
@@ -31,7 +31,7 @@ Concise operational knowledge for AI agents contributing to this repo. Focus on 
 ## 5. Forms (`forms.ts`)
 - `serializeForm` collapses scalar fields; repeated names become arrays.
 - `onSubmit` prevents default, serializes, passes `(data, event)` to handler, and awaits async handlers.
-- Input resolution accepts selector | `VKCollection` | `<form>` element; throw with clear messages if invalid.
+- Input resolution accepts selector | `DOMCollection` | `<form>` element; throw with clear messages if invalid.
 
 ## 6. HTTP Wrapper
 - Simple `fetch` sugar producing an object: `{ raw, ok, status, text(), json<T>(), html() }`.
@@ -40,11 +40,11 @@ Concise operational knowledge for AI agents contributing to this repo. Focus on 
 
 ## 7. Animation
 - `animate(el, keyframes, options)` returns native `Animation` from `HTMLElement.animate`.
-- `VKCollection.prototype.animate` loops elements and returns the collection (fire-and-forget). Don’t introduce promise wrappers.
+- `DOMCollection.prototype.animate` loops elements and returns the collection (fire-and-forget). Don’t introduce promise wrappers.
 
 ## 8. Plugin System (`use`)
-- `use(plugin)` passes the exported `api` function (which is also callable as `vk`).
-- Safe-guards: a `Set` prevents duplicate plugin application. Plugins can augment both the callable (`api.someFn = ...`) and `VKCollection.prototype`.
+- `use(plugin)` passes the exported `api` function (which is also callable as `dom`).
+- Safe-guards: a `Set` prevents duplicate plugin application. Plugins can augment both the callable (`api.someFn = ...`) and `DOMCollection.prototype`.
 - When adding new core methods ensure they’re also exposed on `api` (index export) if part of public surface.
 
 ## 9. Coding Style & Constraints

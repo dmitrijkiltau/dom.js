@@ -5,7 +5,7 @@
  * Ensures the build output is valid and core functions work
  */
 
-import api, { dom, VKCollection, http } from '../dist/index.js';
+import api, { dom, DOMCollection, http } from '../dist/index.js';
 
 console.log('🧪 Running dom.js sanity tests...\n');
 
@@ -30,18 +30,18 @@ test('Default export exists and is a function', () => {
 
 test('Named exports exist', () => {
   if (typeof dom !== 'function') throw new Error('dom function not exported');
-  if (typeof VKCollection !== 'function') throw new Error('VKCollection not exported');
+  if (typeof DOMCollection !== 'function') throw new Error('DOMCollection not exported');
   if (typeof http !== 'object') throw new Error('http object not exported');
 });
 
-test('VKCollection can be instantiated', () => {
-  const collection = new VKCollection([]);
-  if (!(collection instanceof VKCollection)) throw new Error('VKCollection instantiation failed');
+test('DOMCollection can be instantiated', () => {
+  const collection = new DOMCollection([]);
+  if (!(collection instanceof DOMCollection)) throw new Error('DOMCollection instantiation failed');
 });
 
-test('dom function returns VKCollection', () => {
+test('dom function returns DOMCollection', () => {
   const result = dom();
-  if (!(result instanceof VKCollection)) throw new Error('dom() did not return VKCollection');
+  if (!(result instanceof DOMCollection)) throw new Error('dom() did not return DOMCollection');
 });
 
 test('HTTP object has expected methods', () => {

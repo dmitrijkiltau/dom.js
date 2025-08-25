@@ -60,7 +60,7 @@ import vk, { renderTemplate, onSubmit, http } from '@dmitrijkiltau/dom.js';</cod
     content: `
       <p class="text-gray-700 mb-4">
         The core of dom.js is the <code class="bg-gray-200 px-2 py-1 rounded">dom()</code> function, 
-        which selects elements and returns a VKCollection for chaining operations.
+        which selects elements and returns a DOMCollection for chaining operations.
       </p>
       <div class="space-y-4">
         <div>
@@ -76,7 +76,7 @@ dom('.buttons')
   .on('click', handler);</code></pre>
         </div>
         <div>
-          <h4 class="text-lg font-semibold mb-2">VKCollection Methods</h4>
+          <h4 class="text-lg font-semibold mb-2">DOMCollection Methods</h4>
           <ul class="text-gray-700 space-y-1">
             <li>• <code class="bg-gray-200 px-1 rounded">addClass(className)</code> - Add CSS class</li>
             <li>• <code class="bg-gray-200 px-1 rounded">removeClass(className)</code> - Remove CSS class</li>
@@ -258,7 +258,7 @@ dom('.fade').animate([
     content: `
       <p class="text-gray-700 mb-4">
         Extend dom.js with custom functionality using the plugin system.
-        Plugins can add new methods to the dom object and VKCollection prototype.
+        Plugins can add new methods to the dom object and DOMCollection prototype.
       </p>
       <div class="space-y-4">
         <div>
@@ -276,7 +276,7 @@ use((api) => {
     return this(selector).addClass('my-class');
   };
   
-  // Add method to VKCollection prototype
+  // Add method to DOMCollection prototype
   api.prototype.myMethod = function(value) {
     return this.css('custom-property', value);
   };

@@ -65,7 +65,7 @@ Each section file contains:
 
 ### Core API (`sections/core-api.js`)
 - Basic selection examples
-- VKCollection method demonstrations
+- DOMCollection method demonstrations
 - Element access patterns
 - Interactive demos with real DOM manipulation
 

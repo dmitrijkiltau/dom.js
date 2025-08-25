@@ -1,6 +1,6 @@
-import { VKCollection } from './collection';
+import { DOMCollection } from './collection';
 
-export type Formish = HTMLFormElement | VKCollection | string | null | undefined;
+export type Formish = HTMLFormElement | DOMCollection | string | null | undefined;
 
 function resolveForm(input: Formish): HTMLFormElement {
   if (!input) throw new Error('Form not provided');
@@ -10,7 +10,7 @@ function resolveForm(input: Formish): HTMLFormElement {
     if (!(el instanceof HTMLFormElement)) throw new Error('Selector did not resolve to <form>');
     return el;
   }
-  if (input instanceof VKCollection) {
+  if (input instanceof DOMCollection) {
     const el = input.elements[0];
     if (!el) throw new Error('Empty collection');
     if (!(el instanceof HTMLFormElement)) throw new Error('Collection[0] is not a <form>');

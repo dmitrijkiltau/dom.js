@@ -1,7 +1,7 @@
 import { CSSInput, CSSValue, Handler } from './types';
 import { camelToKebab, toArray, isElement } from './utils';
 
-export class VKCollection {
+export class DOMCollection {
   elements: Element[];
 
   constructor(input: ArrayLike<Element> | Element[] | null | undefined) {
@@ -17,12 +17,12 @@ export class VKCollection {
   // Basic DOM read helpers
   get length(): number { return this.elements.length; }
   el<T extends Element = Element>(): T | undefined { return this.elements[0] as T | undefined; }
-  first(): VKCollection { return new VKCollection(this.elements.length ? [this.elements[0]] : []); }
-  eq(i: number): VKCollection { return new VKCollection(this.elements[i] ? [this.elements[i]] : []); }
-  find(selector: string): VKCollection {
+  first(): DOMCollection { return new DOMCollection(this.elements.length ? [this.elements[0]] : []); }
+  eq(i: number): DOMCollection { return new DOMCollection(this.elements[i] ? [this.elements[i]] : []); }
+  find(selector: string): DOMCollection {
     const found: Element[] = [];
     for (const el of this.elements) found.push(...toArray(el.querySelectorAll(selector)));
-    return new VKCollection(found);
+    return new DOMCollection(found);
   }
 
   // Content
@@ -35,17 +35,17 @@ export class VKCollection {
     return this.each(el => (el as HTMLElement).innerHTML = value == null ? '' : String(value));
   }
 
-  append(child: string | Node | VKCollection): this {
+  append(child: string | Node | DOMCollection): this {
     for (const el of this.elements) {
       if (child == null) continue;
       if (typeof child === 'string') (el as HTMLElement).insertAdjacentHTML('beforeend', child);
-      else if (child instanceof VKCollection) for (const n of child.elements) el.appendChild(n);
+      else if (child instanceof DOMCollection) for (const n of child.elements) el.appendChild(n);
       else el.appendChild(child);
     }
     return this;
   }
-  appendTo(target: Element | VKCollection): this {
-    if (target instanceof VKCollection) target.append(this);
+  appendTo(target: Element | DOMCollection): this {
+    if (target instanceof DOMCollection) target.append(this);
     else if (isElement(target)) target.append(...this.elements);
     return this;
   }
@@ -126,4 +126,4 @@ export class VKCollection {
   }
 }
 
-export default VKCollection;
+export default DOMCollection;
