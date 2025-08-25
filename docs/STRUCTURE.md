@@ -1,6 +1,6 @@
 # Documentation Structure
 
-This document describes the modular structure of the vanilla-kit documentation.
+This document describes the modular structure of the dom.js documentation.
 
 ## Overview
 
@@ -30,7 +30,7 @@ docs/
 
 ### `main.js`
 - Entry point for the documentation
-- Global vk object setup
+- Global dom object setup
 - Smooth scrolling functionality
 - DOM ready initialization
 

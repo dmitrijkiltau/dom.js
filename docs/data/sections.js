@@ -45,7 +45,7 @@ export const sections = [
           <pre class="code-block"><code>import dom from '@dmitrijkiltau/dom.js';
 
 // Or import specific functions
-import vk, { renderTemplate, onSubmit, http } from '@dmitrijkiltau/dom.js';</code></pre>
+import dom, { renderTemplate, onSubmit, http } from '@dmitrijkiltau/dom.js';</code></pre>
         </div>
         <div>
           <h4 class="text-lg font-semibold mb-2">CDN (ES Module)</h4>

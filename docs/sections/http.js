@@ -47,7 +47,7 @@ export function addHttpExamples() {
         </div>
       </div>
     `,
-    code: `import { http } from '@dmitrijkiltau/vanilla-kit';
+    code: `import { http } from '@dmitrijkiltau/dom.js';
 
 // GET request
 try {
@@ -201,8 +201,8 @@ const html = await response.html();     // DOM Element`
     showLoading();
 
     const samplePost = {
-      title: 'Sample Post from vanilla-kit',
-      body: 'This is a demonstration of the HTTP POST functionality in vanilla-kit. This will be sent to the JSONPlaceholder API.',
+      title: 'Sample Post from dom.js',
+      body: 'This is a demonstration of the HTTP POST functionality in dom.js. This will be sent to the JSONPlaceholder API.',
       userId: 1
     };
 
@@ -254,7 +254,7 @@ const html = await response.html();     // DOM Element`
           <div class="space-y-2">
             <label class="block text-sm font-medium">Custom Headers</label>
             <input id="auth-token" placeholder="Authorization token" class="input" value="Bearer sample-token">
-            <input id="custom-header" placeholder="X-Custom-Header" class="input" value="vanilla-kit-demo">
+            <input id="custom-header" placeholder="X-Custom-Header" class="input" value="dom.js-demo">
           </div>
           
           <div class="space-y-2">
@@ -272,7 +272,7 @@ const html = await response.html();     // DOM Element`
         <div>
           <label class="block text-sm font-medium mb-1">Request Body (for POST/PUT)</label>
           <textarea id="request-body" class="input" rows="3" placeholder="JSON payload...">{
-  "message": "Hello from vanilla-kit!",
+  "message": "Hello from dom.js!",
   "timestamp": "${new Date().toISOString()}"
 }</textarea>
         </div>
@@ -303,7 +303,7 @@ const response = await http.post('/api/endpoint', {
 }, {
   headers: {
     'Authorization': 'Bearer token',
-    'X-Client': 'vanilla-kit'
+    'X-Client': 'dom.js'
   },
   timeout: 5000
 });

@@ -1,4 +1,4 @@
-# Copilot Instructions for `vanilla-kit`
+# Copilot Instructions for `dom.js`
 
 Concise operational knowledge for AI agents contributing to this repo. Focus on existing patterns—avoid inventing abstractions.
 
@@ -68,7 +68,7 @@ Concise operational knowledge for AI agents contributing to this repo. Focus on 
 - If templating change affects attributes, verify docs templates still render (IDs/classes applied and markers removed).
 
 ## 12. Common Edge Cases to Handle
-- Empty selector → `vk()` returns empty collection (no throw).
+- Empty selector → `dom()` returns empty collection (no throw).
 - Missing `<template>` or empty template content → throw early with clear message.
 - Form names repeating → ensure arrays not overwritten.
 - HTTP helper with `undefined` body → don’t send `Content-Type`.

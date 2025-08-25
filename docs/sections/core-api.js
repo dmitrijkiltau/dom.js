@@ -47,7 +47,7 @@ dom('#demo-btn-2')
 
   // Collection methods example
   const collectionExample = renderExample({
-    id: 'vkcollection-methods-example',
+    id: 'domcollection-methods-example',
     title: 'DOMCollection Methods',
     description: 'Chain methods for DOM manipulation',
     demo: `

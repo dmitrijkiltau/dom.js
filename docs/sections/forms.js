@@ -103,7 +103,7 @@ export function addFormExamples() {
       </form>
       <div id="form-results"></div>
     `,
-    code: `import { onSubmit, serializeForm, toQueryString } from '@dmitrijkiltau/vanilla-kit';
+    code: `import { onSubmit, serializeForm, toQueryString } from '@dmitrijkiltau/dom.js';
 
 // Handle form submission
 onSubmit('#demo-form', async (data, event) => {

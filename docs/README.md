@@ -1,15 +1,15 @@
-# vanilla-kit Documentation
+# dom.js Documentation
 
-This is the documentation site for vanilla-kit, built using:
+This is the documentation site for dom.js, built using:
 
 - **TailwindCSS 4** (with CSS-only configuration)
 - **Vite** (for development and building)  
-- **vanilla-kit** (using the library to build its own documentation)
+- **dom.js** (using the library to build its own documentation)
 - **HTML-first approach** with HTML templates
 
 ## Features
 
-- Interactive examples for all vanilla-kit features
+- Interactive examples for all dom.js features
 - Real-time code demonstrations
 - HTML templates with data binding
 - Responsive design with TailwindCSS
@@ -46,7 +46,7 @@ npm run docs:build
 
 ## Documentation Sections
 
-1. **Getting Started** - Introduction to vanilla-kit
+1. **Getting Started** - Introduction to dom.js
 2. **Installation** - How to install and import
 3. **Core API** - Basic selector and DOMCollection methods  
 4. **Templates** - HTML template system with data binding
@@ -54,6 +54,6 @@ npm run docs:build
 6. **Events** - Event binding and delegation
 7. **HTTP** - HTTP utilities for requests
 8. **Animation** - Web Animations API integration
-9. **Plugin System** - Extending vanilla-kit with plugins
+9. **Plugin System** - Extending dom.js with plugins
 
 All sections include live, interactive examples demonstrating the features.

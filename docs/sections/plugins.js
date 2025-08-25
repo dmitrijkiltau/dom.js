@@ -12,7 +12,7 @@ export function addPluginExamples() {
     title: 'Plugin System',
     content: `
       <p class="text-gray-700 mb-4">
-        Extend vanilla-kit with custom functionality using the plugin system.
+        Extend dom.js with custom functionality using the plugin system.
       </p>
     `
   }));
@@ -20,7 +20,7 @@ export function addPluginExamples() {
   const pluginExample = renderExample({
     id: 'creating-plugins-example',
     title: 'Creating Plugins',
-    description: 'Add custom methods to vanilla-kit',
+    description: 'Add custom methods to dom.js',
     demo: `
       <div class="space-y-4">
         <div class="grid grid-cols-2 gap-4">
@@ -52,7 +52,7 @@ export function addPluginExamples() {
         </div>
       </div>
     `,
-    code: `import { use } from '@dmitrijkiltau/vanilla-kit';
+    code: `import { use } from '@dmitrijkiltau/dom.js';
 
 // Flash effect plugin
 use((api) => {
@@ -202,7 +202,7 @@ dom.typewriter('#output', 'Hello World!', { speed: 100 });`
 
   dom('#typewriter-demo').on('click', () => {
     const messages = [
-      'Hello from vanilla-kit!',
+      'Hello from dom.js!',
       'This is a typewriter effect!',
       'Plugins make extension easy!',
       'Build amazing things!',
@@ -246,7 +246,7 @@ dom.typewriter('#output', 'Hello World!', { speed: 100 });`
             <h5 class="font-medium">Highlight Plugin</h5>
             <input id="search-text" placeholder="Type to highlight..." class="input text-sm">
             <div class="demo-area border border-gray-300 rounded p-3 h-32 bg-gray-100 text-sm overflow-y-auto" id="highlight-content">
-              <p>vanilla-kit is a lightweight, modern DOM manipulation library that provides a jQuery-like API with ES modules support and no dependencies.</p>
+              <p>dom.js is a lightweight, modern DOM manipulation library that provides a jQuery-like API with ES modules support and no dependencies.</p>
               <p>It's designed for modern browsers and offers a chainable, intuitive API for DOM manipulation, templating, forms, events, HTTP requests, and animations.</p>
             </div>
           </div>
@@ -327,7 +327,7 @@ use((api) => {
 
 // Usage
 dom('#draggable-element').draggable({ axis: 'x' });
-dom('#content').highlight('vanilla-kit');`
+dom('#content').highlight('dom.js');`
   });
 
   pluginSection.append(advancedExample);

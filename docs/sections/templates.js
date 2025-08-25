@@ -12,7 +12,7 @@ export function addTemplateExamples() {
     title: 'Template System',
     content: `
       <p class="text-gray-700 mb-4">
-        vanilla-kit provides a powerful template system with data binding using HTML template elements.
+        dom.js provides a powerful template system with data binding using HTML template elements.
       </p>
     `
   }));
@@ -42,7 +42,7 @@ export function addTemplateExamples() {
 </template>
 
 // JavaScript
-import { useTemplate, renderTemplate } from '@dmitrijkiltau/vanilla-kit';
+import { useTemplate, renderTemplate } from '@dmitrijkiltau/dom.js';
 
 // Create reusable render function
 const renderItem = useTemplate('#template-demo-item');
