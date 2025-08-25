@@ -102,6 +102,12 @@ dom('.btn').once('click', handler) // one-time event
 dom('.btn').off('click', handler)
 dom('.btn').trigger('custom-event', {data: 'value'}) // dispatch events
 
+// Event shortcuts
+dom('.btn').click() // trigger click
+dom('.btn').click(handler) // bind click handler
+dom('.btn').focus() // focus element
+dom('.btn').hover(enterHandler, leaveHandler) // mouse enter/leave
+
 // Traversal and filtering
 dom('.items').filter('.active') // filter by selector or function
 dom('.items').find('.child') // descendants
@@ -115,6 +121,7 @@ dom('.items').eq(0) // element at index
 // Utilities
 dom('.items').each((el, idx) => console.log(el))
 dom('.items').el() // get first element
+dom('.items').serialize() // serialize form data (works on forms or form fields)
 ```
 
 ## Templates
@@ -215,7 +222,7 @@ off(window, 'scroll', handler);
 
 ## HTTP
 
-Simple fetch wrapper with response helpers and automatic JSON handling.
+Simple fetch wrapper with response helpers, automatic JSON handling, and request utilities.
 
 ```js
 import { http } from '@dmitrijkiltau/dom.js';
@@ -233,6 +240,17 @@ const result = await http.post('/api/items', { title: 'New Item' });
 await http.put('/api/items/1', data);
 await http.patch('/api/items/1', partialData);
 await http.delete('/api/items/1');
+
+// Request helpers
+const timeoutHttp = http.withTimeout(5000); // 5 second timeout
+const authedHttp = http.withHeaders({ 
+  'Authorization': 'Bearer token',
+  'X-Client': 'my-app'
+});
+
+// Use configured HTTP clients
+const response = await timeoutHttp.get('/slow-endpoint');
+const result = await authedHttp.post('/api/secure-data', payload);
 ```
 
 ### Response Object
@@ -346,16 +364,17 @@ npm run docs:dev
 ### Recently Added ✅
 - `.last()`, `.filter()`, `.empty()`, `.remove()` collection methods
 - `.parent()`, `.parents()`, `.siblings()` traversal methods
-- `.val()`, `.prop()`, `.attrs()` for better form and attribute handling
+- `.val()`, `.prop()`, `.attrs()`, `.serialize()` for better form and attribute handling
 - `.once()` event method for one-time event handling
 - `.clone()`, `.after()`, `.before()` element manipulation
 - `.trigger()` for custom event dispatching
+- Event shortcuts (`.click()`, `.focus()`, `.blur()`, `.hover()`)
 - Animation presets (fadeIn, fadeOut, slideUp, slideDown, pulse, shake)
 - Enhanced template system with conditional rendering (`data-if`, `data-show`, `data-hide`)
 - Event binding in templates (`data-on-*`)
+- HTTP request helpers (`withTimeout()`, `withHeaders()`)
 
 ### Future Enhancements
-- [ ] `.serialize()` method directly on `DOMCollection`
 - [ ] Lightweight `morph()`/`swap()` for HTML snippets
 - [ ] Template loops (`data-for`)
 - [ ] Additional animation utilities and chaining

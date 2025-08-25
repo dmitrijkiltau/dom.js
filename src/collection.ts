@@ -278,10 +278,56 @@ export class DOMCollection {
     });
   }
 
+  // Common event shortcuts
+  click(handler?: Handler): this {
+    return handler ? this.on('click', handler) : this.trigger('click');
+  }
+  focus(handler?: Handler): this {
+    return handler ? this.on('focus', handler) : this.each(el => (el as HTMLElement).focus());
+  }
+  blur(handler?: Handler): this {
+    return handler ? this.on('blur', handler) : this.each(el => (el as HTMLElement).blur());
+  }
+  hover(enterHandler: Handler, leaveHandler?: Handler): this {
+    this.on('mouseenter', enterHandler);
+    if (leaveHandler) this.on('mouseleave', leaveHandler);
+    return this;
+  }
+
   data(name: string, value?: string | number | null): any {
     const key = name.startsWith('data-') ? name : `data-${name}`;
     if (value === undefined) return this.attr(key);
     return this.attr(key, value as any);
+  }
+
+  // Form serialization
+  serialize(): Record<string, any> {
+    if (this.elements.length === 0) return {};
+    const firstEl = this.elements[0];
+    if (firstEl instanceof HTMLFormElement) {
+      const fd = new FormData(firstEl);
+      const out: Record<string, any> = {};
+      for (const [k, v] of (fd as any).entries()) {
+        if (k in out) out[k] = ([] as any[]).concat(out[k], v as any);
+        else out[k] = v;
+      }
+      return out;
+    }
+    // If not a form, try to serialize form fields within the collection
+    const out: Record<string, any> = {};
+    for (const el of this.elements) {
+      if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement) {
+        const name = el.name;
+        if (name) {
+          const value = el instanceof HTMLSelectElement 
+            ? Array.from(el.selectedOptions).map(o => o.value)
+            : el.value;
+          if (name in out) out[name] = ([] as any[]).concat(out[name], value as any);
+          else out[name] = value;
+        }
+      }
+    }
+    return out;
   }
 }
 

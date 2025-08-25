@@ -64,7 +64,7 @@ test('API object has utility methods', () => {
 
 test('DOMCollection has new methods', () => {
   const collection = new DOMCollection([]);
-  const expectedMethods = ['last', 'filter', 'parent', 'siblings', 'remove', 'empty', 'clone', 'once', 'trigger', 'val', 'prop', 'attrs'];
+  const expectedMethods = ['last', 'filter', 'parent', 'siblings', 'remove', 'empty', 'clone', 'once', 'trigger', 'val', 'prop', 'attrs', 'serialize', 'click', 'focus', 'blur', 'hover'];
   for (const method of expectedMethods) {
     if (typeof collection[method] !== 'function') {
       throw new Error(`DOMCollection.${method} is not a function`);
