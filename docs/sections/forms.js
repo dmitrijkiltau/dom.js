@@ -160,6 +160,111 @@ console.log(data);`
     `);
   });
 
+  // Collection Serialize Example
+  const collectionSerializeExample = renderExample({
+    id: 'collection-serialize-example',
+    title: 'Collection Serialize Method',
+    description: 'New .serialize() method on DOM collections for easy form data extraction',
+    demo: `
+      <div class="space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <h5 class="font-medium mb-2">Form Elements Collection</h5>
+            <div class="space-y-2">
+              <input name="username" class="input form-element" placeholder="Username" value="johndoe">
+              <input name="email" type="email" class="input form-element" placeholder="Email" value="john@example.com">
+              <select name="role" class="input form-element">
+                <option value="">Select role...</option>
+                <option value="admin">Admin</option>
+                <option value="user" selected>User</option>
+                <option value="guest">Guest</option>
+              </select>
+              <label class="flex items-center">
+                <input name="notifications" type="checkbox" class="mr-2 form-element" checked>
+                Enable notifications
+              </label>
+            </div>
+          </div>
+          <div>
+            <h5 class="font-medium mb-2">Product Preferences</h5>
+            <div class="space-y-2">
+              <label class="flex items-center">
+                <input name="products" type="checkbox" value="web" class="mr-2 product-element" checked>
+                Web Development
+              </label>
+              <label class="flex items-center">
+                <input name="products" type="checkbox" value="mobile" class="mr-2 product-element">
+                Mobile Development
+              </label>
+              <label class="flex items-center">
+                <input name="products" type="checkbox" value="design" class="mr-2 product-element" checked>
+                UI/UX Design
+              </label>
+              <textarea name="comments" class="input product-element" rows="2" placeholder="Additional comments...">Great service!</textarea>
+            </div>
+          </div>
+        </div>
+        
+        <div class="flex space-x-2">
+          <button id="serialize-form-elements" class="btn btn-primary text-sm">Serialize Form Elements</button>
+          <button id="serialize-products" class="btn btn-secondary text-sm">Serialize Product Preferences</button>
+          <button id="serialize-all-inputs" class="btn btn-accent text-sm">Serialize All Inputs</button>
+        </div>
+        
+        <div id="serialize-output" class="text-sm text-gray-600 bg-gray-100 p-3 rounded"></div>
+      </div>
+    `,
+    code: `// Serialize specific form elements using collections
+const formData = dom('.form-element').serialize();
+console.log(formData);
+// Output: { username: 'johndoe', email: 'john@example.com', role: 'user', notifications: 'on' }
+
+// Serialize checkboxes with same name (creates arrays)
+const productData = dom('input[name="products"]:checked').serialize();
+console.log(productData);
+// Output: { products: ['web', 'design'] }
+
+// Serialize all form inputs
+const allData = dom('input, select, textarea').serialize();
+
+// Works with any collection of form elements
+const specificInputs = dom('#form input[type="text"], #form select').serialize();
+
+// Can be chained with other collection methods
+const filteredData = dom('.form-element')
+  .filter('[name]')  // Only elements with name attributes
+  .serialize();`
+  });
+
+  formSection.append(collectionSerializeExample);
+
+  dom('#serialize-form-elements').on('click', () => {
+    const data = dom('.form-element').serialize();
+    dom('#serialize-output').html(`
+      <strong>Form Elements Data:</strong>
+      <pre class="mt-2 text-xs">${JSON.stringify(data, null, 2)}</pre>
+      <div class="mt-2 text-xs text-gray-500">Serialized ${dom('.form-element').length} form elements using dom('.form-element').serialize()</div>
+    `);
+  });
+
+  dom('#serialize-products').on('click', () => {
+    const data = dom('.product-element').serialize();
+    dom('#serialize-output').html(`
+      <strong>Product Preferences Data:</strong>
+      <pre class="mt-2 text-xs">${JSON.stringify(data, null, 2)}</pre>
+      <div class="mt-2 text-xs text-gray-500">Note: Checkboxes with same name become arrays automatically</div>
+    `);
+  });
+
+  dom('#serialize-all-inputs').on('click', () => {
+    const data = dom('input, select, textarea').serialize();
+    dom('#serialize-output').html(`
+      <strong>All Form Data:</strong>
+      <pre class="mt-2 text-xs">${JSON.stringify(data, null, 2)}</pre>
+      <div class="mt-2 text-xs text-gray-500">Serialized all input, select, and textarea elements on the page</div>
+    `);
+  });
+
   // Dynamic form example
   const dynamicExample = renderExample({
     id: 'dynamic-form-example',

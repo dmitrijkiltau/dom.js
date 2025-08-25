@@ -84,35 +84,57 @@ dom('.items').removeClass('inactive')
 dom('.items').toggleClass('visible')
 dom('.items').css('color', 'red')
 dom('.items').attr('data-id', '123')
+dom('.items').attrs({id: 'main', class: 'active'}) // bulk attributes
+dom('.items').prop('checked', true) // properties vs attributes
+dom('.items').val('new value') // form element values
 dom('.items').html('<span>New content</span>')
 dom('.items').text('New text')
 dom('.items').append('<div>Child</div>')
-dom('.items').remove()
+dom('.items').after('<div>After</div>')
+dom('.items').before('<div>Before</div>')
+dom('.items').empty() // remove all children
+dom('.items').remove() // remove elements
+dom('.items').clone() // clone elements
 
 // Event handling
 dom('.btn').on('click', handler)
+dom('.btn').once('click', handler) // one-time event
 dom('.btn').off('click', handler)
+dom('.btn').trigger('custom-event', {data: 'value'}) // dispatch events
+
+// Event shortcuts
+dom('.btn').click() // trigger click
+dom('.btn').click(handler) // bind click handler
+dom('.btn').focus() // focus element
+dom('.btn').hover(enterHandler, leaveHandler) // mouse enter/leave
+
+// Traversal and filtering
+dom('.items').filter('.active') // filter by selector or function
+dom('.items').find('.child') // descendants
+dom('.items').parent() // immediate parents
+dom('.items').parents('.container') // all ancestors (optionally filtered)
+dom('.items').siblings('.other') // sibling elements
+dom('.items').first() // first element
+dom('.items').last() // last element
+dom('.items').eq(0) // element at index
 
 // Utilities
 dom('.items').each((el, idx) => console.log(el))
-dom('.items').filter('.active')
-dom('.items').find('.child')
-dom('.items').first()
-dom('.items').last()
-dom('.items').eq(0)
 dom('.items').el() // get first element
+dom('.items').serialize() // serialize form data (works on forms or form fields)
 ```
 
 ## Templates
 
-HTML template system with data binding using `data-text`, `data-attr-*`, and `data-html` attributes.
+HTML template system with data binding and conditional rendering using `data-*` attributes.
 
 ### Basic Usage
 
 ```html
 <template id="row">
-  <li>
-    <a data-text="title" data-attr-href="url"></a>
+  <li data-if="visible" data-show="active">
+    <a data-text="title" data-attr-href="url" data-on-click="handleClick"></a>
+    <span data-hide="editing" data-text="description"></span>
   </li>
 </template>
 ```
@@ -120,16 +142,37 @@ HTML template system with data binding using `data-text`, `data-attr-*`, and `da
 ```js
 import { renderTemplate, useTemplate, tpl } from '@dmitrijkiltau/dom.js';
 
+// Render with conditional logic
+const data = {
+  title: 'Docs',
+  url: '/docs',
+  description: 'Documentation page',
+  visible: true,
+  active: false,
+  editing: true,
+  handleClick: (e) => console.log('Clicked!', e)
+};
+
 // Render once
-dom('#list').append(renderTemplate('#row', { title: 'Docs', url: '/docs' }));
+dom('#list').append(renderTemplate('#row', data));
 
 // Create reusable render function
 const renderRow = useTemplate('#row');
-dom('#list').append(renderRow({ title: 'Home', url: '/' }));
+dom('#list').append(renderRow(data));
 
 // Get template element
 const template = tpl('#row'); // returns HTMLTemplateElement
 ```
+
+### Template Binding Types
+
+- `data-text="key"` - Sets element text content
+- `data-html="key"` - Sets element innerHTML
+- `data-attr-*="key"` - Sets any attribute (e.g., `data-attr-id="userId"`)
+- `data-if="key"` - Shows element only if value is truthy (removes if falsy)
+- `data-show="key"` - Shows/hides element with display style
+- `data-hide="key"` - Hides element when value is truthy
+- `data-on-*="key"` - Binds event handlers (e.g., `data-on-click="handleClick"`)
 
 ## Forms
 
@@ -164,10 +207,11 @@ const queryString = toQueryString(formData); // converts to URL query string
 Event handling with support for delegation and various target types.
 
 ```js
-import { on, off } from '@dmitrijkiltau/dom.js';
+import { on, once, off } from '@dmitrijkiltau/dom.js';
 
 // Event binding - target can be window, document, Element, or DOMCollection
 on(window, 'scroll', handler);
+once(document, 'DOMContentLoaded', handler); // one-time event
 on(document, 'click', handler);
 on('.buttons', 'click', handler);
 on(dom('.items'), 'mouseenter', handler);
@@ -178,7 +222,7 @@ off(window, 'scroll', handler);
 
 ## HTTP
 
-Simple fetch wrapper with response helpers and automatic JSON handling.
+Simple fetch wrapper with response helpers, automatic JSON handling, and request utilities.
 
 ```js
 import { http } from '@dmitrijkiltau/dom.js';
@@ -196,6 +240,17 @@ const result = await http.post('/api/items', { title: 'New Item' });
 await http.put('/api/items/1', data);
 await http.patch('/api/items/1', partialData);
 await http.delete('/api/items/1');
+
+// Request helpers
+const timeoutHttp = http.withTimeout(5000); // 5 second timeout
+const authedHttp = http.withHeaders({ 
+  'Authorization': 'Bearer token',
+  'X-Client': 'my-app'
+});
+
+// Use configured HTTP clients
+const response = await timeoutHttp.get('/slow-endpoint');
+const result = await authedHttp.post('/api/secure-data', payload);
 ```
 
 ### Response Object
@@ -213,12 +268,20 @@ await http.delete('/api/items/1');
 
 ## Animation
 
-Web Animations API integration for smooth animations.
+Web Animations API integration with common presets and smooth animations.
 
 ```js
-import { animate } from '@dmitrijkiltau/dom.js';
+import { animate, animations } from '@dmitrijkiltau/dom.js';
 
-// Animate elements
+// Built-in animation presets
+dom('.notice').fadeIn(300);
+dom('.modal').slideUp(400);
+dom('.button').pulse();
+dom('.error').shake();
+
+// Available presets: fadeIn, fadeOut, slideUp, slideDown, pulse, shake
+
+// Custom animations
 dom('.notice').animate([
   { opacity: 0, transform: 'translateY(-20px)' },
   { opacity: 1, transform: 'translateY(0)' }
@@ -227,7 +290,8 @@ dom('.notice').animate([
   easing: 'ease-out'
 });
 
-// Or use the method directly
+// Or use the function directly
+const [keyframes, options] = animations.fadeIn(500);
 animate(element, keyframes, options);
 ```
 
@@ -297,11 +361,25 @@ npm run docs:dev
 
 ## Roadmap
 
-- [ ] `.serialize()` method directly on `DOMCollection`
-- [ ] `once()` event helper
+### Recently Added ✅
+- `.last()`, `.filter()`, `.empty()`, `.remove()` collection methods
+- `.parent()`, `.parents()`, `.siblings()` traversal methods
+- `.val()`, `.prop()`, `.attrs()`, `.serialize()` for better form and attribute handling
+- `.once()` event method for one-time event handling
+- `.clone()`, `.after()`, `.before()` element manipulation
+- `.trigger()` for custom event dispatching
+- Event shortcuts (`.click()`, `.focus()`, `.blur()`, `.hover()`)
+- Animation presets (fadeIn, fadeOut, slideUp, slideDown, pulse, shake)
+- Enhanced template system with conditional rendering (`data-if`, `data-show`, `data-hide`)
+- Event binding in templates (`data-on-*`)
+- HTTP request helpers (`withTimeout()`, `withHeaders()`)
+
+### Future Enhancements
 - [ ] Lightweight `morph()`/`swap()` for HTML snippets
-- [ ] Additional animation utilities
+- [ ] Template loops (`data-for`)
+- [ ] Additional animation utilities and chaining
 - [ ] Extended plugin ecosystem
+- [ ] HTTP request interceptors and middleware
 
 ## Contributing
 

@@ -232,6 +232,122 @@ dom('#spinner').animate([
     ], { duration: 1200, fill: 'forwards' }).finished;
   });
 
+  // Animation Presets Example
+  const animationPresetsExample = renderExample({
+    id: 'animation-presets-example',
+    title: 'Animation Presets',
+    description: 'Built-in animation presets: fadeIn, fadeOut, slideUp, slideDown, pulse, shake',
+    demo: `
+      <div class="space-y-4">
+        <div class="grid grid-cols-3 gap-2">
+          <button id="fade-in-preset" class="btn btn-primary text-sm">Fade In</button>
+          <button id="fade-out-preset" class="btn btn-primary text-sm">Fade Out</button>
+          <button id="slide-up-preset" class="btn btn-secondary text-sm">Slide Up</button>
+          <button id="slide-down-preset" class="btn btn-secondary text-sm">Slide Down</button>
+          <button id="pulse-preset" class="btn btn-accent text-sm">Pulse</button>
+          <button id="shake-preset" class="btn btn-accent text-sm">Shake</button>
+        </div>
+        
+        <div class="demo-area border border-gray-300 rounded p-6 bg-gray-50 flex items-center justify-center min-h-[120px]">
+          <div id="preset-demo-box" class="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white text-sm font-bold shadow-lg">
+            DEMO
+          </div>
+        </div>
+        
+        <div class="flex space-x-2">
+          <button id="reset-preset-demo" class="btn btn-outline text-sm">Reset</button>
+          <input id="duration-input" type="number" class="input text-sm w-20" value="400" min="100" max="2000" step="100">
+          <label class="flex items-center text-sm text-gray-600">ms duration</label>
+        </div>
+        
+        <div id="preset-output" class="text-sm text-gray-600 bg-gray-100 p-3 rounded"></div>
+      </div>
+    `,
+    code: `import { animations } from '@dmitrijkiltau/dom.js';
+
+// Use built-in animation presets
+dom('.element').fadeIn(300);
+dom('.modal').fadeOut(500);
+dom('.notification').slideUp(400);
+dom('.dropdown').slideDown(300);
+dom('.button').pulse(600);
+dom('.error').shake(500);
+
+// Get preset keyframes and options for custom use
+const [keyframes, options] = animations.fadeIn(400);
+dom('.element').animate(keyframes, options);
+
+// Chain animations
+dom('.item')
+  .fadeIn(300)
+  .then(() => dom('.item').pulse(200))
+  .then(() => dom('.item').shake(300));
+
+// All presets return proper Web Animations API configurations
+const fadePreset = animations.fadeOut(600);
+console.log(fadePreset); // [[{opacity: 1}, {opacity: 0}], {duration: 600, easing: 'ease-in'}]`
+  });
+
+  animationSection.append(animationPresetsExample);
+
+  function resetPresetDemo() {
+    dom('#preset-demo-box').css({
+      opacity: '1',
+      transform: 'translateY(0) scale(1)',
+      display: 'flex'
+    });
+  }
+
+  dom('#fade-in-preset').on('click', () => {
+    const duration = parseInt(dom('#duration-input').val()) || 400;
+    resetPresetDemo();
+    dom('#preset-demo-box').css('opacity', '0');
+    dom('#preset-demo-box').fadeIn(duration);
+    dom('#preset-output').html(`<strong>Fade In animation!</strong> Duration: ${duration}ms. The element fades from transparent to opaque.`);
+  });
+
+  dom('#fade-out-preset').on('click', () => {
+    const duration = parseInt(dom('#duration-input').val()) || 400;
+    resetPresetDemo();
+    dom('#preset-demo-box').fadeOut(duration);
+    dom('#preset-output').html(`<strong>Fade Out animation!</strong> Duration: ${duration}ms. The element fades from opaque to transparent.`);
+  });
+
+  dom('#slide-up-preset').on('click', () => {
+    const duration = parseInt(dom('#duration-input').val()) || 400;
+    resetPresetDemo();
+    dom('#preset-demo-box').css({ transform: 'translateY(20px)', opacity: '0' });
+    dom('#preset-demo-box').slideUp(duration);
+    dom('#preset-output').html(`<strong>Slide Up animation!</strong> Duration: ${duration}ms. The element slides up while fading in.`);
+  });
+
+  dom('#slide-down-preset').on('click', () => {
+    const duration = parseInt(dom('#duration-input').val()) || 400;
+    resetPresetDemo();
+    dom('#preset-demo-box').css({ transform: 'translateY(-20px)', opacity: '0' });
+    dom('#preset-demo-box').slideDown(duration);
+    dom('#preset-output').html(`<strong>Slide Down animation!</strong> Duration: ${duration}ms. The element slides down while fading in.`);
+  });
+
+  dom('#pulse-preset').on('click', () => {
+    const duration = parseInt(dom('#duration-input').val()) || 600;
+    resetPresetDemo();
+    dom('#preset-demo-box').pulse(duration);
+    dom('#preset-output').html(`<strong>Pulse animation!</strong> Duration: ${duration}ms. The element scales up and down smoothly.`);
+  });
+
+  dom('#shake-preset').on('click', () => {
+    const duration = parseInt(dom('#duration-input').val()) || 500;
+    resetPresetDemo();
+    dom('#preset-demo-box').shake(duration);
+    dom('#preset-output').html(`<strong>Shake animation!</strong> Duration: ${duration}ms. The element shakes horizontally to get attention.`);
+  });
+
+  dom('#reset-preset-demo').on('click', () => {
+    resetPresetDemo();
+    dom('#preset-output').html('Demo reset! Try the different animation presets above with custom duration.');
+  });
+
   // Advanced animation example
   const advancedExample = renderExample({
     id: 'advanced-animations-example',
