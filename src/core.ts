@@ -1,10 +1,6 @@
 import { MaybeArray, Selector, EventTargetish } from './types';
 import { isString, isElement, isDocument, isWindow } from './utils';
 import { DOMCollection } from './collection';
-import { renderTemplate, useTemplate, tpl } from './template';
-import { serializeForm, toQueryString, onSubmit } from './forms';
-import { animate, animations, installAnimationMethods } from './motion';
-import { http } from './http';
 import { use, type Plugin } from './plugins';
 
 // ——— Core selector ———
@@ -65,20 +61,14 @@ function appendChildren(el: Element, kids: MaybeArray<string | Node | DOMCollect
   }
 }
 
-// ——— API bag (default export) ———
+// ——— Core API (default export) ———
 const api = Object.assign(function core(input?: Selector) { return dom(input); }, {
-  dom, create, on, once, off, http,
-  renderTemplate, useTemplate, tpl,
-  serializeForm, toQueryString, onSubmit,
-  animate, animations,
+  dom, create, on, once, off,
   DOMCollection,
   use: (plugin: Plugin) => use(plugin, api)
 });
 
-// ——— Initialize animation methods ———
-installAnimationMethods();
-
 // ——— Exports ———
-export { DOMCollection, renderTemplate, useTemplate, tpl, serializeForm, toQueryString, onSubmit, animate, animations, http, use };
+export { DOMCollection, use };
 export type { Plugin };
 export default api as typeof dom & typeof api;
