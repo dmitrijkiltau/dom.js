@@ -14,6 +14,7 @@ function init() {
   initNavigation();
   initContent();
   initSidebarFooter();
+  initMobileNavigation(); // Add mobile navigation
   
   // Run syntax highlighting after content is loaded to catch all code blocks
   setTimeout(() => {
@@ -143,6 +144,55 @@ function initThemeToggle() {
       themeLabel.text('Light Theme');
     }
   }
+}
+
+// Initialize mobile navigation functionality
+function initMobileNavigation() {
+  const mobileMenuButton = dom('#mobile-menu-button');
+  const sidebar = dom('#sidebar');
+  const overlay = dom('#mobile-sidebar-overlay');
+  
+  // Toggle mobile menu
+  mobileMenuButton.on('click', () => {
+    const isOpen = sidebar.elements[0]?.classList.contains('translate-x-0');
+    
+    if (isOpen) {
+      // Close menu
+      sidebar.removeClass('translate-x-0').addClass('-translate-x-full');
+      overlay.addClass('hidden');
+    } else {
+      // Open menu
+      sidebar.removeClass('-translate-x-full').addClass('translate-x-0');
+      overlay.removeClass('hidden');
+    }
+  });
+  
+  // Close menu when clicking overlay
+  overlay.on('click', () => {
+    sidebar.removeClass('translate-x-0').addClass('-translate-x-full');
+    overlay.addClass('hidden');
+  });
+  
+  // Close menu when clicking navigation links on mobile
+  dom('#nav-menu').on('click', 'a', () => {
+    // Only close on mobile (when overlay is visible)
+    if (!overlay.elements[0]?.classList.contains('hidden')) {
+      sidebar.removeClass('translate-x-0').addClass('-translate-x-full');
+      overlay.addClass('hidden');
+    }
+  });
+  
+  // Handle resize to ensure proper state
+  window.addEventListener('resize', () => {
+    if (window.innerWidth >= 1024) { // lg breakpoint
+      // Desktop: ensure overlay is hidden and sidebar is visible
+      overlay.addClass('hidden');
+      sidebar.removeClass('translate-x-0 -translate-x-full');
+    } else {
+      // Mobile: ensure sidebar starts hidden
+      sidebar.removeClass('translate-x-0').addClass('-translate-x-full');
+    }
+  });
 }
 
 // Start when DOM is ready
