@@ -243,6 +243,225 @@ const html = await response.html();     // DOM Element`
     }
   });
 
+  // HTTP Request Helpers Example
+  const httpHelpersExample = renderExample({
+    id: 'http-helpers-example',
+    title: 'HTTP Request Helpers',
+    description: 'New request configuration helpers: withTimeout() and withHeaders()',
+    demo: `
+      <div class="space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <h5 class="font-medium mb-2">Timeout Configuration</h5>
+            <div class="space-y-2">
+              <input id="timeout-duration" type="number" class="input" value="3000" min="1000" max="10000" step="1000">
+              <label class="text-sm text-gray-600">Timeout (ms)</label>
+              <button id="timeout-demo" class="btn btn-primary w-full text-sm">Test Timeout</button>
+              <button id="slow-request-demo" class="btn btn-secondary w-full text-sm">Slow Request (5s)</button>
+            </div>
+          </div>
+          <div>
+            <h5 class="font-medium mb-2">Default Headers</h5>
+            <div class="space-y-2">
+              <input id="auth-header" class="input text-sm" placeholder="Authorization" value="Bearer demo-token">
+              <input id="client-header" class="input text-sm" placeholder="X-Client" value="dom.js-demo">
+              <input id="version-header" class="input text-sm" placeholder="X-Version" value="1.0">
+              <button id="headers-demo" class="btn btn-primary w-full text-sm">Test Headers</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="space-y-2">
+          <h5 class="font-medium">Combined Configuration</h5>
+          <div class="flex space-x-2">
+            <button id="combined-demo" class="btn btn-accent text-sm">Timeout + Headers</button>
+            <button id="chain-demo" class="btn btn-accent text-sm">Chain Helpers</button>
+            <button id="clear-helpers-demo" class="btn btn-outline text-sm">Clear Results</button>
+          </div>
+        </div>
+        
+        <div id="helpers-output" class="text-sm bg-gray-50 border border-gray-300 rounded p-4 min-h-[150px] overflow-auto">
+          <p class="text-gray-500 text-center">Try the HTTP request helpers above...</p>
+        </div>
+      </div>
+    `,
+    code: `import { http } from '@dmitrijkiltau/dom.js';
+
+// Create HTTP client with timeout
+const timeoutHttp = http.withTimeout(5000); // 5 second timeout
+const response = await timeoutHttp.get('/slow-endpoint');
+
+// Create HTTP client with default headers
+const authedHttp = http.withHeaders({
+  'Authorization': 'Bearer token',
+  'X-Client': 'my-app',
+  'Content-Type': 'application/json'
+});
+
+// All requests will include these headers automatically
+const response = await authedHttp.post('/api/data', { name: 'John' });
+
+// Chain helpers for combined configuration
+const configuredHttp = http
+  .withTimeout(3000)
+  .withHeaders({
+    'Authorization': 'Bearer token',
+    'X-Version': '1.0'
+  });
+
+// Use the configured client
+const users = await configuredHttp.get('/api/users');
+const result = await configuredHttp.post('/api/users', userData);
+
+// Headers are merged with request-specific headers
+const response = await authedHttp.get('/endpoint', {
+  headers: { 'X-Request-ID': '123' } // Merged with default headers
+});`
+  });
+
+  httpSection.append(httpHelpersExample);
+
+  function showHelpersResult(title, content, isError = false) {
+    const bgColor = isError ? 'bg-red-50 border-red-200' : 'bg-gray-100';
+    const titleColor = isError ? 'text-red-800' : 'text-gray-800';
+    const timestamp = new Date().toLocaleTimeString();
+
+    const resultHtml = `
+      <div class="${bgColor} border rounded p-3 mb-3">
+        <div class="flex justify-between items-center mb-2">
+          <h6 class="font-medium ${titleColor}">${title}</h6>
+          <span class="text-xs text-gray-500">[${timestamp}]</span>
+        </div>
+        <div class="text-sm text-gray-700">
+          ${typeof content === 'string' ? content : `<pre class="whitespace-pre-wrap text-xs overflow-x-auto">${JSON.stringify(content, null, 2)}</pre>`}
+        </div>
+      </div>
+    `;
+
+    dom('#helpers-output').append(resultHtml);
+    dom('#helpers-output').el().scrollTop = dom('#helpers-output').el().scrollHeight;
+  }
+
+  dom('#timeout-demo').on('click', async () => {
+    const timeout = parseInt(dom('#timeout-duration').val()) || 3000;
+    
+    try {
+      const timeoutHttp = http.withTimeout(timeout);
+      showHelpersResult('Timeout Test Started', `Testing with ${timeout}ms timeout...`);
+      
+      const response = await timeoutHttp.get('https://httpbin.org/delay/1'); // 1 second delay
+      const data = await response.json();
+      
+      showHelpersResult('Timeout Success', {
+        timeout: `${timeout}ms`,
+        status: response.status,
+        actualDelay: '1000ms',
+        result: 'Request completed within timeout'
+      });
+    } catch (error) {
+      showHelpersResult('Timeout Error', `Request failed: ${error.message}`, true);
+    }
+  });
+
+  dom('#slow-request-demo').on('click', async () => {
+    const timeout = parseInt(dom('#timeout-duration').val()) || 3000;
+    
+    try {
+      const timeoutHttp = http.withTimeout(timeout);
+      showHelpersResult('Slow Request Started', `5-second request with ${timeout}ms timeout...`);
+      
+      const response = await timeoutHttp.get('https://httpbin.org/delay/5'); // 5 second delay
+      const data = await response.json();
+      
+      showHelpersResult('Slow Request Success', 'Request completed (should only succeed if timeout > 5000ms)');
+    } catch (error) {
+      showHelpersResult('Expected Timeout', `Request timed out as expected: ${error.message}`, false);
+    }
+  });
+
+  dom('#headers-demo').on('click', async () => {
+    const authHeader = dom('#auth-header').val();
+    const clientHeader = dom('#client-header').val();
+    const versionHeader = dom('#version-header').val();
+    
+    try {
+      const headersHttp = http.withHeaders({
+        'Authorization': authHeader,
+        'X-Client': clientHeader,
+        'X-Version': versionHeader
+      });
+
+      showHelpersResult('Headers Request Started', 'Sending request with default headers...');
+      
+      const response = await headersHttp.get('https://httpbin.org/headers');
+      const data = await response.json();
+      
+      showHelpersResult('Headers Success', {
+        sentHeaders: {
+          'Authorization': authHeader,
+          'X-Client': clientHeader,
+          'X-Version': versionHeader
+        },
+        receivedHeaders: data.headers
+      });
+    } catch (error) {
+      showHelpersResult('Headers Error', `Request failed: ${error.message}`, true);
+    }
+  });
+
+  dom('#combined-demo').on('click', async () => {
+    const timeout = parseInt(dom('#timeout-duration').val()) || 3000;
+    
+    try {
+      // Create client with both timeout and headers
+      const configuredHttp = http.withTimeout(timeout).withHeaders({
+        'X-Demo': 'combined-config',
+        'X-Timeout': timeout.toString()
+      });
+
+      showHelpersResult('Combined Config Started', `Request with ${timeout}ms timeout and custom headers...`);
+      
+      const response = await configuredHttp.get('https://httpbin.org/headers');
+      const data = await response.json();
+      
+      showHelpersResult('Combined Config Success', {
+        configuration: {
+          timeout: `${timeout}ms`,
+          headers: ['X-Demo', 'X-Timeout']
+        },
+        result: data.headers
+      });
+    } catch (error) {
+      showHelpersResult('Combined Config Error', `Request failed: ${error.message}`, true);
+    }
+  });
+
+  dom('#chain-demo').on('click', async () => {
+    try {
+      showHelpersResult('Chain Demo Started', 'Demonstrating helper method chaining...');
+      
+      // Show that helpers can be chained and create independent clients
+      const client1 = http.withTimeout(2000);
+      const client2 = http.withHeaders({ 'X-Client': 'client2' });
+      const client3 = client1.withHeaders({ 'X-Client': 'combined' }); // Chain on existing client
+      
+      const response = await client3.get('https://httpbin.org/headers');
+      const data = await response.json();
+      
+      showHelpersResult('Chain Demo Success', {
+        explanation: 'client3 = client1.withTimeout(2000).withHeaders({...})',
+        finalHeaders: data.headers,
+        note: 'Each helper returns a new configured HTTP client'
+      });
+    } catch (error) {
+      showHelpersResult('Chain Demo Error', `Request failed: ${error.message}`, true);
+    }
+  });
+
+  dom('#clear-helpers-demo').on('click', () => {
+    dom('#helpers-output').html('<p class="text-gray-500 text-center">Results cleared. Try the HTTP request helpers above...</p>');
+  });
+
   // Advanced HTTP example
   const advancedExample = renderExample({
     id: 'advanced-http-patterns-example',

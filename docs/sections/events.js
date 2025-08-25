@@ -266,4 +266,184 @@ dom(element).off('click', customHandler);`
       logAdvancedEvent(`Window resized to ${window.innerWidth}x${window.innerHeight}`);
     }, 200);
   });
+
+  // New Event Features Example
+  const newEventFeaturesExample = renderExample({
+    id: 'new-event-features-example',
+    title: 'New Event Features',
+    description: 'Enhanced event methods: once, trigger, click shortcuts, hover',
+    demo: `
+      <div class="space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <h5 class="font-medium mb-2">One-time Events</h5>
+            <button id="once-button" class="btn btn-primary mb-2">Click Once Only</button>
+            <button id="reset-once" class="btn btn-outline text-sm">Reset</button>
+            <div id="once-counter" class="text-sm text-gray-600">Clicks: 0</div>
+          </div>
+          <div>
+            <h5 class="font-medium mb-2">Custom Events</h5>
+            <button id="trigger-custom" class="btn btn-secondary mb-2">Trigger Custom Event</button>
+            <div id="custom-listener" class="p-2 border border-gray-300 rounded bg-gray-50 text-sm">
+              Listening for custom events...
+            </div>
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <h5 class="font-medium mb-2">Click Shortcuts</h5>
+            <button id="shortcut-button" class="btn btn-primary mb-2">Button with Click Handler</button>
+            <button id="programmatic-click" class="btn btn-secondary text-sm">Trigger Click Programmatically</button>
+          </div>
+          <div>
+            <h5 class="font-medium mb-2">Focus Management</h5>
+            <input id="focus-input" class="input mb-2" placeholder="Focus me!">
+            <div class="space-x-2">
+              <button id="focus-btn" class="btn btn-secondary text-sm">Focus Input</button>
+              <button id="blur-btn" class="btn btn-secondary text-sm">Blur Input</button>
+            </div>
+          </div>
+        </div>
+        
+        <div>
+          <h5 class="font-medium mb-2">Hover Events</h5>
+          <div class="grid grid-cols-3 gap-2">
+            <div class="hover-box p-4 border-2 border-gray-300 rounded text-center cursor-pointer transition-all duration-200">
+              Box 1
+            </div>
+            <div class="hover-box p-4 border-2 border-gray-300 rounded text-center cursor-pointer transition-all duration-200">
+              Box 2
+            </div>
+            <div class="hover-box p-4 border-2 border-gray-300 rounded text-center cursor-pointer transition-all duration-200">
+              Box 3
+            </div>
+          </div>
+        </div>
+        
+        <div id="new-events-output" class="text-sm text-gray-600 bg-gray-100 p-3 rounded"></div>
+      </div>
+    `,
+    code: `// One-time event binding
+dom('#button').once('click', (ev, el) => {
+  console.log('This will only fire once!');
+});
+
+// Trigger custom events
+dom('#element').trigger('my-custom-event', { data: 'value' });
+
+// Listen for custom events
+dom('#element').on('my-custom-event', (ev, el) => {
+  console.log('Custom event received:', ev.detail);
+});
+
+// Event shortcuts
+dom('#button').click(); // Trigger click programmatically
+dom('#button').click(handler); // Bind click handler
+
+// Focus management
+dom('#input').focus(); // Focus element
+dom('#input').blur(); // Blur element
+
+// Hover events (mouseenter/mouseleave)
+dom('.hover-element').hover(
+  (ev, el) => dom(el).addClass('hovered'), // Enter handler
+  (ev, el) => dom(el).removeClass('hovered') // Leave handler (optional)
+);`
+  });
+
+  eventSection.append(newEventFeaturesExample);
+
+  // One-time event functionality
+  let onceClicks = 0;
+  let onceHandler = null;
+
+  function setupOnceHandler() {
+    onceHandler = (ev, el) => {
+      onceClicks++;
+      dom('#once-counter').text(`Clicks: ${onceClicks}`);
+      dom('#new-events-output').html(`<strong>Once handler fired!</strong> This was click #${onceClicks}. The handler has been automatically removed.`);
+      dom('#once-button').text('Handler Removed').addClass('opacity-50').prop('disabled', true);
+    };
+    dom('#once-button').once('click', onceHandler);
+  }
+
+  setupOnceHandler();
+
+  dom('#reset-once').on('click', () => {
+    dom('#once-button').text('Click Once Only').removeClass('opacity-50').prop('disabled', false);
+    setupOnceHandler();
+    dom('#new-events-output').html('Once handler reset! Click the button above - it will only respond once.');
+  });
+
+  // Custom events functionality
+  dom('#custom-listener').on('my-custom-event', (ev, el) => {
+    const detail = ev.detail;
+    dom('#custom-listener').html(`
+      <strong>Custom event received!</strong><br>
+      Type: ${ev.type}<br>
+      Data: ${JSON.stringify(detail)}<br>
+      Timestamp: ${new Date().toLocaleTimeString()}
+    `).addClass('bg-green-50 border-green-300');
+    
+    setTimeout(() => {
+      dom('#custom-listener').removeClass('bg-green-50 border-green-300').html('Listening for custom events...');
+    }, 2000);
+  });
+
+  dom('#trigger-custom').on('click', () => {
+    const eventData = {
+      message: 'Hello from custom event!',
+      timestamp: Date.now(),
+      random: Math.floor(Math.random() * 100)
+    };
+    dom('#custom-listener').trigger('my-custom-event', eventData);
+    dom('#new-events-output').html('<strong>Custom event triggered!</strong> The listener above should have received the event with data.');
+  });
+
+  // Click shortcuts functionality
+  dom('#shortcut-button').click((ev, el) => {
+    const clickCount = parseInt(el.dataset.clicks || '0') + 1;
+    el.dataset.clicks = clickCount;
+    dom(el).text(`Clicked ${clickCount} times`);
+    dom('#new-events-output').html(`<strong>Click handler fired!</strong> Button has been clicked ${clickCount} times.`);
+  });
+
+  dom('#programmatic-click').on('click', () => {
+    dom('#shortcut-button').click(); // Trigger click programmatically
+    dom('#new-events-output').html('<strong>Programmatic click triggered!</strong> The click() method can trigger clicks on other elements.');
+  });
+
+  // Focus management functionality
+  dom('#focus-input').on('focus', (ev, el) => {
+    dom(el).addClass('ring-2 ring-blue-400');
+    dom('#new-events-output').html('<strong>Input focused!</strong> The focus event was triggered.');
+  });
+
+  dom('#focus-input').on('blur', (ev, el) => {
+    dom(el).removeClass('ring-2 ring-blue-400');
+    dom('#new-events-output').html('<strong>Input blurred!</strong> The blur event was triggered.');
+  });
+
+  dom('#focus-btn').on('click', () => {
+    dom('#focus-input').focus();
+  });
+
+  dom('#blur-btn').on('click', () => {
+    dom('#focus-input').blur();
+  });
+
+  // Hover events functionality
+  dom('.hover-box').hover(
+    (ev, el) => {
+      dom(el).addClass('border-blue-400 bg-blue-50 scale-105');
+      const boxText = el.textContent;
+      dom('#new-events-output').html(`<strong>Mouse entered ${boxText}!</strong> The hover enter handler was called.`);
+    },
+    (ev, el) => {
+      dom(el).removeClass('border-blue-400 bg-blue-50 scale-105');
+      const boxText = el.textContent;
+      dom('#new-events-output').html(`<strong>Mouse left ${boxText}!</strong> The hover leave handler was called.`);
+    }
+  );
 }
