@@ -5,7 +5,7 @@
  * Ensures the build output is valid and core functions work
  */
 
-import api, { dom, DOMCollection, http } from '../dist/index.js';
+import api, { dom, DOMCollection, http, once, animations } from '../dist/index.js';
 
 console.log('🧪 Running dom.js sanity tests...\n');
 
@@ -54,10 +54,48 @@ test('HTTP object has expected methods', () => {
 });
 
 test('API object has utility methods', () => {
-  const expectedMethods = ['dom', 'create', 'on', 'off'];
+  const expectedMethods = ['dom', 'create', 'on', 'once', 'off'];
   for (const method of expectedMethods) {
     if (typeof api[method] !== 'function') {
       throw new Error(`api.${method} is not a function`);
+    }
+  }
+});
+
+test('DOMCollection has new methods', () => {
+  const collection = new DOMCollection([]);
+  const expectedMethods = ['last', 'filter', 'parent', 'siblings', 'remove', 'empty', 'clone', 'once', 'trigger', 'val', 'prop', 'attrs'];
+  for (const method of expectedMethods) {
+    if (typeof collection[method] !== 'function') {
+      throw new Error(`DOMCollection.${method} is not a function`);
+    }
+  }
+});
+
+test('once function is available', () => {
+  if (typeof once !== 'function') {
+    throw new Error('once function not exported');
+  }
+});
+
+test('animations object has presets', () => {
+  if (typeof animations !== 'object') {
+    throw new Error('animations object not exported');
+  }
+  const expectedAnimations = ['fadeIn', 'fadeOut', 'slideUp', 'slideDown', 'pulse', 'shake'];
+  for (const animation of expectedAnimations) {
+    if (typeof animations[animation] !== 'function') {
+      throw new Error(`animations.${animation} is not a function`);
+    }
+  }
+});
+
+test('DOMCollection has animation shortcuts', () => {
+  const collection = new DOMCollection([]);
+  const expectedMethods = ['fadeIn', 'fadeOut', 'slideUp', 'slideDown', 'pulse', 'shake'];
+  for (const method of expectedMethods) {
+    if (typeof collection[method] !== 'function') {
+      throw new Error(`DOMCollection.${method} is not a function`);
     }
   }
 });

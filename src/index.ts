@@ -3,7 +3,7 @@ import { isString, isElement, isDocument, isWindow } from './utils';
 import { DOMCollection } from './collection';
 import { renderTemplate, useTemplate, tpl } from './template';
 import { serializeForm, toQueryString, onSubmit } from './forms';
-import { animate } from './motion';
+import { animate, animations } from './motion';
 
 // ——— Core selector ———
 export function dom(input?: Selector): DOMCollection {
@@ -28,6 +28,16 @@ export function create(tag: string, attrs?: Record<string, any> | null, children
 export function on(target: EventTargetish | DOMCollection, type: string, handler: (ev: Event) => void): void {
   const list = target instanceof DOMCollection ? target.elements : [target as any];
   list.forEach(t => (t as any).addEventListener(type, handler));
+}
+export function once(target: EventTargetish | DOMCollection, type: string, handler: (ev: Event) => void): void {
+  const list = target instanceof DOMCollection ? target.elements : [target as any];
+  list.forEach(t => {
+    const onceHandler = (ev: Event) => {
+      handler(ev);
+      (t as any).removeEventListener(type, onceHandler);
+    };
+    (t as any).addEventListener(type, onceHandler);
+  });
 }
 export function off(target: EventTargetish | DOMCollection, type: string, handler: (ev: Event) => void, options?: boolean | EventListenerOptions): void {
   const list = target instanceof DOMCollection ? target.elements : [target as any];
@@ -90,10 +100,10 @@ export function use(plugin: Plugin) { if (!_plugins.has(plugin)) { plugin(api); 
 
 // ——— API bag (default export) ———
 const api = Object.assign(function core(input?: Selector) { return dom(input); }, {
-  dom, create, on, off, http,
+  dom, create, on, once, off, http,
   renderTemplate, useTemplate, tpl,
   serializeForm, toQueryString, onSubmit,
-  animate,
+  animate, animations,
   DOMCollection,
 });
 
@@ -103,6 +113,32 @@ const api = Object.assign(function core(input?: Selector) { return dom(input); }
   return this;
 };
 
+// Add animation shortcuts
+(DOMCollection as any).prototype.fadeIn = function (duration?: number) {
+  const [keyframes, options] = animations.fadeIn(duration);
+  return this.animate(keyframes, options);
+};
+(DOMCollection as any).prototype.fadeOut = function (duration?: number) {
+  const [keyframes, options] = animations.fadeOut(duration);
+  return this.animate(keyframes, options);
+};
+(DOMCollection as any).prototype.slideUp = function (duration?: number) {
+  const [keyframes, options] = animations.slideUp(duration);
+  return this.animate(keyframes, options);
+};
+(DOMCollection as any).prototype.slideDown = function (duration?: number) {
+  const [keyframes, options] = animations.slideDown(duration);
+  return this.animate(keyframes, options);
+};
+(DOMCollection as any).prototype.pulse = function (duration?: number) {
+  const [keyframes, options] = animations.pulse(duration);
+  return this.animate(keyframes, options);
+};
+(DOMCollection as any).prototype.shake = function (duration?: number) {
+  const [keyframes, options] = animations.shake(duration);
+  return this.animate(keyframes, options);
+};
+
 // ——— Exports ———
-export { DOMCollection, renderTemplate, useTemplate, tpl, serializeForm, toQueryString, onSubmit, animate };
+export { DOMCollection, renderTemplate, useTemplate, tpl, serializeForm, toQueryString, onSubmit, animate, animations };
 export default api as typeof dom & typeof api;
