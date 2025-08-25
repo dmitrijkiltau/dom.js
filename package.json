@@ -36,6 +36,7 @@
   "author": "Dmitrij Kiltau",
   "license": "MIT",
   "devDependencies": {
+    "jsdom": "^26.1.0",
     "tsup": "^8.5.0",
     "typescript": "^5.9.2",
     "vite": "^7.1.3",
