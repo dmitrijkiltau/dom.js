@@ -1,5 +1,5 @@
 {
-  "name": "vanilla-kit-docs",
+  "name": "dom.js-docs",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
@@ -8,7 +8,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@dmitrijkiltau/vanilla-kit": "file:..",
+    "@dmitrijkiltau/dom.js": "file:..",
     "prismjs": "^1.30.0"
   },
   "devDependencies": {

@@ -1,23 +1,23 @@
 import { MaybeArray, Selector, EventTargetish } from './types';
 import { isString, isElement, isDocument, isWindow } from './utils';
-import { VKCollection } from './collection';
+import { DOMCollection } from './collection';
 import { renderTemplate, useTemplate, tpl } from './template';
 import { serializeForm, toQueryString, onSubmit } from './forms';
 import { animate } from './motion';
 
 // ——— Core selector ———
-export function vk(input?: Selector): VKCollection {
-  if (!input) return new VKCollection([]);
-  if (isString(input)) return new VKCollection(document.querySelectorAll(input));
-  if (isElement(input)) return new VKCollection([input]);
-  if (input instanceof NodeList || Array.isArray(input)) return new VKCollection(input as any);
-  if (isDocument(input)) return new VKCollection([input.documentElement]);
-  if (isWindow(input)) return new VKCollection([input.document.documentElement]);
-  return new VKCollection([]);
+export function dom(input?: Selector): DOMCollection {
+  if (!input) return new DOMCollection([]);
+  if (isString(input)) return new DOMCollection(document.querySelectorAll(input));
+  if (isElement(input)) return new DOMCollection([input]);
+  if (input instanceof NodeList || Array.isArray(input)) return new DOMCollection(input as any);
+  if (isDocument(input)) return new DOMCollection([input.documentElement]);
+  if (isWindow(input)) return new DOMCollection([input.document.documentElement]);
+  return new DOMCollection([]);
 }
 
 // ——— Element creation ———
-export function create(tag: string, attrs?: Record<string, any> | null, children?: MaybeArray<string | Node | VKCollection>): Element {
+export function create(tag: string, attrs?: Record<string, any> | null, children?: MaybeArray<string | Node | DOMCollection>): Element {
   const el = document.createElement(tag);
   if (attrs) for (const [k, v] of Object.entries(attrs)) setAttr(el, k, v);
   if (children) appendChildren(el, children);
@@ -25,12 +25,12 @@ export function create(tag: string, attrs?: Record<string, any> | null, children
 }
 
 // ——— Event helpers ———
-export function on(target: EventTargetish | VKCollection, type: string, handler: (ev: Event) => void): void {
-  const list = target instanceof VKCollection ? target.elements : [target as any];
+export function on(target: EventTargetish | DOMCollection, type: string, handler: (ev: Event) => void): void {
+  const list = target instanceof DOMCollection ? target.elements : [target as any];
   list.forEach(t => (t as any).addEventListener(type, handler));
 }
-export function off(target: EventTargetish | VKCollection, type: string, handler: (ev: Event) => void, options?: boolean | EventListenerOptions): void {
-  const list = target instanceof VKCollection ? target.elements : [target as any];
+export function off(target: EventTargetish | DOMCollection, type: string, handler: (ev: Event) => void, options?: boolean | EventListenerOptions): void {
+  const list = target instanceof DOMCollection ? target.elements : [target as any];
   list.forEach(t => (t as any).removeEventListener(type, handler, options));
 }
 
@@ -74,35 +74,35 @@ function setAttr(el: Element, key: string, value: any) {
   else el.setAttribute(key, String(value));
 }
 
-function appendChildren(el: Element, kids: MaybeArray<string | Node | VKCollection>) {
+function appendChildren(el: Element, kids: MaybeArray<string | Node | DOMCollection>) {
   for (const child of (Array.isArray(kids) ? kids : [kids])) {
     if (child == null) continue;
     if (typeof child === 'string') el.insertAdjacentHTML('beforeend', child);
-    else if (child instanceof VKCollection) child.elements.forEach(n => el.appendChild(n));
+    else if (child instanceof DOMCollection) child.elements.forEach(n => el.appendChild(n));
     else el.appendChild(child);
   }
 }
 
 // ——— Plugin system ———
-export type Plugin = (api: typeof vk) => void;
+export type Plugin = (api: typeof dom) => void;
 const _plugins = new Set<Plugin>();
 export function use(plugin: Plugin) { if (!_plugins.has(plugin)) { plugin(api); _plugins.add(plugin); } }
 
 // ——— API bag (default export) ———
-const api = Object.assign(function core(input?: Selector) { return vk(input); }, {
-  vk, create, on, off, http,
+const api = Object.assign(function core(input?: Selector) { return dom(input); }, {
+  dom, create, on, off, http,
   renderTemplate, useTemplate, tpl,
   serializeForm, toQueryString, onSubmit,
   animate,
-  VKCollection,
+  DOMCollection,
 });
 
 // ——— Prototype sugar ———
-(VKCollection as any).prototype.animate = function (keyframes: Keyframe[] | PropertyIndexedKeyframes, options?: KeyframeAnimationOptions) {
+(DOMCollection as any).prototype.animate = function (keyframes: Keyframe[] | PropertyIndexedKeyframes, options?: KeyframeAnimationOptions) {
   this.elements.forEach((el: Element) => animate(el as HTMLElement, keyframes as any, options));
   return this;
 };
 
 // ——— Exports ———
-export { VKCollection, renderTemplate, useTemplate, tpl, serializeForm, toQueryString, onSubmit, animate };
-export default api as typeof vk & typeof api;
+export { DOMCollection, renderTemplate, useTemplate, tpl, serializeForm, toQueryString, onSubmit, animate };
+export default api as typeof dom & typeof api;

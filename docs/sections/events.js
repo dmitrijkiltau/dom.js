@@ -1,10 +1,10 @@
-import vk, { useTemplate, on, off } from '../../dist/index.js';
+import dom, { useTemplate, on, off } from '../../dist/index.js';
 
 const renderExample = useTemplate('#example-template');
 const renderSubsection = useTemplate('#subsection-template');
 
 export function addEventExamples() {
-  const eventSection = vk('#events');
+  const eventSection = dom('#events');
   if (eventSection.length === 0) return;
 
   eventSection.append(renderSubsection({
@@ -32,26 +32,26 @@ export function addEventExamples() {
         <div id="event-log" class="text-sm text-gray-600 max-h-32 overflow-y-auto bg-gray-100 p-3 border border-gray-300 rounded"></div>
       </div>
     `,
-    code: `import { on, off } from '@dmitrijkiltau/vanilla-kit';
+    code: `import { on, off } from '@dmitrijkiltau/dom.js';
 
 // Direct event binding
-vk('#add-button').on('click', () => {
+dom('#add-button').on('click', () => {
   console.log('Button clicked!');
 });
 
 // Event delegation - handle events on dynamically created elements
-vk('#button-container').on('click', 'button', (ev, el, idx) => {
+dom('#button-container').on('click', 'button', (ev, el, idx) => {
   console.log(\`Dynamic button \${idx} clicked\`);
-  vk(el).toggleClass('bg-green-200');
+  dom(el).toggleClass('bg-green-200');
 });
 
 // Multiple event types
-vk('#button-container').on('mouseenter mouseleave', 'button', (ev, el) => {
-  vk(el).toggleClass('shadow-lg');
+dom('#button-container').on('mouseenter mouseleave', 'button', (ev, el) => {
+  dom(el).toggleClass('shadow-lg');
 });
 
 // Remove events
-vk(element).off('click', handler);`
+dom(element).off('click', handler);`
   });
 
   eventSection.append(eventExample);
@@ -61,55 +61,55 @@ vk(element).off('click', handler);`
   let eventsEnabled = true;
 
   function logEvent(message) {
-    const log = vk('#event-log');
+    const log = dom('#event-log');
     const timestamp = new Date().toLocaleTimeString();
     log.append(`<div>[${timestamp}] ${message}</div>`);
     log.el().scrollTop = log.el().scrollHeight;
   }
 
-  vk('#add-button').on('click', () => {
+  dom('#add-button').on('click', () => {
     buttonCount++;
     const buttonHtml = `
       <button class="btn btn-secondary mr-2 mb-2 transition-all duration-200" data-button-id="${buttonCount}">
         Button ${buttonCount}
       </button>
     `;
-    vk('#button-container').append(buttonHtml);
+    dom('#button-container').append(buttonHtml);
     logEvent(`Added Button ${buttonCount}`);
   });
 
-  vk('#clear-buttons').on('click', () => {
-    vk('#button-container').html('');
-    vk('#event-log').html('');
+  dom('#clear-buttons').on('click', () => {
+    dom('#button-container').html('');
+    dom('#event-log').html('');
     buttonCount = 0;
     logEvent('Cleared all buttons and events log');
   });
 
   // Event delegation for dynamic buttons
-  vk('#button-container').on('click', 'button', (ev, el, idx) => {
+  dom('#button-container').on('click', 'button', (ev, el, idx) => {
     if (!eventsEnabled) return;
     const buttonId = el.getAttribute('data-button-id');
-    vk(el).toggleClass('bg-green-200');
+    dom(el).toggleClass('bg-green-200');
     logEvent(`Dynamic Button ${buttonId} clicked (index: ${idx})`);
   });
 
-  vk('#button-container').on('mouseenter', 'button', (ev, el) => {
+  dom('#button-container').on('mouseenter', 'button', (ev, el) => {
     if (!eventsEnabled) return;
-    vk(el).addClass('shadow-lg scale-105');
+    dom(el).addClass('shadow-lg scale-105');
     const buttonId = el.getAttribute('data-button-id');
     logEvent(`Mouse entered Button ${buttonId}`);
   });
 
-  vk('#button-container').on('mouseleave', 'button', (ev, el) => {
+  dom('#button-container').on('mouseleave', 'button', (ev, el) => {
     if (!eventsEnabled) return;
-    vk(el).removeClass('shadow-lg scale-105');
+    dom(el).removeClass('shadow-lg scale-105');
     const buttonId = el.getAttribute('data-button-id');
     logEvent(`Mouse left Button ${buttonId}`);
   });
 
-  vk('#toggle-events').on('click', () => {
+  dom('#toggle-events').on('click', () => {
     eventsEnabled = !eventsEnabled;
-    vk('#toggle-events').text(eventsEnabled ? 'Disable Events' : 'Enable Events');
+    dom('#toggle-events').text(eventsEnabled ? 'Disable Events' : 'Enable Events');
     logEvent(`Events ${eventsEnabled ? 'enabled' : 'disabled'}`);
   });
 
@@ -145,13 +145,13 @@ vk(element).off('click', handler);`
       </div>
     `,
     code: `// Multiple event types on same element
-vk('.event-zone').on('dragover dragenter dragleave drop', (ev) => {
+dom('.event-zone').on('dragover dragenter dragleave drop', (ev) => {
   ev.preventDefault();
   // Handle drag events
 });
 
 // Keyboard events with key combinations
-vk('.keyboard-zone').on('keydown', (ev, el) => {
+dom('.keyboard-zone').on('keydown', (ev, el) => {
   const key = ev.key;
   const ctrl = ev.ctrlKey ? 'Ctrl+' : '';
   const shift = ev.shiftKey ? 'Shift+' : '';
@@ -160,7 +160,7 @@ vk('.keyboard-zone').on('keydown', (ev, el) => {
 
 // Throttled scroll events
 let scrollTimeout;
-vk('.scroll-zone').on('scroll', (ev, el) => {
+dom('.scroll-zone').on('scroll', (ev, el) => {
   clearTimeout(scrollTimeout);
   scrollTimeout = setTimeout(() => {
     const scrollPercent = (el.scrollTop / (el.scrollHeight - el.clientHeight)) * 100;
@@ -174,47 +174,47 @@ const customHandler = (ev, el, idx) => {
 };
 
 // Remove specific handlers
-vk(element).off('click', customHandler);`
+dom(element).off('click', customHandler);`
   });
 
   eventSection.append(advancedExample);
 
   function logAdvancedEvent(message) {
-    const log = vk('#advanced-event-log');
+    const log = dom('#advanced-event-log');
     const timestamp = new Date().toLocaleTimeString();
     log.append(`<div>[${timestamp}] ${message}</div>`);
     log.el().scrollTop = log.el().scrollHeight;
   }
 
   // Drag and drop events
-  vk('.event-zone').on('dragover dragenter', (ev) => {
+  dom('.event-zone').on('dragover dragenter', (ev) => {
     ev.preventDefault();
-    vk(ev.target).addClass('border-blue-400 bg-blue-50');
+    dom(ev.target).addClass('border-blue-400 bg-blue-50');
   });
 
-  vk('.event-zone').on('dragleave', (ev) => {
+  dom('.event-zone').on('dragleave', (ev) => {
     ev.preventDefault();
-    vk(ev.target).removeClass('border-blue-400 bg-blue-50');
+    dom(ev.target).removeClass('border-blue-400 bg-blue-50');
   });
 
-  vk('.event-zone').on('drop', (ev) => {
+  dom('.event-zone').on('drop', (ev) => {
     ev.preventDefault();
-    vk(ev.target).removeClass('border-blue-400 bg-blue-50');
+    dom(ev.target).removeClass('border-blue-400 bg-blue-50');
     const files = ev.dataTransfer.files;
     logAdvancedEvent(`Dropped ${files.length} file(s)`);
   });
 
-  vk('.event-zone').on('click', () => {
-    vk('#file-input').el().click();
+  dom('.event-zone').on('click', () => {
+    dom('#file-input').el().click();
   });
 
-  vk('#file-input').on('change', (ev) => {
+  dom('#file-input').on('change', (ev) => {
     const files = ev.target.files;
     logAdvancedEvent(`Selected ${files.length} file(s)`);
   });
 
   // Keyboard events
-  vk('.keyboard-zone').on('keydown', (ev, el) => {
+  dom('.keyboard-zone').on('keydown', (ev, el) => {
     const key = ev.key;
     const modifiers = [];
     if (ev.ctrlKey) modifiers.push('Ctrl');
@@ -223,7 +223,7 @@ vk(element).off('click', customHandler);`
     
     const keyCombo = modifiers.length ? `${modifiers.join('+')}+${key}` : key;
     
-    vk('#key-display').html(`
+    dom('#key-display').html(`
       <div>Key: <code>${keyCombo}</code></div>
       <div>Code: <code>${ev.code}</code></div>
     `);
@@ -231,19 +231,19 @@ vk(element).off('click', customHandler);`
     logAdvancedEvent(`Key pressed: ${keyCombo}`);
   });
 
-  vk('.keyboard-zone').on('focus', () => {
-    vk('.keyboard-zone').addClass('ring-2 ring-blue-400');
+  dom('.keyboard-zone').on('focus', () => {
+    dom('.keyboard-zone').addClass('ring-2 ring-blue-400');
     logAdvancedEvent('Keyboard zone focused');
   });
 
-  vk('.keyboard-zone').on('blur', () => {
-    vk('.keyboard-zone').removeClass('ring-2 ring-blue-400');
+  dom('.keyboard-zone').on('blur', () => {
+    dom('.keyboard-zone').removeClass('ring-2 ring-blue-400');
     logAdvancedEvent('Keyboard zone blurred');
   });
 
   // Throttled scroll events
   let scrollTimeout;
-  vk('.scroll-zone').on('scroll', (ev, el) => {
+  dom('.scroll-zone').on('scroll', (ev, el) => {
     clearTimeout(scrollTimeout);
     scrollTimeout = setTimeout(() => {
       const scrollPercent = Math.round((el.scrollTop / (el.scrollHeight - el.clientHeight)) * 100);
@@ -253,14 +253,14 @@ vk(element).off('click', customHandler);`
 
   // Touch events for mobile
   if ('ontouchstart' in window) {
-    vk('.event-zone').on('touchstart touchmove touchend', (ev) => {
+    dom('.event-zone').on('touchstart touchmove touchend', (ev) => {
       logAdvancedEvent(`Touch event: ${ev.type}`);
     });
   }
 
   // Window resize events
   let resizeTimeout;
-  vk(window).on('resize', () => {
+  dom(window).on('resize', () => {
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(() => {
       logAdvancedEvent(`Window resized to ${window.innerWidth}x${window.innerHeight}`);

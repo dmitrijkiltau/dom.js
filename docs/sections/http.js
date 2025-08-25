@@ -1,10 +1,10 @@
-import vk, { useTemplate, http } from '../../dist/index.js';
+import dom, { useTemplate, http } from '../../dist/index.js';
 
 const renderExample = useTemplate('#example-template');
 const renderSubsection = useTemplate('#subsection-template');
 
 export function addHttpExamples() {
-  const httpSection = vk('#http');
+  const httpSection = dom('#http');
   if (httpSection.length === 0) return;
 
   httpSection.append(renderSubsection({
@@ -47,7 +47,7 @@ export function addHttpExamples() {
         </div>
       </div>
     `,
-    code: `import { http } from '@dmitrijkiltau/vanilla-kit';
+    code: `import { http } from '@dmitrijkiltau/dom.js';
 
 // GET request
 try {
@@ -94,20 +94,20 @@ const html = await response.html();     // DOM Element`
   httpSection.append(httpExample);
 
   function showLoading() {
-    vk('#loading-indicator').removeClass('hidden');
-    vk('#http-results').addClass('opacity-50');
+    dom('#loading-indicator').removeClass('hidden');
+    dom('#http-results').addClass('opacity-50');
   }
 
   function hideLoading() {
-    vk('#loading-indicator').addClass('hidden');
-    vk('#http-results').removeClass('opacity-50');
+    dom('#loading-indicator').addClass('hidden');
+    dom('#http-results').removeClass('opacity-50');
   }
 
   function showResult(title, content, isError = false) {
     const bgColor = isError ? 'bg-red-50 border-red-200' : 'bg-gray-100';
     const titleColor = isError ? 'text-red-800' : 'text-gray-800';
 
-    vk('#http-results').html(`
+    dom('#http-results').html(`
       <div class="${bgColor} border border-gray-300 rounded p-4">
         <h5 class="font-semibold ${titleColor} mb-2">${title}</h5>
         <div class="text-sm text-gray-700">
@@ -118,7 +118,7 @@ const html = await response.html();     // DOM Element`
   }
 
   // Add HTTP demo functionality
-  vk('#fetch-data').on('click', async () => {
+  dom('#fetch-data').on('click', async () => {
     showLoading();
     try {
       const response = await http.get('https://jsonplaceholder.typicode.com/posts/1');
@@ -136,7 +136,7 @@ const html = await response.html();     // DOM Element`
     }
   });
 
-  vk('#fetch-users').on('click', async () => {
+  dom('#fetch-users').on('click', async () => {
     showLoading();
     try {
       const response = await http.get('https://jsonplaceholder.typicode.com/users');
@@ -165,8 +165,8 @@ const html = await response.html();     // DOM Element`
     }
   });
 
-  vk('#fetch-specific').on('click', async () => {
-    const postId = vk('#post-url').el().value || '1';
+  dom('#fetch-specific').on('click', async () => {
+    const postId = dom('#post-url').el().value || '1';
     showLoading();
 
     try {
@@ -197,12 +197,12 @@ const html = await response.html();     // DOM Element`
     }
   });
 
-  vk('#post-data').on('click', async () => {
+  dom('#post-data').on('click', async () => {
     showLoading();
 
     const samplePost = {
-      title: 'Sample Post from vanilla-kit',
-      body: 'This is a demonstration of the HTTP POST functionality in vanilla-kit. This will be sent to the JSONPlaceholder API.',
+      title: 'Sample Post from dom.js',
+      body: 'This is a demonstration of the HTTP POST functionality in dom.js. This will be sent to the JSONPlaceholder API.',
       userId: 1
     };
 
@@ -223,7 +223,7 @@ const html = await response.html();     // DOM Element`
     }
   });
 
-  vk('#error-demo').on('click', async () => {
+  dom('#error-demo').on('click', async () => {
     showLoading();
 
     try {
@@ -254,7 +254,7 @@ const html = await response.html();     // DOM Element`
           <div class="space-y-2">
             <label class="block text-sm font-medium">Custom Headers</label>
             <input id="auth-token" placeholder="Authorization token" class="input" value="Bearer sample-token">
-            <input id="custom-header" placeholder="X-Custom-Header" class="input" value="vanilla-kit-demo">
+            <input id="custom-header" placeholder="X-Custom-Header" class="input" value="dom.js-demo">
           </div>
           
           <div class="space-y-2">
@@ -272,7 +272,7 @@ const html = await response.html();     // DOM Element`
         <div>
           <label class="block text-sm font-medium mb-1">Request Body (for POST/PUT)</label>
           <textarea id="request-body" class="input" rows="3" placeholder="JSON payload...">{
-  "message": "Hello from vanilla-kit!",
+  "message": "Hello from dom.js!",
   "timestamp": "${new Date().toISOString()}"
 }</textarea>
         </div>
@@ -303,7 +303,7 @@ const response = await http.post('/api/endpoint', {
 }, {
   headers: {
     'Authorization': 'Bearer token',
-    'X-Client': 'vanilla-kit'
+    'X-Client': 'dom.js'
   },
   timeout: 5000
 });
@@ -339,12 +339,12 @@ const fetchWithRetry = async (url, retries = 3) => {
 
   httpSection.append(advancedExample);
 
-  vk('#send-request').on('click', async () => {
-    const method = vk('#request-method').el().value;
-    const url = vk('#request-url').el().value;
-    const authToken = vk('#auth-token').el().value;
-    const customHeader = vk('#custom-header').el().value;
-    const bodyText = vk('#request-body').el().value;
+  dom('#send-request').on('click', async () => {
+    const method = dom('#request-method').el().value;
+    const url = dom('#request-url').el().value;
+    const authToken = dom('#auth-token').el().value;
+    const customHeader = dom('#custom-header').el().value;
+    const bodyText = dom('#request-body').el().value;
 
     showLoading();
 
@@ -402,7 +402,7 @@ const fetchWithRetry = async (url, retries = 3) => {
     }
   });
 
-  vk('#parallel-requests').on('click', async () => {
+  dom('#parallel-requests').on('click', async () => {
     showLoading();
 
     try {
@@ -439,9 +439,9 @@ const fetchWithRetry = async (url, retries = 3) => {
   });
 
   // Set the current date in the request body template
-  vk(window).on('DOMContentLoaded', () => {
+  dom(window).on('DOMContentLoaded', () => {
     const currentTimestamp = new Date().toISOString();
-    const currentBody = vk('#request-body').el().value.replace('${new Date().toISOString()}', currentTimestamp);
-    vk('#request-body').el().value = currentBody;
+    const currentBody = dom('#request-body').el().value.replace('${new Date().toISOString()}', currentTimestamp);
+    dom('#request-body').el().value = currentBody;
   });
 }

@@ -1,10 +1,10 @@
-import vk, { useTemplate } from '../../dist/index.js';
+import dom, { useTemplate } from '../../dist/index.js';
 
 const renderExample = useTemplate('#example-template');
 const renderSubsection = useTemplate('#subsection-template');
 
 export function addAnimationExamples() {
-  const animationSection = vk('#animation');
+  const animationSection = dom('#animation');
   if (animationSection.length === 0) return;
 
   animationSection.append(renderSubsection({
@@ -65,7 +65,7 @@ export function addAnimationExamples() {
       </div>
     `,
     code: `// Basic slide animation
-vk('#box').animate([
+dom('#box').animate([
   { transform: 'translateX(0px)' },
   { transform: 'translateX(100px)' }
 ], {
@@ -75,7 +75,7 @@ vk('#box').animate([
 });
 
 // Fade animation
-vk('#element').animate([
+dom('#element').animate([
   { opacity: 1 },
   { opacity: 0 },
   { opacity: 1 }
@@ -85,7 +85,7 @@ vk('#element').animate([
 });
 
 // Scale animation
-vk('#element').animate([
+dom('#element').animate([
   { transform: 'scale(1)' },
   { transform: 'scale(1.2)' },
   { transform: 'scale(1)' }
@@ -95,7 +95,7 @@ vk('#element').animate([
 });
 
 // Rotation with infinite loop
-vk('#spinner').animate([
+dom('#spinner').animate([
   { transform: 'rotate(0deg)' },
   { transform: 'rotate(360deg)' }
 ], {
@@ -109,16 +109,16 @@ vk('#spinner').animate([
 
   // Reset box positions
   function resetBoxes() {
-    vk('#move-box').css({
+    dom('#move-box').css({
       transform: 'translate(0, 0) rotate(0deg)',
       left: '8px',
       top: '8px'
     });
-    vk('#appear-box').css({
+    dom('#appear-box').css({
       opacity: '1',
       transform: 'scale(1)'
     });
-    vk('#sequence-box').css({
+    dom('#sequence-box').css({
       transform: 'translate(0, 0) rotate(0deg) scale(1)',
       left: '8px',
       top: '8px',
@@ -127,9 +127,9 @@ vk('#spinner').animate([
   }
 
   // Movement animations
-  vk('#slide-demo').on('click', () => {
+  dom('#slide-demo').on('click', () => {
     resetBoxes();
-    vk('#move-box').animate([
+    dom('#move-box').animate([
       { transform: 'translateX(0px)' },
       { transform: 'translateX(150px)' },
       { transform: 'translateX(0px)' }
@@ -139,9 +139,9 @@ vk('#spinner').animate([
     });
   });
 
-  vk('#bounce-demo').on('click', () => {
+  dom('#bounce-demo').on('click', () => {
     resetBoxes();
-    vk('#move-box').animate([
+    dom('#move-box').animate([
       { transform: 'translateY(0px)' },
       { transform: 'translateY(-30px)' },
       { transform: 'translateY(0px)' },
@@ -153,9 +153,9 @@ vk('#spinner').animate([
     });
   });
 
-  vk('#rotate-demo').on('click', () => {
+  dom('#rotate-demo').on('click', () => {
     resetBoxes();
-    vk('#move-box').animate([
+    dom('#move-box').animate([
       { transform: 'rotate(0deg)' },
       { transform: 'rotate(360deg)' }
     ], {
@@ -165,9 +165,9 @@ vk('#spinner').animate([
   });
 
   // Appearance animations
-  vk('#fade-demo').on('click', () => {
+  dom('#fade-demo').on('click', () => {
     resetBoxes();
-    vk('#appear-box').animate([
+    dom('#appear-box').animate([
       { opacity: 1 },
       { opacity: 0.2 },
       { opacity: 1 }
@@ -177,9 +177,9 @@ vk('#spinner').animate([
     });
   });
 
-  vk('#scale-demo').on('click', () => {
+  dom('#scale-demo').on('click', () => {
     resetBoxes();
-    vk('#appear-box').animate([
+    dom('#appear-box').animate([
       { transform: 'scale(1)' },
       { transform: 'scale(1.5)' },
       { transform: 'scale(1)' }
@@ -189,9 +189,9 @@ vk('#spinner').animate([
     });
   });
 
-  vk('#pulse-demo').on('click', () => {
+  dom('#pulse-demo').on('click', () => {
     resetBoxes();
-    vk('#appear-box').animate([
+    dom('#appear-box').animate([
       { transform: 'scale(1)', opacity: 1 },
       { transform: 'scale(1.1)', opacity: 0.8 },
       { transform: 'scale(1)', opacity: 1 }
@@ -203,9 +203,9 @@ vk('#spinner').animate([
   });
 
   // Sequential animation
-  vk('#sequence-demo').on('click', async () => {
+  dom('#sequence-demo').on('click', async () => {
     resetBoxes();
-    const box = vk('#sequence-box');
+    const box = dom('#sequence-box');
 
     // Step 1: Slide right
     await box.animate([
@@ -286,7 +286,7 @@ const easeInOut = 'cubic-bezier(0.42, 0, 0.58, 1)';
 const bounceEase = 'cubic-bezier(0.68, -0.55, 0.265, 1.55)';
 const elasticEase = 'cubic-bezier(0.175, 0.885, 0.32, 1.275)';
 
-vk('#element').animate([
+dom('#element').animate([
   { transform: 'translateX(0px)' },
   { transform: 'translateX(200px)' }
 ], {
@@ -296,9 +296,9 @@ vk('#element').animate([
 });
 
 // Staggered animations
-const items = vk('.list-item');
+const items = dom('.list-item');
 items.each((el, idx) => {
-  vk(el).animate([
+  dom(el).animate([
     { opacity: 0, transform: 'translateY(20px)' },
     { opacity: 1, transform: 'translateY(0px)' }
   ], {
@@ -309,7 +309,7 @@ items.each((el, idx) => {
 });
 
 // Animation control
-const animation = vk('#element').animate(keyframes, options);
+const animation = dom('#element').animate(keyframes, options);
 
 // Control playback
 animation.pause();
@@ -326,9 +326,9 @@ animation.addEventListener('finish', () => {
   animationSection.append(advancedExample);
 
   // Timing function demos
-  vk('#ease-demo').on('click', (ev, el) => {
-    const timingBox = vk('#timing-box');
-    const areaWidth = vk('.demo-area').el().clientWidth - timingBox.el().clientWidth - 16; // Calculate the available width for the timing box
+  dom('#ease-demo').on('click', (ev, el) => {
+    const timingBox = dom('#timing-box');
+    const areaWidth = dom('.demo-area').el().clientWidth - timingBox.el().clientWidth - 16; // Calculate the available width for the timing box
     timingBox.css('left', '8px');
     timingBox.animate([
       { transform: 'translateX(0px)' },
@@ -336,9 +336,9 @@ animation.addEventListener('finish', () => {
     ], { duration: 1500, easing: 'ease-in-out', fill: 'forwards' });
   });
 
-  vk('#linear-demo').on('click', () => {
-    const timingBox = vk('#timing-box');
-    const areaWidth = vk('.demo-area').el().clientWidth - timingBox.el().clientWidth - 16; // Calculate the available width for the timing box
+  dom('#linear-demo').on('click', () => {
+    const timingBox = dom('#timing-box');
+    const areaWidth = dom('.demo-area').el().clientWidth - timingBox.el().clientWidth - 16; // Calculate the available width for the timing box
     timingBox.css('left', '8px');
     timingBox.animate([
       { transform: 'translateX(0px)' },
@@ -346,9 +346,9 @@ animation.addEventListener('finish', () => {
     ], { duration: 1500, easing: 'linear', fill: 'forwards' });
   });
 
-  vk('#bounce-ease-demo').on('click', () => {
-    const timingBox = vk('#timing-box');
-    const areaWidth = vk('.demo-area').el().clientWidth - timingBox.el().clientWidth - 16; // Calculate the available width for the timing box
+  dom('#bounce-ease-demo').on('click', () => {
+    const timingBox = dom('#timing-box');
+    const areaWidth = dom('.demo-area').el().clientWidth - timingBox.el().clientWidth - 16; // Calculate the available width for the timing box
     timingBox.css('left', '8px');
     timingBox.animate([
       { transform: 'translateX(0px)' },
@@ -356,9 +356,9 @@ animation.addEventListener('finish', () => {
     ], { duration: 1500, easing: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)', fill: 'forwards' });
   });
 
-  vk('#elastic-demo').on('click', () => {
-    const timingBox = vk('#timing-box');
-    const areaWidth = vk('.demo-area').el().clientWidth - timingBox.el().clientWidth - 16; // Calculate the available width for the timing box
+  dom('#elastic-demo').on('click', () => {
+    const timingBox = dom('#timing-box');
+    const areaWidth = dom('.demo-area').el().clientWidth - timingBox.el().clientWidth - 16; // Calculate the available width for the timing box
     timingBox.css('left', '8px');
     timingBox.animate([
       { transform: 'translateX(0px)' },
@@ -367,22 +367,22 @@ animation.addEventListener('finish', () => {
   });
 
   // Interactive animations
-  vk('#hover-demo').on('mouseenter', () => {
-    vk('#interactive-box').animate([
+  dom('#hover-demo').on('mouseenter', () => {
+    dom('#interactive-box').animate([
       { transform: 'scale(1) rotateZ(0deg)' },
       { transform: 'scale(1.2) rotateZ(5deg)' }
     ], { duration: 200, fill: 'forwards' });
   });
 
-  vk('#hover-demo').on('mouseleave', () => {
-    vk('#interactive-box').animate([
+  dom('#hover-demo').on('mouseleave', () => {
+    dom('#interactive-box').animate([
       { transform: 'scale(1.2) rotateZ(5deg)' },
       { transform: 'scale(1) rotateZ(0deg)' }
     ], { duration: 200, fill: 'forwards' });
   });
 
-  vk('#click-demo').on('click', () => {
-    vk('#interactive-box').animate([
+  dom('#click-demo').on('click', () => {
+    dom('#interactive-box').animate([
       { transform: 'scale(1)', backgroundColor: '#6366f1' },
       { transform: 'scale(0.9)', backgroundColor: '#ef4444' },
       { transform: 'scale(1)', backgroundColor: '#6366f1' }
@@ -391,18 +391,18 @@ animation.addEventListener('finish', () => {
 
   // Loading animation
   let loadingAnimation;
-  vk('#loading-demo').on('click', () => {
-    const container = vk('#loading-container');
-    const placeholder = vk('#loading-placeholder');
+  dom('#loading-demo').on('click', () => {
+    const container = dom('#loading-container');
+    const placeholder = dom('#loading-placeholder');
 
     if (container.hasClass('hidden')) {
       // Start loading animation
       container.removeClass('hidden');
       placeholder.addClass('hidden');
 
-      const dots = vk('.loading-dot');
+      const dots = dom('.loading-dot');
       dots.each((el, idx) => {
-        vk(el).animate([
+        dom(el).animate([
           { transform: 'translateY(0px)', opacity: 0.4 },
           { transform: 'translateY(-10px)', opacity: 1 },
           { transform: 'translateY(0px)', opacity: 0.4 }
@@ -414,20 +414,20 @@ animation.addEventListener('finish', () => {
         });
       });
 
-      vk('#loading-demo').text('Stop Loading');
+      dom('#loading-demo').text('Stop Loading');
     } else {
       // Stop loading animation
       container.addClass('hidden');
       placeholder.removeClass('hidden');
 
       // Cancel all animations
-      const dots = vk('.loading-dot');
+      const dots = dom('.loading-dot');
       dots.each((el) => {
         const animations = el.getAnimations();
         animations.forEach(anim => anim.cancel());
       });
 
-      vk('#loading-demo').text('Show Loading Animation');
+      dom('#loading-demo').text('Show Loading Animation');
     }
   });
 }

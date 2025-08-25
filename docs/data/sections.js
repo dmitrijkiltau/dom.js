@@ -5,7 +5,7 @@ export const sections = [
     title: 'Getting Started',
     content: `
       <p class="text-lg text-gray-700 mb-4">
-        vanilla-kit is a lightweight, modern DOM manipulation library that provides a jQuery-like API 
+        dom.js is a lightweight, modern DOM manipulation library that provides a jQuery-like API 
         with ES modules support and no dependencies.
       </p>
       <p class="text-gray-700 mb-4">
@@ -38,18 +38,18 @@ export const sections = [
       <div class="space-y-4">
         <div>
           <h4 class="text-lg font-semibold mb-2">npm</h4>
-          <pre class="code-block"><code>npm install @dmitrijkiltau/vanilla-kit</code></pre>
+          <pre class="code-block"><code>npm install @dmitrijkiltau/dom.js</code></pre>
         </div>
         <div>
           <h4 class="text-lg font-semibold mb-2">ES Module Import</h4>
-          <pre class="code-block"><code>import vk from '@dmitrijkiltau/vanilla-kit';
+          <pre class="code-block"><code>import dom from '@dmitrijkiltau/dom.js';
 
 // Or import specific functions
-import vk, { renderTemplate, onSubmit, http } from '@dmitrijkiltau/vanilla-kit';</code></pre>
+import dom, { renderTemplate, onSubmit, http } from '@dmitrijkiltau/dom.js';</code></pre>
         </div>
         <div>
           <h4 class="text-lg font-semibold mb-2">CDN (ES Module)</h4>
-          <pre class="code-block"><code>import vk from 'https://unpkg.com/@dmitrijkiltau/vanilla-kit/dist/index.js';</code></pre>
+          <pre class="code-block"><code>import dom from 'https://unpkg.com/@dmitrijkiltau/dom.js/dist/index.js';</code></pre>
         </div>
       </div>
     `
@@ -59,24 +59,24 @@ import vk, { renderTemplate, onSubmit, http } from '@dmitrijkiltau/vanilla-kit';
     title: 'Core API',
     content: `
       <p class="text-gray-700 mb-4">
-        The core of vanilla-kit is the <code class="bg-gray-200 px-2 py-1 rounded">vk()</code> function, 
-        which selects elements and returns a VKCollection for chaining operations.
+        The core of dom.js is the <code class="bg-gray-200 px-2 py-1 rounded">dom()</code> function, 
+        which selects elements and returns a DOMCollection for chaining operations.
       </p>
       <div class="space-y-4">
         <div>
           <h4 class="text-lg font-semibold mb-2">Basic Usage</h4>
           <pre class="code-block"><code>// Select elements
-const elements = vk('.my-class');
-const singleElement = vk('#my-id');
+const elements = dom('.my-class');
+const singleElement = dom('#my-id');
 
 // Method chaining
-vk('.buttons')
+dom('.buttons')
   .addClass('active')
   .css('color', 'blue')
   .on('click', handler);</code></pre>
         </div>
         <div>
-          <h4 class="text-lg font-semibold mb-2">VKCollection Methods</h4>
+          <h4 class="text-lg font-semibold mb-2">DOMCollection Methods</h4>
           <ul class="text-gray-700 space-y-1">
             <li>• <code class="bg-gray-200 px-1 rounded">addClass(className)</code> - Add CSS class</li>
             <li>• <code class="bg-gray-200 px-1 rounded">removeClass(className)</code> - Remove CSS class</li>
@@ -96,7 +96,7 @@ vk('.buttons')
     title: 'Templates',
     content: `
       <p class="text-gray-700 mb-4">
-        vanilla-kit provides a powerful template system with data binding using HTML template elements.
+        dom.js provides a powerful template system with data binding using HTML template elements.
         Templates support <code class="bg-gray-200 px-1 rounded">data-text</code>, 
         <code class="bg-gray-200 px-1 rounded">data-html</code>, and 
         <code class="bg-gray-200 px-1 rounded">data-attr-*</code> attributes for dynamic content.
@@ -166,19 +166,19 @@ vk('.buttons')
           <ul class="text-gray-700 space-y-1">
             <li>• <code class="bg-gray-200 px-1 rounded">on(target, type, handler)</code> - Add event listener</li>
             <li>• <code class="bg-gray-200 px-1 rounded">off(target, type, handler)</code> - Remove event listener</li>
-            <li>• <code class="bg-gray-200 px-1 rounded">vk(selector).on(type, handler)</code> - Chain event binding</li>
+            <li>• <code class="bg-gray-200 px-1 rounded">dom(selector).on(type, handler)</code> - Chain event binding</li>
           </ul>
         </div>
         <div>
           <h4 class="text-lg font-semibold mb-2">Event Delegation</h4>
           <p class="text-gray-700 mb-2">Handle events on dynamically created elements:</p>
           <pre class="code-block"><code>// Event delegation
-vk('#container').on('click', '.dynamic-button', (ev, el) => {
+dom('#container').on('click', '.dynamic-button', (ev, el) => {
   // Handle clicks on .dynamic-button inside #container
 });
 
 // Multiple event types
-vk(element).on('mouseenter mouseleave', handler);</code></pre>
+dom(element).on('mouseenter mouseleave', handler);</code></pre>
         </div>
       </div>
     `
@@ -227,13 +227,13 @@ vk(element).on('mouseenter mouseleave', handler);</code></pre>
         <div>
           <h4 class="text-lg font-semibold mb-2">Animation Method</h4>
           <ul class="text-gray-700 space-y-1">
-            <li>• <code class="bg-gray-200 px-1 rounded">vk(selector).animate(keyframes, options)</code> - Animate elements</li>
+            <li>• <code class="bg-gray-200 px-1 rounded">dom(selector).animate(keyframes, options)</code> - Animate elements</li>
           </ul>
         </div>
         <div>
           <h4 class="text-lg font-semibold mb-2">Keyframes & Options</h4>
           <pre class="code-block"><code>// Basic animation
-vk('.box').animate([
+dom('.box').animate([
   { transform: 'translateX(0px)' },
   { transform: 'translateX(100px)' }
 ], {
@@ -244,7 +244,7 @@ vk('.box').animate([
 });
 
 // Common animations
-vk('.fade').animate([
+dom('.fade').animate([
   { opacity: 0 },
   { opacity: 1 }
 ], { duration: 500 });</code></pre>
@@ -257,8 +257,8 @@ vk('.fade').animate([
     title: 'Plugin System',
     content: `
       <p class="text-gray-700 mb-4">
-        Extend vanilla-kit with custom functionality using the plugin system.
-        Plugins can add new methods to the vk object and VKCollection prototype.
+        Extend dom.js with custom functionality using the plugin system.
+        Plugins can add new methods to the dom object and DOMCollection prototype.
       </p>
       <div class="space-y-4">
         <div>
@@ -271,20 +271,20 @@ vk('.fade').animate([
           <h4 class="text-lg font-semibold mb-2">Creating Plugins</h4>
           <pre class="code-block"><code>// Create a plugin
 use((api) => {
-  // Add method to vk object
+  // Add method to dom object
   api.myUtility = function(selector, options) {
     return this(selector).addClass('my-class');
   };
   
-  // Add method to VKCollection prototype
+  // Add method to DOMCollection prototype
   api.prototype.myMethod = function(value) {
     return this.css('custom-property', value);
   };
 });
 
 // Use the plugin
-vk.myUtility('.elements');
-vk('.elements').myMethod('value');</code></pre>
+dom.myUtility('.elements');
+dom('.elements').myMethod('value');</code></pre>
         </div>
       </div>
     `

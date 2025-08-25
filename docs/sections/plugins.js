@@ -1,10 +1,10 @@
-import vk, { useTemplate, use } from '../../dist/index.js';
+import dom, { useTemplate, use } from '../../dist/index.js';
 
 const renderExample = useTemplate('#example-template');
 const renderSubsection = useTemplate('#subsection-template');
 
 export function addPluginExamples() {
-  const pluginSection = vk('#plugins');
+  const pluginSection = dom('#plugins');
   if (pluginSection.length === 0) return;
 
   pluginSection.append(renderSubsection({
@@ -12,7 +12,7 @@ export function addPluginExamples() {
     title: 'Plugin System',
     content: `
       <p class="text-gray-700 mb-4">
-        Extend vanilla-kit with custom functionality using the plugin system.
+        Extend dom.js with custom functionality using the plugin system.
       </p>
     `
   }));
@@ -20,7 +20,7 @@ export function addPluginExamples() {
   const pluginExample = renderExample({
     id: 'creating-plugins-example',
     title: 'Creating Plugins',
-    description: 'Add custom methods to vanilla-kit',
+    description: 'Add custom methods to dom.js',
     demo: `
       <div class="space-y-4">
         <div class="grid grid-cols-2 gap-4">
@@ -52,7 +52,7 @@ export function addPluginExamples() {
         </div>
       </div>
     `,
-    code: `import { use } from '@dmitrijkiltau/vanilla-kit';
+    code: `import { use } from '@dmitrijkiltau/dom.js';
 
 // Flash effect plugin
 use((api) => {
@@ -95,8 +95,8 @@ use((api) => {
 });
 
 // Usage
-vk.flash('#element', { duration: 600, iterations: 2 });
-vk.typewriter('#output', 'Hello World!', { speed: 100 });`
+dom.flash('#element', { duration: 600, iterations: 2 });
+dom.typewriter('#output', 'Hello World!', { speed: 100 });`
   });
 
   pluginSection.append(pluginExample);
@@ -196,32 +196,32 @@ vk.typewriter('#output', 'Hello World!', { speed: 100 });`
   });
 
   // Add plugin demo functionality
-  vk('#flash-demo').on('click', () => {
-    vk.flash('#flash-target', { duration: 600, iterations: 2 });
+  dom('#flash-demo').on('click', () => {
+    dom.flash('#flash-target', { duration: 600, iterations: 2 });
   });
 
-  vk('#typewriter-demo').on('click', () => {
+  dom('#typewriter-demo').on('click', () => {
     const messages = [
-      'Hello from vanilla-kit!',
+      'Hello from dom.js!',
       'This is a typewriter effect!',
       'Plugins make extension easy!',
       'Build amazing things!',
       'Customize to your heart\'s content!'
     ];
     const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-    vk.typewriter('#typewriter-target', randomMessage, { speed: 60 });
+    dom.typewriter('#typewriter-target', randomMessage, { speed: 60 });
   });
 
-  vk('#toast-success').on('click', () => {
-    vk.toast('Operation completed successfully!', { type: 'success', duration: 4000 });
+  dom('#toast-success').on('click', () => {
+    dom.toast('Operation completed successfully!', { type: 'success', duration: 4000 });
   });
 
-  vk('#toast-warning').on('click', () => {
-    vk.toast('Please check your input data.', { type: 'warning', duration: 5000 });
+  dom('#toast-warning').on('click', () => {
+    dom.toast('Please check your input data.', { type: 'warning', duration: 5000 });
   });
 
-  vk('#toast-error').on('click', () => {
-    vk.toast('An error occurred during processing.', { type: 'error', duration: 6000 });
+  dom('#toast-error').on('click', () => {
+    dom.toast('An error occurred during processing.', { type: 'error', duration: 6000 });
   });
 
   // Advanced plugin example
@@ -246,7 +246,7 @@ vk.typewriter('#output', 'Hello World!', { speed: 100 });`
             <h5 class="font-medium">Highlight Plugin</h5>
             <input id="search-text" placeholder="Type to highlight..." class="input text-sm">
             <div class="demo-area border border-gray-300 rounded p-3 h-32 bg-gray-100 text-sm overflow-y-auto" id="highlight-content">
-              <p>vanilla-kit is a lightweight, modern DOM manipulation library that provides a jQuery-like API with ES modules support and no dependencies.</p>
+              <p>dom.js is a lightweight, modern DOM manipulation library that provides a jQuery-like API with ES modules support and no dependencies.</p>
               <p>It's designed for modern browsers and offers a chainable, intuitive API for DOM manipulation, templating, forms, events, HTTP requests, and animations.</p>
             </div>
           </div>
@@ -268,7 +268,7 @@ vk.typewriter('#output', 'Hello World!', { speed: 100 });`
     `,
     code: `// Draggable plugin with state
 use((api) => {
-  api.VKCollection.prototype.draggable = function(options = {}) {
+  api.DOMCollection.prototype.draggable = function(options = {}) {
     const { containment = null, axis = 'both' } = options;
     
     return this.each((el) => {
@@ -317,7 +317,7 @@ use((api) => {
 
 // Highlight plugin
 use((api) => {
-  api.VKCollection.prototype.highlight = function(text, className = 'bg-yellow-200') {
+  api.DOMCollection.prototype.highlight = function(text, className = 'bg-yellow-200') {
     return this.each((el) => {
       const regex = new RegExp(\`(\${text.replace(/[.*+?^()|[\\]\\\\]/g, '\\\\$&')})\`, 'gi');
       el.innerHTML = el.innerHTML.replace(regex, \`<mark class="\${className}">$1</mark>\`);
@@ -326,15 +326,15 @@ use((api) => {
 });
 
 // Usage
-vk('#draggable-element').draggable({ axis: 'x' });
-vk('#content').highlight('vanilla-kit');`
+dom('#draggable-element').draggable({ axis: 'x' });
+dom('#content').highlight('dom.js');`
   });
 
   pluginSection.append(advancedExample);
 
   // Define advanced plugins FIRST before using them
   use((api) => {
-    api.VKCollection.prototype.draggable = function(options = {}) {
+    api.DOMCollection.prototype.draggable = function(options = {}) {
       const { axis = 'both' } = options;
       
       return this.each((el) => {
@@ -390,7 +390,7 @@ vk('#content').highlight('vanilla-kit');`
       });
     };
 
-    api.VKCollection.prototype.undraggable = function() {
+    api.DOMCollection.prototype.undraggable = function() {
       return this.each((el) => {
         if (el._draggableCleanup) {
           el._draggableCleanup();
@@ -403,7 +403,7 @@ vk('#content').highlight('vanilla-kit');`
   });
 
   use((api) => {
-    api.VKCollection.prototype.highlight = function(text, className = 'bg-yellow-200') {
+    api.DOMCollection.prototype.highlight = function(text, className = 'bg-yellow-200') {
       return this.each((el) => {
         // First, remove existing highlights
         el.innerHTML = el.innerHTML.replace(/<mark class="[^"]*">([^<]*)<\/mark>/gi, '$1');
@@ -470,36 +470,36 @@ vk('#content').highlight('vanilla-kit');`
   let isDraggableEnabled = false;
   let counterInstance;
 
-  vk('#toggle-draggable').on('click', () => {
-    const box = vk('#draggable-box');
+  dom('#toggle-draggable').on('click', () => {
+    const box = dom('#draggable-box');
     if (isDraggableEnabled) {
       box.undraggable();
-      vk('#toggle-draggable').text('Enable Draggable');
+      dom('#toggle-draggable').text('Enable Draggable');
       isDraggableEnabled = false;
     } else {
       box.draggable();
-      vk('#toggle-draggable').text('Disable Draggable');
+      dom('#toggle-draggable').text('Disable Draggable');
       isDraggableEnabled = true;
     }
   });
 
-  vk('#search-text').on('input', (e) => {
+  dom('#search-text').on('input', (e) => {
     const searchText = e.target.value;
-    vk('#highlight-content').highlight(searchText);
+    dom('#highlight-content').highlight(searchText);
   });
 
   // Initialize counter
-  counterInstance = vk.counter('#counter-display', { initial: 0, min: -10, max: 100, step: 1 });
+  counterInstance = dom.counter('#counter-display', { initial: 0, min: -10, max: 100, step: 1 });
 
-  vk('#counter-increment').on('click', () => {
+  dom('#counter-increment').on('click', () => {
     counterInstance.increment();
   });
 
-  vk('#counter-decrement').on('click', () => {
+  dom('#counter-decrement').on('click', () => {
     counterInstance.decrement();
   });
 
-  vk('#counter-reset').on('click', () => {
+  dom('#counter-reset').on('click', () => {
     counterInstance.reset();
   });
 }

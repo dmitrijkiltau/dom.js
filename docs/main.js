@@ -1,4 +1,4 @@
-import vk from '../dist/index.js';
+import dom from '../dist/index.js';
 import { initNavigation } from './navigation.js';
 import { initContent } from './content.js';
 import { version } from './version.js';
@@ -6,8 +6,8 @@ import Prism from 'prismjs';
 import 'prismjs/components/prism-javascript.js';
 import 'prismjs/themes/prism-tomorrow.css';
 
-// Make vk globally available for console debugging
-window.vk = vk;
+// Make dom globally available for console debugging
+window.dom = dom;
 
 // Initialize the documentation
 function init() {
@@ -22,7 +22,7 @@ function init() {
   initExampleToggles();
 
   // Smooth scrolling for internal links
-  vk(document).on('click', 'a[href^="#"]', (ev, el) => {
+  dom(document).on('click', 'a[href^="#"]', (ev, el) => {
     ev.preventDefault();
     const targetId = el.getAttribute('href').substring(1);
     const targetElement = document.getElementById(targetId);
@@ -50,7 +50,7 @@ function initSyntaxHighlighting() {
 // Initialize example toggle functionality
 function initExampleToggles() {
   // Handle toggle button clicks using event delegation
-  vk(document).on('click', '.toggle-demo-code', (ev, button) => {
+  dom(document).on('click', '.toggle-demo-code', (ev, button) => {
     ev.preventDefault();
     
     // Find the example container using native DOM traversal
@@ -101,7 +101,7 @@ function initExampleToggles() {
 // Initialize sidebar footer functionality
 function initSidebarFooter() {
   // Display version
-  const versionDisplay = vk('#version-display');
+  const versionDisplay = dom('#version-display');
   versionDisplay.text(`v${version}`);
 
   // Initialize theme toggle
@@ -110,10 +110,10 @@ function initSidebarFooter() {
 
 // Initialize theme toggle functionality
 function initThemeToggle() {
-  const themeToggle = vk('#theme-toggle');
-  const themeIconLight = vk('#theme-icon-light');
-  const themeIconDark = vk('#theme-icon-dark');
-  const themeLabel = vk('#theme-label');
+  const themeToggle = dom('#theme-toggle');
+  const themeIconLight = dom('#theme-icon-light');
+  const themeIconDark = dom('#theme-icon-dark');
+  const themeLabel = dom('#theme-label');
   
   // Get current theme from localStorage or default to light
   let currentTheme = localStorage.getItem('theme') || 'light';

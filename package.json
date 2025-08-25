@@ -1,5 +1,5 @@
 {
-  "name": "@dmitrijkiltau/vanilla-kit",
+  "name": "@dmitrijkiltau/dom.js",
   "version": "0.2.0",
   "description": "A tiny, intuitive, chainable DOM utility for modern browsers (like jQuery, but ESM and no $).",
   "type": "module",
@@ -30,7 +30,7 @@
     "dom",
     "utility",
     "chainable",
-    "vanilla",
+    "dom.js",
     "jquery-alternative"
   ],
   "author": "Dmitrij Kiltau",
