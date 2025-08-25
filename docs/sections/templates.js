@@ -391,4 +391,93 @@ const element = renderTemplate('#enhanced-demo-template', templateData);`
   setTimeout(() => {
     dom('#render-enhanced-template').click();
   }, 100);
+
+  // Modular Import Example
+  const modularExample = renderExample({
+    id: 'template-modular-import-example',
+    title: 'Modular Import Usage',
+    description: 'How to use templates with modular imports for smaller bundle sizes',
+    demo: `
+      <div class="space-y-4">
+        <div class="bg-purple-50 border border-purple-200 rounded p-4">
+          <h5 class="font-medium text-purple-800 mb-2">📦 Bundle Size Comparison</h5>
+          <div class="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <strong>Full Bundle:</strong><br>
+              <code class="text-xs">import dom, { renderTemplate } from '@dmitrijkiltau/dom.js';</code><br>
+              <span class="text-gray-600">~13KB total</span>
+            </div>
+            <div>
+              <strong>Templates Only:</strong><br>
+              <code class="text-xs">import { renderTemplate } from '@dmitrijkiltau/dom.js/template';</code><br>
+              <span class="text-green-700 font-semibold">~130B + chunks</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-gray-100 p-4 rounded">
+          <h5 class="font-medium mb-2">Template Usage (Works Same Way)</h5>
+          <p class="text-sm text-gray-600 mb-3">
+            Whether you use full bundle or modular imports, the template API remains identical:
+          </p>
+          <div class="space-y-2">
+            <input id="modular-item-title" placeholder="Item title" class="input text-sm" value="Modular Example">
+            <button id="render-modular-item" class="btn btn-primary text-sm">Render with Template</button>
+          </div>
+          <div id="modular-items-container" class="mt-3 space-y-2"></div>
+        </div>
+      </div>
+
+      <template id="modular-item-template">
+        <div class="p-3 bg-indigo-50 border border-indigo-200 rounded">
+          <h6 class="font-medium text-indigo-900" data-text="title"></h6>
+          <p class="text-sm text-indigo-700">
+            Created with <span data-text="importType"></span> 
+            (Bundle size: <span data-text="bundleSize" class="font-mono"></span>)
+          </p>
+        </div>
+      </template>
+    `,
+    code: `// Option 1: Full Bundle Import
+import dom, { renderTemplate, useTemplate } from '@dmitrijkiltau/dom.js';
+
+// Option 2: Modular Import (Much Smaller!)  
+import { renderTemplate, useTemplate } from '@dmitrijkiltau/dom.js/template';
+// + import dom from '@dmitrijkiltau/dom.js/core'; // if you need DOM manipulation
+
+// Usage is identical regardless of import method:
+const template = useTemplate('#my-template');
+
+const element = renderTemplate('#my-template', {
+  title: 'My Title',
+  message: 'Template content',
+  // Event handlers work the same
+  onClick: (event) => console.log('Clicked!')
+});
+
+// If using modular imports with core:
+import dom from '@dmitrijkiltau/dom.js/core';
+import { renderTemplate } from '@dmitrijkiltau/dom.js/template';
+
+dom('#container').append(
+  renderTemplate('#template', data)
+);`
+  });
+
+  templateSection.append(modularExample);
+
+  // Add modular example functionality
+  dom('#render-modular-item').on('click', () => {
+    const title = dom('#modular-item-title').val();
+    if (title.trim()) {
+      const item = renderTemplate('#modular-item-template', {
+        title: title,
+        importType: 'modular imports',
+        bundleSize: '~130B + chunks'
+      });
+
+      dom('#modular-items-container').append(item);
+      dom('#modular-item-title').val('');
+    }
+  });
 }
