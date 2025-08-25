@@ -7,7 +7,7 @@ A tiny, intuitive, chainable DOM utility for modern browsers (like jQuery, but E
 
 ## Features
 
-- 🚀 **Lightweight** - Small bundle size (few KB, depending on usage)
+- 🚀 **Lightweight** - Modular architecture, import only what you need
 - ⛓️ **Chainable API** - Familiar jQuery-like syntax
 - 📦 **Modern ES Modules** - Built for modern browsers (ES2020+)
 - 🎯 **TypeScript Support** - Full TypeScript definitions included
@@ -17,6 +17,24 @@ A tiny, intuitive, chainable DOM utility for modern browsers (like jQuery, but E
 - 🎬 **Animation Support** - Web Animations API integration
 - 🔧 **Plugin System** - Extend functionality with custom plugins
 - 🆔 **Zero Dependencies** - No external dependencies
+
+## Modular Architecture
+
+dom.js features a **modular architecture** for optimal bundle sizes:
+
+```js
+// Full bundle (~13KB) - Everything included
+import dom from '@dmitrijkiltau/dom.js';
+
+// Core only (~7KB) - Basic DOM manipulation + events  
+import dom from '@dmitrijkiltau/dom.js/core';
+
+// Individual modules - Maximum tree-shaking
+import { http } from '@dmitrijkiltau/dom.js/http';
+import { renderTemplate } from '@dmitrijkiltau/dom.js/template';
+```
+
+**[📖 Complete Architecture Guide →](ARCHITECTURE.md)**
 
 ## Installation
 
@@ -39,6 +57,43 @@ import dom, { renderTemplate, onSubmit, http } from '@dmitrijkiltau/dom.js';
 
 ```js
 import dom from 'https://unpkg.com/@dmitrijkiltau/dom.js/dist/index.js';
+```
+
+## Import Options
+
+Choose the import style that best fits your needs:
+
+### Full Bundle (Default)
+Best for: jQuery replacement, complex applications
+```js
+import dom from '@dmitrijkiltau/dom.js';
+
+// Everything available (~13KB total)
+dom('.elements').fadeIn();
+await dom.http.get('/api/data');
+```
+
+### Core Only
+Best for: Basic DOM manipulation, size-critical applications
+```js
+import dom from '@dmitrijkiltau/dom.js/core';
+
+// Core functionality only (~7KB total)
+dom('.elements')
+  .addClass('active')
+  .on('click', handler);
+```
+
+### Modular Imports  
+Best for: Maximum tree-shaking, library authors
+```js
+import dom from '@dmitrijkiltau/dom.js/core';
+import { http } from '@dmitrijkiltau/dom.js/http';
+import { renderTemplate } from '@dmitrijkiltau/dom.js/template';
+
+// Use only what you import
+const response = await http.get('/api');
+const element = renderTemplate('#template', data);
 ```
 
 ## Quick Start
