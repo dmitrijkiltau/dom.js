@@ -1,0 +1,10 @@
+{
+  "fullSize": 13,
+  "optimizedSize": 7,
+  "savings": 6,
+  "percentSavings": 46,
+  "modules": [
+    "core"
+  ],
+  "import": "import dom from '@dmitrijkiltau/dom.js/core';"
+}
