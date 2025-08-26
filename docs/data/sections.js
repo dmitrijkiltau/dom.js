@@ -5,7 +5,7 @@ export const sections = [
     title: 'Getting Started',
     content: `
       <p class="text-lg text-gray-700 mb-4">
-        dom.js is a lightweight, modern DOM manipulation library that provides a jQuery-like API 
+        dom.js is a lightweight, modern DOM manipulation library that provides an intuitive chainable API 
         with ES modules support and no dependencies.
       </p>
       <p class="text-gray-700 mb-4">
@@ -55,7 +55,7 @@ export const sections = [
         <div class="grid gap-6 md:grid-cols-1 lg:grid-cols-3">
           <div class="bg-gray-50 rounded-lg p-4 border">
             <h5 class="font-semibold text-gray-800 mb-2">📦 Full Bundle (~13KB)</h5>
-            <p class="text-sm text-gray-600 mb-3">Best for: jQuery replacement, complex applications</p>
+            <p class="text-sm text-gray-600 mb-3">Best for: Feature-rich applications, comprehensive DOM manipulation</p>
             <pre class="code-block text-xs"><code>import dom from '@dmitrijkiltau/dom.js';
 
 // Everything available
@@ -101,7 +101,7 @@ import { http } from '@dmitrijkiltau/dom.js/http';
                   <td class="px-4 py-2 border-r"><code class="bg-gray-200 px-1 rounded">Full Bundle</code></td>
                   <td class="px-4 py-2 border-r">~13KB</td>
                   <td class="px-4 py-2 border-r">-</td>
-                  <td class="px-4 py-2">jQuery replacement</td>
+                  <td class="px-4 py-2">Comprehensive DOM library</td>
                 </tr>
                 <tr class="border-t bg-green-50">
                   <td class="px-4 py-2 border-r"><code class="bg-gray-200 px-1 rounded">Core Only</code></td>
@@ -163,7 +163,7 @@ dom('.elements')
 // All utilities included
 const response = await dom.http.get('/api/data');
 const element = dom.renderTemplate('#template', data);</code></pre>
-            <p class="text-sm text-gray-600">Perfect for jQuery migrations and feature-rich applications.</p>
+            <p class="text-sm text-gray-600">Perfect for comprehensive DOM manipulation and feature-rich applications.</p>
           </div>
 
           <div>
