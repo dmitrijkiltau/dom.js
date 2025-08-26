@@ -55,18 +55,23 @@ class DomSSG {
 
       // Step 4: Generate final HTML
       console.log('📝 Generating final HTML...');
-      const finalHTML = this.injectOptimizedJS(html, optimizedJS, jsAnalysis);
+      let finalHTML = this.injectOptimizedJS(html, optimizedJS, jsAnalysis);
       console.log('   ✅ HTML generation complete\n');
 
-      // Step 5: Write output files
+      // Step 5: Copy static assets and get CSS filename
+      console.log('📁 Copying static assets...');
+      const assetInfo = await this.copyStaticAssets();
+      console.log('   ✅ Assets copied\n');
+
+      // Step 6: Update CSS references in HTML
+      if (assetInfo.cssFile) {
+        finalHTML = this.updateCSSReferences(finalHTML, assetInfo.cssFile);
+      }
+
+      // Step 7: Write output files
       console.log('💾 Writing output files...');
       this.writeOutputFiles(finalHTML, optimizedJS, bundleInfo);
       console.log('   ✅ Files written successfully\n');
-
-      // Step 6: Copy static assets
-      console.log('📁 Copying static assets...');
-      await this.copyStaticAssets();
-      console.log('   ✅ Assets copied\n');
 
       // Display build summary
       this.displayBuildSummary(bundleInfo, jsAnalysis);
@@ -312,6 +317,7 @@ function initThemeToggle() {
   async copyStaticAssets() {
     const assetsSrc = path.join(this.options.srcDir, 'dist', 'assets');
     const assetsDest = path.join(this.options.distDir, 'assets');
+    let cssFile = null;
 
     if (fs.existsSync(assetsSrc)) {
       // Copy CSS files
@@ -326,9 +332,23 @@ function initThemeToggle() {
             path.join(assetsSrc, file),
             path.join(assetsDest, file)
           );
+          cssFile = file; // Store the CSS filename for reference updating
         }
       });
     }
+
+    return { cssFile };
+  }
+
+  /**
+   * Update CSS references in HTML to point to hashed filenames
+   */
+  updateCSSReferences(html, cssFile) {
+    // Replace generic style.css reference with the actual hashed CSS filename
+    return html.replace(
+      /href="\.\/style\.css"/g, 
+      `href="./assets/${cssFile}"`
+    );
   }
 
   /**
