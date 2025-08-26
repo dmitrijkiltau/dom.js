@@ -157,18 +157,8 @@ function init() {
   console.log('🎯 dom-ssg initialized with optimized bundle');
   
   // Add any remaining interactivity here
-  initializeInteractivity();
-}
-
-function initializeInteractivity() {
-  // Mobile navigation
-  if (typeof initMobileNavigation !== 'undefined') {
-    initMobileNavigation();
-  }
-  
-  // Theme toggle
-  if (typeof initThemeToggle !== 'undefined') {
-    initThemeToggle();
+  if (typeof initializeInteractivity !== 'undefined') {
+    initializeInteractivity();
   }
 }
 `.trim();
@@ -198,14 +188,16 @@ function initializeInteractivity() {
     let domJSCode = fs.readFileSync(corePath, 'utf8');
     
     // Convert CommonJS to make dom available globally
-    // Remove the CommonJS exports and module.exports
-    domJSCode = domJSCode.replace(/module\.exports[^;]*;/g, '');
-    domJSCode = domJSCode.replace(/var R=.*?;D\(R,.*?\);\s*/gs, '');
-    domJSCode = domJSCode.replace(/module\.exports=P\(R\);\s*/g, '');
+    // Remove the dead code elimination pattern: 0&&(module.exports={...});
+    domJSCode = domJSCode.replace(/;0&&\([^)]*\);?/g, ';');
+    
+    // Remove the source map comment
+    domJSCode = domJSCode.replace(/\/\/# sourceMappingURL=.*$/gm, '');
     
     // Extract the core functionality and make it globally available
     // The core.cjs defines 'k' as the main dom function, we need to make it global
     domJSCode += `
+
 // Make dom globally available for SSG
 window.dom = typeof k !== 'undefined' ? k : (typeof A !== 'undefined' ? A : undefined);
 if (!window.dom) {
@@ -229,7 +221,21 @@ if (!window.dom) {
 const dom = window.dom;
 if (!dom) {
   console.error('dom.js not available - SSG bundle may have failed to load');
-  return;
+} else {
+  // Initialize interactivity if dom is available
+  initializeInteractivity();
+}
+
+function initializeInteractivity() {
+  // Mobile navigation
+  if (typeof initMobileNavigation !== 'undefined') {
+    initMobileNavigation();
+  }
+  
+  // Theme toggle
+  if (typeof initThemeToggle !== 'undefined') {
+    initThemeToggle();
+  }
 }
 `;
 
