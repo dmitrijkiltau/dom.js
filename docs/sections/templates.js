@@ -1,4 +1,5 @@
 import dom, { useTemplate, renderTemplate } from '../../dist/index.js';
+import { createTabbedExamples } from '../content.js';
 
 const renderExample = useTemplate('#example-template');
 const renderSubsection = useTemplate('#subsection-template');
@@ -17,22 +18,27 @@ export function addTemplateExamples() {
     `
   }));
 
-  const templateExample = renderExample({
-    id: 'template-rendering-example',
-    title: 'Template Rendering',
-    description: 'Create reusable templates with data binding',
-    demo: `
-      <div class="space-y-4">
-        <div class="space-y-2">
-          <input id="item-name" placeholder="Item name" class="input" value="Example Item">
-          <input id="item-url" placeholder="Item URL" class="input" value="https://example.com">
-          <input id="item-description" placeholder="Description" class="input" value="A sample description">
-          <button id="add-item" class="btn btn-primary">Add Item</button>
-        </div>
-        <div id="items-list" class="space-y-2"></div>
-      </div>
-    `,
-    code: `// Template with data bindings
+  // Create tabbed examples for Template functionality
+  const templateTabbedExamples = createTabbedExamples({
+    id: 'template-examples-tabs',
+    title: 'Template System Examples',
+    description: 'Explore different template features with interactive examples',
+    tabs: [
+      {
+        id: 'basic-rendering',
+        title: 'Basic Rendering',
+        demo: `
+          <div class="space-y-4">
+            <div class="space-y-2">
+              <input id="item-name" placeholder="Item name" class="input" value="Example Item">
+              <input id="item-url" placeholder="Item URL" class="input" value="https://example.com">
+              <input id="item-description" placeholder="Description" class="input" value="A sample description">
+              <button id="add-item" class="btn btn-primary">Add Item</button>
+            </div>
+            <div id="items-list" class="space-y-2"></div>
+          </div>
+        `,
+        code: `// Template with data bindings
 <template id="template-demo-item">
   <div class="p-3 bg-blue-50 border border-blue-200 rounded mb-2">
     <h5 class="font-semibold text-blue-900" data-text="name"></h5>
@@ -64,81 +70,54 @@ dom('#items-list').append(
     description: 'Another description'
   })
 );`
-  });
-
-  templateSection.append(templateExample);
-
-  // Add template demo functionality
-  dom('#add-item').on('click', () => {
-    const name = dom('#item-name').el().value;
-    const url = dom('#item-url').el().value;
-    const description = dom('#item-description').el().value;
-
-    if (name.trim()) {
-      const item = renderTemplate('#template-demo-item', {
-        name,
-        url: url || '#',
-        description: description || 'No description provided'
-      });
-
-      dom('#items-list').append(item);
-
-      // Clear inputs
-      dom('#item-name').el().value = '';
-      dom('#item-url').el().value = '';
-      dom('#item-description').el().value = '';
-    }
-  });
-
-  // Advanced template binding example
-  const advancedExample = renderExample({
-    id: 'advanced-template-binding-example',
-    title: 'Advanced Data Binding',
-    description: 'Complex templates with multiple binding types',
-    demo: `
-      <div class="space-y-4">
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium mb-1">Card Title</label>
-            <input id="card-title" class="input" value="Sample Card">
+      },
+      {
+        id: 'advanced-binding',
+        title: 'Advanced Binding',
+        demo: `
+          <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium mb-1">Card Title</label>
+                <input id="card-title" class="input" value="Sample Card">
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-1">Status</label>
+                <select id="card-status" class="input">
+                  <option value="active">Active</option>
+                  <option value="pending">Pending</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-1">Priority</label>
+                <input id="card-priority" type="number" class="input" value="1" min="1" max="5">
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-1">Due Date</label>
+                <input id="card-date" type="date" class="input">
+              </div>
+            </div>
+            <textarea id="card-content" placeholder="Card content..." class="input" rows="3">This is sample card content with <strong>HTML</strong> support.</textarea>
+            <button id="create-card" class="btn btn-primary">Create Card</button>
+            <div id="cards-container" class="space-y-3"></div>
           </div>
-          <div>
-            <label class="block text-sm font-medium mb-1">Status</label>
-            <select id="card-status" class="input">
-              <option value="active">Active</option>
-              <option value="pending">Pending</option>
-              <option value="inactive">Inactive</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-medium mb-1">Priority</label>
-            <input id="card-priority" type="number" class="input" value="1" min="1" max="5">
-          </div>
-          <div>
-            <label class="block text-sm font-medium mb-1">Due Date</label>
-            <input id="card-date" type="date" class="input">
-          </div>
-        </div>
-        <textarea id="card-content" placeholder="Card content..." class="input" rows="3">This is sample card content with <strong>HTML</strong> support.</textarea>
-        <button id="create-card" class="btn btn-primary">Create Card</button>
-        <div id="cards-container" class="space-y-3"></div>
-      </div>
 
-      <template id="advanced-card-template">
-        <div class="border border-gray-300 rounded-lg p-4 bg-gray-100 shadow-sm" data-attr-class="statusClass">
-          <div class="flex justify-between items-start mb-2">
-            <h3 class="text-lg font-semibold" data-text="title"></h3>
-            <span class="text-xs px-2 py-1 rounded" data-attr-class="statusBadge" data-text="status"></span>
-          </div>
-          <div class="text-gray-600 mb-3" data-html="content"></div>
-          <div class="flex justify-between text-sm text-gray-500">
-            <span>Priority: <span data-text="priority" class="font-medium"></span>/5</span>
-            <span data-text="dueDate"></span>
-          </div>
-        </div>
-      </template>
-    `,
-    code: `// Advanced template with conditional classes
+          <template id="advanced-card-template">
+            <div class="border border-gray-600 rounded-lg p-4 bg-gray-100 shadow-sm" data-attr-class="statusClass">
+              <div class="flex justify-between items-start mb-2">
+                <h3 class="text-lg font-semibold" data-text="title"></h3>
+                <span class="text-xs px-2 py-1 rounded" data-attr-class="statusBadge" data-text="status"></span>
+              </div>
+              <div class="text-gray-600 mb-3" data-html="content"></div>
+              <div class="flex justify-between text-sm text-gray-500">
+                <span>Priority: <span data-text="priority" class="font-medium"></span>/5</span>
+                <span data-text="dueDate"></span>
+              </div>
+            </div>
+          </template>
+        `,
+        code: `// Advanced template with conditional classes
 <template id="advanced-card-template">
   <div class="border border-gray-300 rounded-lg p-4" data-attr-class="statusClass">
     <h3 class="text-lg font-semibold" data-text="title"></h3>
@@ -168,130 +147,84 @@ const card = renderCard({
                status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                'bg-gray-100 text-gray-800'
 });`
-  });
-
-  templateSection.append(advancedExample);
-
-  // Set today's date as default after the advanced example is in the DOM
-  const today = new Date().toISOString().split('T')[0];
-  const dateInput = dom('#card-date');
-  if (dateInput.length > 0) {
-    dateInput.el().value = today;
-  }
-
-  dom('#create-card').on('click', () => {
-    const title = dom('#card-title').el().value;
-    const status = dom('#card-status').el().value;
-    const priority = dom('#card-priority').el().value;
-    const content = dom('#card-content').el().value;
-    const dueDate = dom('#card-date').el().value;
-
-    if (title.trim()) {
-      const statusClasses = {
-        active: 'p-4 rounded-lg border-green-200 bg-green-50',
-        pending: 'p-4 rounded-lg border-yellow-200 bg-yellow-50',
-        inactive: 'p-4 rounded-lg border-gray-200 bg-gray-50'
-      };
-
-      const statusBadges = {
-        active: 'py-1 px-3 text-sm rounded-lg bg-green-100 text-green-800',
-        pending: 'py-1 px-3 text-sm rounded-lg bg-yellow-100 text-yellow-800',
-        inactive: 'py-1 px-3 text-sm rounded-lg bg-gray-100 text-gray-800'
-      };
-
-      const card = renderTemplate('#advanced-card-template', {
-        title,
-        status: status.charAt(0).toUpperCase() + status.slice(1),
-        content: content || 'No content provided',
-        priority,
-        dueDate: dueDate || 'No due date',
-        statusClass: statusClasses[status],
-        statusBadge: statusBadges[status]
-      });
-
-      dom('#cards-container').append(card);
-    }
-  });
-
-  // Enhanced Template Features Example
-  const enhancedTemplateExample = renderExample({
-    id: 'enhanced-template-features-example',
-    title: 'Enhanced Template Features',
-    description: 'New template features: conditional rendering (data-if, data-show, data-hide) and event binding (data-on-*)',
-    demo: `
-      <div class="space-y-4">
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <h5 class="font-medium mb-2">Control Variables</h5>
-            <div class="space-y-2">
-              <label class="flex items-center">
-                <input type="checkbox" id="show-header" class="mr-2" checked>
-                Show Header (data-if)
-              </label>
-              <label class="flex items-center">
-                <input type="checkbox" id="show-content" class="mr-2" checked>
-                Show Content (data-show)
-              </label>
-              <label class="flex items-center">
-                <input type="checkbox" id="hide-footer" class="mr-2">
-                Hide Footer (data-hide)
-              </label>
-              <label class="flex items-center">
-                <input type="checkbox" id="enable-actions" class="mr-2" checked>
-                Enable Actions (event binding)
-              </label>
+      },
+      {
+        id: 'enhanced-features',
+        title: 'Enhanced Features',
+        demo: `
+          <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <h5 class="font-medium mb-2">Control Variables</h5>
+                <div class="space-y-2">
+                  <label class="flex items-center">
+                    <input type="checkbox" id="show-header" class="mr-2" checked>
+                    Show Header (data-if)
+                  </label>
+                  <label class="flex items-center">
+                    <input type="checkbox" id="show-content" class="mr-2" checked>
+                    Show Content (data-show)
+                  </label>
+                  <label class="flex items-center">
+                    <input type="checkbox" id="hide-footer" class="mr-2">
+                    Hide Footer (data-hide)
+                  </label>
+                  <label class="flex items-center">
+                    <input type="checkbox" id="enable-actions" class="mr-2" checked>
+                    Enable Actions (event binding)
+                  </label>
+                </div>
+              </div>
+              <div>
+                <h5 class="font-medium mb-2">Template Data</h5>
+                <div class="space-y-2">
+                  <input id="demo-title" class="input text-sm" value="Dynamic Title" placeholder="Title">
+                  <input id="demo-message" class="input text-sm" value="This content can be shown/hidden dynamically!" placeholder="Message">
+                  <select id="demo-theme" class="input text-sm">
+                    <option value="primary">Primary Theme</option>
+                    <option value="success">Success Theme</option>
+                    <option value="warning">Warning Theme</option>
+                  </select>
+                </div>
+              </div>
             </div>
+            
+            <button id="render-enhanced-template" class="btn btn-primary">Render Template</button>
+            
+            <div id="enhanced-template-container" class="border border-gray-300 rounded p-4 bg-gray-50 min-h-[200px]"></div>
+            
+            <div id="enhanced-template-log" class="text-sm text-gray-600 bg-gray-100 p-3 rounded max-h-32 overflow-y-auto"></div>
           </div>
-          <div>
-            <h5 class="font-medium mb-2">Template Data</h5>
-            <div class="space-y-2">
-              <input id="demo-title" class="input text-sm" value="Dynamic Title" placeholder="Title">
-              <input id="demo-message" class="input text-sm" value="This content can be shown/hidden dynamically!" placeholder="Message">
-              <select id="demo-theme" class="input text-sm">
-                <option value="primary">Primary Theme</option>
-                <option value="success">Success Theme</option>
-                <option value="warning">Warning Theme</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        
-        <button id="render-enhanced-template" class="btn btn-primary">Render Template</button>
-        
-        <div id="enhanced-template-container" class="border border-gray-300 rounded p-4 bg-gray-50 min-h-[200px]"></div>
-        
-        <div id="enhanced-template-log" class="text-sm text-gray-600 bg-gray-100 p-3 rounded max-h-32 overflow-y-auto"></div>
-      </div>
 
-      <template id="enhanced-demo-template">
-        <div class="p-4 rounded-lg" data-attr-class="themeClass">
-          <header data-if="showHeader" class="mb-4 pb-2 border-b border-gray-300">
-            <h3 class="text-xl font-bold" data-text="title"></h3>
-            <p class="text-sm text-gray-600">This header is conditionally rendered with data-if</p>
-          </header>
-          
-          <main data-show="showContent" class="mb-4">
-            <p data-text="message" class="text-gray-700 mb-3"></p>
-            <div class="flex space-x-2">
-              <button data-on-click="handlePrimaryAction" class="btn btn-primary text-sm" data-if="enableActions">
-                Primary Action
-              </button>
-              <button data-on-click="handleSecondaryAction" class="btn btn-secondary text-sm" data-if="enableActions">
-                Secondary Action
-              </button>
+          <template id="enhanced-demo-template">
+            <div class="p-4 rounded-lg" data-attr-class="themeClass">
+              <header data-if="showHeader" class="mb-4 pb-2 border-b border-gray-300">
+                <h3 class="text-xl font-bold" data-text="title"></h3>
+                <p class="text-sm text-gray-600">This header is conditionally rendered with data-if</p>
+              </header>
+              
+              <main data-show="showContent" class="mb-4">
+                <p data-text="message" class="text-gray-700 mb-3"></p>
+                <div class="flex space-x-2">
+                  <button data-on-click="handlePrimaryAction" class="btn btn-primary text-sm" data-if="enableActions">
+                    Primary Action
+                  </button>
+                  <button data-on-click="handleSecondaryAction" class="btn btn-secondary text-sm" data-if="enableActions">
+                    Secondary Action
+                  </button>
+                </div>
+              </main>
+              
+              <footer data-hide="hideFooter" class="pt-2 border-t border-gray-300 text-xs text-gray-500">
+                <p>Footer text - hidden when hideFooter is true</p>
+                <button data-on-click="handleFooterClick" class="text-blue-600 hover:text-blue-800 underline" data-if="enableActions">
+                  Footer Action
+                </button>
+              </footer>
             </div>
-          </main>
-          
-          <footer data-hide="hideFooter" class="pt-2 border-t border-gray-300 text-xs text-gray-500">
-            <p>Footer text - hidden when hideFooter is true</p>
-            <button data-on-click="handleFooterClick" class="text-blue-600 hover:text-blue-800 underline" data-if="enableActions">
-              Footer Action
-            </button>
-          </footer>
-        </div>
-      </template>
-    `,
-    code: `// Enhanced template with conditional rendering and events
+          </template>
+        `,
+        code: `// Enhanced template with conditional rendering and events
 <template id="enhanced-demo-template">
   <div data-attr-class="themeClass">
     <!-- Conditional element (removed if false) -->
@@ -329,10 +262,148 @@ const templateData = {
 };
 
 const element = renderTemplate('#enhanced-demo-template', templateData);`
+      },
+      {
+        id: 'modular-usage',
+        title: 'Modular Usage',
+        demo: `
+          <div class="space-y-4">
+            <div class="bg-purple-50 border border-purple-200 rounded p-4">
+              <h5 class="font-medium text-purple-800 mb-2">📦 Bundle Size Comparison</h5>
+              <div class="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <strong>Full Bundle:</strong><br>
+                  <code class="text-xs">import dom, { renderTemplate } from '@dmitrijkiltau/dom.js';</code><br>
+                  <span class="text-gray-600">~13KB total</span>
+                </div>
+                <div>
+                  <strong>Templates Only:</strong><br>
+                  <code class="text-xs">import { renderTemplate } from '@dmitrijkiltau/dom.js/template';</code><br>
+                  <span class="text-green-700 font-semibold">~130B + chunks</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="bg-gray-100 p-4 rounded">
+              <h5 class="font-medium mb-2">Template Usage (Works Same Way)</h5>
+              <p class="text-sm text-gray-600 mb-3">
+                Whether you use full bundle or modular imports, the template API remains identical:
+              </p>
+              <div class="space-y-2">
+                <input id="modular-item-title" placeholder="Item title" class="input text-sm" value="Modular Example">
+                <button id="render-modular-item" class="btn btn-primary text-sm">Render with Template</button>
+              </div>
+              <div id="modular-items-container" class="mt-3 space-y-2"></div>
+            </div>
+          </div>
+
+          <template id="modular-item-template">
+            <div class="p-3 bg-indigo-50 border border-indigo-200 rounded">
+              <h6 class="font-medium text-indigo-900" data-text="title"></h6>
+              <p class="text-sm text-indigo-700">
+                Created with <span data-text="importType"></span> 
+                (Bundle size: <span data-text="bundleSize" class="font-mono"></span>)
+              </p>
+            </div>
+          </template>
+        `,
+        code: `// Option 1: Full Bundle Import
+import dom, { renderTemplate, useTemplate } from '@dmitrijkiltau/dom.js';
+
+// Option 2: Modular Import (Much Smaller!)  
+import { renderTemplate, useTemplate } from '@dmitrijkiltau/dom.js/template';
+// + import dom from '@dmitrijkiltau/dom.js/core'; // if you need DOM manipulation
+
+// Usage is identical regardless of import method:
+const template = useTemplate('#my-template');
+
+const element = renderTemplate('#my-template', {
+  title: 'My Title',
+  message: 'Template content',
+  // Event handlers work the same
+  onClick: (event) => console.log('Clicked!')
+});
+
+// If using modular imports with core:
+import dom from '@dmitrijkiltau/dom.js/core';
+import { renderTemplate } from '@dmitrijkiltau/dom.js/template';
+
+dom('#container').append(
+  renderTemplate('#template', data)
+);`
+      }
+    ]
   });
 
-  templateSection.append(enhancedTemplateExample);
+  templateSection.append(templateTabbedExamples);
 
+  // Event handlers for Basic Rendering tab
+  dom('#add-item').on('click', () => {
+    const name = dom('#item-name').el().value;
+    const url = dom('#item-url').el().value;
+    const description = dom('#item-description').el().value;
+
+    if (name.trim()) {
+      const item = renderTemplate('#template-demo-item', {
+        name,
+        url: url || '#',
+        description: description || 'No description provided'
+      });
+
+      dom('#items-list').append(item);
+
+      // Clear inputs
+      dom('#item-name').el().value = '';
+      dom('#item-url').el().value = '';
+      dom('#item-description').el().value = '';
+    }
+  });
+
+  // Event handlers for Advanced Binding tab
+  // Set today's date as default after the advanced example is in the DOM
+  setTimeout(() => {
+    const today = new Date().toISOString().split('T')[0];
+    const dateInput = dom('#card-date');
+    if (dateInput.length > 0) {
+      dateInput.el().value = today;
+    }
+  }, 100);
+
+  dom('#create-card').on('click', () => {
+    const title = dom('#card-title').el().value;
+    const status = dom('#card-status').el().value;
+    const priority = dom('#card-priority').el().value;
+    const content = dom('#card-content').el().value;
+    const dueDate = dom('#card-date').el().value;
+
+    if (title.trim()) {
+      const statusClasses = {
+        active: 'p-4 rounded-lg border-green-200 bg-green-50',
+        pending: 'p-4 rounded-lg border-yellow-200 bg-yellow-50',
+        inactive: 'p-4 rounded-lg border-gray-200 bg-gray-50'
+      };
+
+      const statusBadges = {
+        active: 'py-1 px-3 text-sm rounded-lg bg-green-100 text-green-800',
+        pending: 'py-1 px-3 text-sm rounded-lg bg-yellow-100 text-yellow-800',
+        inactive: 'py-1 px-3 text-sm rounded-lg bg-gray-100 text-gray-800'
+      };
+
+      const card = renderTemplate('#advanced-card-template', {
+        title,
+        status: status.charAt(0).toUpperCase() + status.slice(1),
+        content: content || 'No content provided',
+        priority,
+        dueDate: dueDate || 'No due date',
+        statusClass: statusClasses[status],
+        statusBadge: statusBadges[status]
+      });
+
+      dom('#cards-container').append(card);
+    }
+  });
+
+  // Event handlers for Enhanced Features tab
   function logTemplateEvent(message) {
     const log = dom('#enhanced-template-log');
     const timestamp = new Date().toLocaleTimeString();
@@ -387,86 +458,12 @@ const element = renderTemplate('#enhanced-demo-template', templateData);`
     logTemplateEvent(`Template rendered with: header=${showHeader}, content=${showContent}, hideFooter=${hideFooter}, actions=${enableActions}`);
   });
 
-  // Initial render
+  // Initial render for Enhanced Features tab
   setTimeout(() => {
     dom('#render-enhanced-template').click();
   }, 100);
 
-  // Modular Import Example
-  const modularExample = renderExample({
-    id: 'template-modular-import-example',
-    title: 'Modular Import Usage',
-    description: 'How to use templates with modular imports for smaller bundle sizes',
-    demo: `
-      <div class="space-y-4">
-        <div class="bg-purple-50 border border-purple-200 rounded p-4">
-          <h5 class="font-medium text-purple-800 mb-2">📦 Bundle Size Comparison</h5>
-          <div class="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <strong>Full Bundle:</strong><br>
-              <code class="text-xs">import dom, { renderTemplate } from '@dmitrijkiltau/dom.js';</code><br>
-              <span class="text-gray-600">~13KB total</span>
-            </div>
-            <div>
-              <strong>Templates Only:</strong><br>
-              <code class="text-xs">import { renderTemplate } from '@dmitrijkiltau/dom.js/template';</code><br>
-              <span class="text-green-700 font-semibold">~130B + chunks</span>
-            </div>
-          </div>
-        </div>
-        
-        <div class="bg-gray-100 p-4 rounded">
-          <h5 class="font-medium mb-2">Template Usage (Works Same Way)</h5>
-          <p class="text-sm text-gray-600 mb-3">
-            Whether you use full bundle or modular imports, the template API remains identical:
-          </p>
-          <div class="space-y-2">
-            <input id="modular-item-title" placeholder="Item title" class="input text-sm" value="Modular Example">
-            <button id="render-modular-item" class="btn btn-primary text-sm">Render with Template</button>
-          </div>
-          <div id="modular-items-container" class="mt-3 space-y-2"></div>
-        </div>
-      </div>
-
-      <template id="modular-item-template">
-        <div class="p-3 bg-indigo-50 border border-indigo-200 rounded">
-          <h6 class="font-medium text-indigo-900" data-text="title"></h6>
-          <p class="text-sm text-indigo-700">
-            Created with <span data-text="importType"></span> 
-            (Bundle size: <span data-text="bundleSize" class="font-mono"></span>)
-          </p>
-        </div>
-      </template>
-    `,
-    code: `// Option 1: Full Bundle Import
-import dom, { renderTemplate, useTemplate } from '@dmitrijkiltau/dom.js';
-
-// Option 2: Modular Import (Much Smaller!)  
-import { renderTemplate, useTemplate } from '@dmitrijkiltau/dom.js/template';
-// + import dom from '@dmitrijkiltau/dom.js/core'; // if you need DOM manipulation
-
-// Usage is identical regardless of import method:
-const template = useTemplate('#my-template');
-
-const element = renderTemplate('#my-template', {
-  title: 'My Title',
-  message: 'Template content',
-  // Event handlers work the same
-  onClick: (event) => console.log('Clicked!')
-});
-
-// If using modular imports with core:
-import dom from '@dmitrijkiltau/dom.js/core';
-import { renderTemplate } from '@dmitrijkiltau/dom.js/template';
-
-dom('#container').append(
-  renderTemplate('#template', data)
-);`
-  });
-
-  templateSection.append(modularExample);
-
-  // Add modular example functionality
+  // Event handlers for Modular Usage tab
   dom('#render-modular-item').on('click', () => {
     const title = dom('#modular-item-title').val();
     if (title.trim()) {
