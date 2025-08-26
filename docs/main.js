@@ -55,19 +55,80 @@ function initExampleToggles() {
   dom(document).on('click', '.toggle-demo-code', (ev, button) => {
     ev.preventDefault();
     
-    // Find the example container using native DOM traversal
+    // Check if this toggle is in a tabbed examples header
+    const tabbedContainer = button.closest('.tabbed-examples-container');
+    if (tabbedContainer) {
+      // Handle centralized toggle for tabbed examples
+      handleTabbedExamplesToggle(button, tabbedContainer);
+      return;
+    }
+    
+    // Handle regular example container toggle
     const container = button.closest('.example-container');
     if (!container) return;
     
-    const demoSection = container.querySelector('.example-demo');
-    const codeSection = container.querySelector('.example-code');
-    const toggleText = container.querySelector('.toggle-text');
-    const codeIcon = container.querySelector('.code-icon');
-    const cubeIcon = container.querySelector('.cube-icon');
-    const currentView = button.getAttribute('data-view');
-    
-    if (currentView === 'demo') {
-      // Switch to code view
+    handleSingleExampleToggle(button, container);
+  });
+}
+
+// Handle toggle for regular example containers
+function handleSingleExampleToggle(button, container) {
+  const demoSection = container.querySelector('.example-demo');
+  const codeSection = container.querySelector('.example-code');
+  const toggleText = container.querySelector('.toggle-text');
+  const codeIcon = container.querySelector('.code-icon');
+  const cubeIcon = container.querySelector('.cube-icon');
+  const currentView = button.getAttribute('data-view');
+  
+  if (currentView === 'demo') {
+    // Switch to code view
+    if (demoSection) demoSection.style.display = 'none';
+    if (codeSection) {
+      codeSection.style.display = 'block';
+      // Apply syntax highlighting to code blocks
+      const codeBlock = codeSection.querySelector('code');
+      if (codeBlock && !codeBlock.classList.contains('highlighted')) {
+        // Add language-javascript class if no language class exists
+        if (!codeBlock.className.includes('language-')) {
+          codeBlock.classList.add('language-javascript');
+        }
+        Prism.highlightElement(codeBlock);
+        codeBlock.classList.add('highlighted');
+      }
+    }
+    if (toggleText) toggleText.textContent = 'Show Demo';
+    // Switch to cube icon (showing demo)
+    if (codeIcon) codeIcon.style.display = 'none';
+    if (cubeIcon) cubeIcon.style.display = 'block';
+    button.setAttribute('data-view', 'code');
+  } else {
+    // Switch to demo view
+    if (demoSection) demoSection.style.display = 'block';
+    if (codeSection) codeSection.style.display = 'none';
+    if (toggleText) toggleText.textContent = 'Show Code';
+    // Switch to code icon (showing code)
+    if (codeIcon) codeIcon.style.display = 'block';
+    if (cubeIcon) cubeIcon.style.display = 'none';
+    button.setAttribute('data-view', 'demo');
+  }
+}
+
+// Handle centralized toggle for tabbed examples
+function handleTabbedExamplesToggle(button, tabbedContainer) {
+  const toggleText = button.querySelector('.toggle-text');
+  const codeIcon = button.querySelector('.code-icon');
+  const cubeIcon = button.querySelector('.cube-icon');
+  const currentView = button.getAttribute('data-view');
+  
+  // Get all tab panels in this tabbed container
+  const allPanels = tabbedContainer.querySelectorAll('.tab-panel');
+  
+  if (currentView === 'demo') {
+    // Switch all panels to code view
+    allPanels.forEach(panel => {
+      const demoSection = panel.querySelector('.example-demo');
+      const codeSection = panel.querySelector('.example-code');
+      
       if (demoSection) demoSection.style.display = 'none';
       if (codeSection) {
         codeSection.style.display = 'block';
@@ -82,22 +143,29 @@ function initExampleToggles() {
           codeBlock.classList.add('highlighted');
         }
       }
-      if (toggleText) toggleText.textContent = 'Show Demo';
-      // Switch to cube icon (showing demo)
-      if (codeIcon) codeIcon.style.display = 'none';
-      if (cubeIcon) cubeIcon.style.display = 'block';
-      button.setAttribute('data-view', 'code');
-    } else {
-      // Switch to demo view
+    });
+    
+    if (toggleText) toggleText.textContent = 'Show Demo';
+    // Switch to cube icon (showing demo)
+    if (codeIcon) codeIcon.style.display = 'none';
+    if (cubeIcon) cubeIcon.style.display = 'block';
+    button.setAttribute('data-view', 'code');
+  } else {
+    // Switch all panels to demo view
+    allPanels.forEach(panel => {
+      const demoSection = panel.querySelector('.example-demo');
+      const codeSection = panel.querySelector('.example-code');
+      
       if (demoSection) demoSection.style.display = 'block';
       if (codeSection) codeSection.style.display = 'none';
-      if (toggleText) toggleText.textContent = 'Show Code';
-      // Switch to code icon (showing code)
-      if (codeIcon) codeIcon.style.display = 'block';
-      if (cubeIcon) cubeIcon.style.display = 'none';
-      button.setAttribute('data-view', 'demo');
-    }
-  });
+    });
+    
+    if (toggleText) toggleText.textContent = 'Show Code';
+    // Switch to code icon (showing code)
+    if (codeIcon) codeIcon.style.display = 'block';
+    if (cubeIcon) cubeIcon.style.display = 'none';
+    button.setAttribute('data-view', 'demo');
+  }
 }
 
 // Initialize tabbed examples functionality
