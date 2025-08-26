@@ -375,24 +375,56 @@ function initThemeToggle() {
     const assetsDest = path.join(this.options.distDir, 'assets');
     let cssFile = null;
 
+    console.log(`   📂 Checking for assets in: ${assetsSrc}`);
+
     if (fs.existsSync(assetsSrc)) {
-      // Copy CSS files with minification
+      console.log(`   ✓ Source assets directory found: ${assetsSrc}`);
+      
+      // Ensure destination assets directory exists
       if (!fs.existsSync(assetsDest)) {
+        console.log(`   📁 Creating destination assets directory: ${assetsDest}`);
         fs.mkdirSync(assetsDest, { recursive: true });
+      } else {
+        console.log(`   ✓ Destination assets directory exists: ${assetsDest}`);
       }
 
       const files = fs.readdirSync(assetsSrc);
+      console.log(`   📄 Found ${files.length} files in source assets: ${files.join(', ')}`);
+      
       files.forEach(file => {
+        const srcFile = path.join(assetsSrc, file);
+        const destFile = path.join(assetsDest, file);
+        
         if (file.endsWith('.css')) {
-          let cssContent = fs.readFileSync(path.join(assetsSrc, file), 'utf8');
+          console.log(`   🎨 Processing CSS file: ${file}`);
+          let cssContent = fs.readFileSync(srcFile, 'utf8');
           
           // Simple CSS minification
+          const originalSize = cssContent.length;
           cssContent = this.minifyCSS(cssContent);
+          const minifiedSize = cssContent.length;
           
-          fs.writeFileSync(path.join(assetsDest, file), cssContent);
+          fs.writeFileSync(destFile, cssContent);
+          console.log(`   ✓ CSS minified: ${originalSize} → ${minifiedSize} bytes (${Math.round((originalSize - minifiedSize) / originalSize * 100)}% smaller)`);
+          
           cssFile = file; // Store the CSS filename for reference updating
+        } else {
+          // Copy other files (images, fonts, etc.) without modification
+          console.log(`   📄 Copying asset file: ${file}`);
+          fs.copyFileSync(srcFile, destFile);
         }
       });
+      
+      // Verify the assets were actually copied
+      if (fs.existsSync(assetsDest)) {
+        const copiedFiles = fs.readdirSync(assetsDest);
+        console.log(`   ✅ Assets copied successfully: ${copiedFiles.length} files in destination`);
+      } else {
+        console.log(`   ❌ Assets destination directory was not created properly`);
+      }
+    } else {
+      console.log(`   ⚠️  Source assets directory not found: ${assetsSrc}`);
+      console.log(`   💡 Make sure to run 'npm run docs:build' first to generate the assets`);
     }
 
     return { cssFile };
