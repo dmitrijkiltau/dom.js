@@ -135,14 +135,14 @@ class DomSSG {
     // Calculate bundle size information
     const bundleInfo = this.analyzer.calculateSavings(requiredModules);
 
-    // Generate optimized imports
-    const optimizedImport = this.analyzer.generateOptimizedImport(requiredModules);
+    // Read and inline the actual dom.js code instead of importing
+    const domJSCode = await this.readDomJSBundle(requiredModules);
 
     // Read the minimal client-side code needed
     const clientCode = this.generateClientCode(analysis);
 
     const optimizedJS = `
-${optimizedImport}
+${domJSCode}
 
 ${clientCode}
 
@@ -178,9 +178,42 @@ function initializeInteractivity() {
       bundleInfo: {
         ...bundleInfo,
         modules: requiredModules,
-        import: optimizedImport
+        bundled: true // Mark as bundled instead of imported
       }
     };
+  }
+
+  /**
+   * Read and prepare the dom.js bundle code for inlining
+   */
+  async readDomJSBundle(requiredModules) {
+    // For SSG, we always use the core module as the base
+    // Read the built CommonJS bundle which is self-contained
+    const corePath = path.join('dist', 'core.cjs');
+    
+    if (!fs.existsSync(corePath)) {
+      throw new Error('dom.js core bundle not found. Run `npm run build` first.');
+    }
+    
+    let domJSCode = fs.readFileSync(corePath, 'utf8');
+    
+    // Convert CommonJS to make dom available globally
+    // Remove the CommonJS exports and module.exports
+    domJSCode = domJSCode.replace(/module\.exports[^;]*;/g, '');
+    domJSCode = domJSCode.replace(/var R=.*?;D\(R,.*?\);\s*/gs, '');
+    domJSCode = domJSCode.replace(/module\.exports=P\(R\);\s*/g, '');
+    
+    // Extract the core functionality and make it globally available
+    // The core.cjs defines 'k' as the main dom function, we need to make it global
+    domJSCode += `
+// Make dom globally available for SSG
+window.dom = typeof k !== 'undefined' ? k : (typeof A !== 'undefined' ? A : undefined);
+if (!window.dom) {
+  console.error('Could not find dom function in bundle');
+}
+`;
+
+    return `// dom.js core bundle (inlined for SSG)\n${domJSCode}`;
   }
 
   /**
@@ -192,9 +225,11 @@ function initializeInteractivity() {
     let clientCode = `
 // Minimal client-side code for interactivity
 
-// Make dom available globally for console debugging
-if (typeof dom !== 'undefined') {
-  window.dom = dom;
+// Ensure dom is available (should be set by the inlined bundle above)
+const dom = window.dom;
+if (!dom) {
+  console.error('dom.js not available - SSG bundle may have failed to load');
+  return;
 }
 `;
 
@@ -273,8 +308,8 @@ function initThemeToggle() {
     // Remove the original large script tag
     let finalHTML = html.replace(/<script[^>]*src="[^"]*assets\/[^"]*\.js"[^>]*><\/script>/g, '');
 
-    // Create optimized script tag
-    const optimizedScript = `<script type="module">\n${optimizedJS}\n</script>`;
+    // Create optimized script tag (no type="module" needed since we're bundling everything)
+    const optimizedScript = `<script>\n${optimizedJS}\n</script>`;
 
     // Inject before closing body tag
     finalHTML = finalHTML.replace('</body>', `  ${optimizedScript}\n</body>`);
@@ -285,7 +320,7 @@ function initThemeToggle() {
   Built with dom-ssg
   Modules: ${analysis.requiredModules.join(', ')}
   Features: ${analysis.usedFeatures.join(', ')}
-  Bundle optimization: Generated at build time
+  Bundle optimization: Inlined at build time
 -->
 `;
 
@@ -295,11 +330,14 @@ function initThemeToggle() {
   }
 
   /**
-   * Write output files
+   * Write output files with minification
    */
   writeOutputFiles(html, js, bundleInfo) {
+    // Minify HTML before writing
+    const minifiedHTML = this.minifyHTML(html);
+    
     // Write main HTML file
-    fs.writeFileSync(path.join(this.options.distDir, 'index.html'), html);
+    fs.writeFileSync(path.join(this.options.distDir, 'index.html'), minifiedHTML);
 
     // Write bundle info
     fs.writeFileSync(
@@ -312,7 +350,25 @@ function initThemeToggle() {
   }
 
   /**
-   * Copy static assets (CSS, images, etc.)
+   * Simple HTML minification
+   */
+  minifyHTML(html) {
+    return html
+      // Remove HTML comments (except build info comments)
+      .replace(/<!--(?!\s*Built with dom-ssg)[\s\S]*?-->/g, '')
+      // Remove extra whitespace between tags
+      .replace(/>\s+</g, '><')
+      // Remove whitespace at the beginning of lines
+      .replace(/^\s+/gm, '')
+      // Remove empty lines
+      .replace(/\n\s*\n/g, '\n')
+      // Preserve single spaces in text content but remove excessive whitespace
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+  }
+
+  /**
+   * Copy static assets (CSS, images, etc.) and minify CSS
    */
   async copyStaticAssets() {
     const assetsSrc = path.join(this.options.srcDir, 'dist', 'assets');
@@ -320,7 +376,7 @@ function initThemeToggle() {
     let cssFile = null;
 
     if (fs.existsSync(assetsSrc)) {
-      // Copy CSS files
+      // Copy CSS files with minification
       if (!fs.existsSync(assetsDest)) {
         fs.mkdirSync(assetsDest, { recursive: true });
       }
@@ -328,16 +384,40 @@ function initThemeToggle() {
       const files = fs.readdirSync(assetsSrc);
       files.forEach(file => {
         if (file.endsWith('.css')) {
-          fs.copyFileSync(
-            path.join(assetsSrc, file),
-            path.join(assetsDest, file)
-          );
+          let cssContent = fs.readFileSync(path.join(assetsSrc, file), 'utf8');
+          
+          // Simple CSS minification
+          cssContent = this.minifyCSS(cssContent);
+          
+          fs.writeFileSync(path.join(assetsDest, file), cssContent);
           cssFile = file; // Store the CSS filename for reference updating
         }
       });
     }
 
     return { cssFile };
+  }
+
+  /**
+   * Simple CSS minification
+   */
+  minifyCSS(css) {
+    return css
+      // Remove comments
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      // Remove extra whitespace
+      .replace(/\s+/g, ' ')
+      // Remove whitespace around certain characters
+      .replace(/\s*([{}:;,>~+])\s*/g, '$1')
+      // Remove trailing semicolons before closing braces
+      .replace(/;}/g, '}')
+      // Remove unnecessary quotes around values
+      .replace(/(['"])((?:\\.|(?!\1)[^\\])*?)\1/g, (match, quote, content) => {
+        // Keep quotes if content contains spaces or special characters
+        if (/[\s,();{}]/.test(content)) return match;
+        return content;
+      })
+      .trim();
   }
 
   /**
