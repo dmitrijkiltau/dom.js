@@ -192,11 +192,12 @@ export class DOMCollection {
     const allNames = names.flatMap(name => name.split(/\s+/).filter(Boolean));
     return this.each(el => el.classList.remove(...allNames)); 
   }
-  replaceClass(...names: string[]): this {
-    const allNames = names.flatMap(name => name.split(/\s+/).filter(Boolean));
+  replaceClass(oldClasses: string, newClasses: string): this {
+    const oldNames = oldClasses.split(/\s+/).filter(Boolean);
+    const newNames = newClasses.split(/\s+/).filter(Boolean);
     return this.each(el => {
-      el.className = '';
-      el.classList.add(...allNames);
+      el.classList.remove(...oldNames);
+      el.classList.add(...newNames);
     });
   }
   toggleClass(name: string, force?: boolean): this { return this.each(el => el.classList.toggle(name, force)); }

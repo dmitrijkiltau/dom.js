@@ -71,13 +71,13 @@ items
     dom(el).text(\`Updated Item \${idx + 1}\`);
   });
 
-// Replace all classes at once (no chaining needed!)
+// Replace specific classes with new ones
 dom('.class-demo-element')
-  .replaceClass('p-3 border border-gray-300 rounded bg-blue-100');
+  .replaceClass('bg-red-100', 'bg-blue-100');
 
-// Multiple class replacement
+// Replace multiple classes
 dom('.class-demo-element')
-  .replaceClass('bg-green-100 text-green-800 font-medium');`
+  .replaceClass('bg-red-100 text-red-800', 'bg-green-100 text-green-800');`
       },
       {
         id: 'element-access',
@@ -317,19 +317,19 @@ dom('#target-element')
   // Event handlers for replaceClass demo
   dom('#replace-blue').on('click', () => {
     dom('.class-demo-element')
-      .replaceClass('p-3 border border-gray-300 rounded bg-blue-100 text-blue-800')
+      .replaceClass('bg-red-100', 'bg-blue-100 text-blue-800')
       .html('Element with blue background');
   });
 
   dom('#replace-green').on('click', () => {
     dom('.class-demo-element')
-      .replaceClass('p-3 border border-gray-300 rounded bg-green-100 text-green-800')
+      .replaceClass('bg-blue-100 text-blue-800', 'bg-green-100 text-green-800')
       .html('Element with green background');
   });
 
   dom('#replace-multi').on('click', () => {
     dom('.class-demo-element')
-      .replaceClass('p-4 border-2 border-purple-300 rounded-lg bg-purple-100 text-purple-800 font-bold shadow-lg')
+      .replaceClass('bg-green-100 text-green-800', 'bg-purple-100 text-purple-800 font-bold')
       .html('Element with multiple replaced classes!');
   });
 
