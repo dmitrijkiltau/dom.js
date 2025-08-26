@@ -111,6 +111,53 @@
             </div>
           </template>
 
+          <template id="tabbed-examples-template">
+            <div class="tabbed-examples-container mb-8" data-attr-id="id">
+              <div class="tabbed-examples-header">
+                <div class="example-header">
+                  <div class="example-title-section">
+                    <h3 class="text-2xl font-semibold mb-4 text-gray-800" data-text="title"></h3>
+                    <p class="text-gray-600 mb-6" data-text="description"></p>
+                  </div>
+                  <div class="example-toggle">
+                    <button class="toggle-demo-code btn btn-secondary" data-view="demo">
+                      <span class="toggle-text">Show Code</span>
+                      <svg class="toggle-icon w-4 h-4 ml-2 transition-transform" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <!-- Code icon (default) -->
+                        <path class="code-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" style="display: block;"></path>
+                        <!-- Cube icon (when showing code) -->
+                        <path class="cube-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" style="display: none;">
+                        </path>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="tabs-nav">
+                <div class="tabs-list" data-tabs-container="true"></div>
+              </div>
+              <div class="tabs-content" data-tabs-content="true"></div>
+            </div>
+          </template>
+
+          <template id="tab-template">
+            <button class="tab-button" data-attr-data-tab="id" data-text="title"></button>
+          </template>
+
+          <template id="tab-panel-template">
+            <div class="tab-panel" data-attr-data-panel="id" style="display: none;">
+              <div class="example-container">
+                <div class="example-demo">
+                  <div data-html="demo"></div>
+                </div>
+                <div class="example-code" style="display: none;">
+                  <pre class="code-block rounded-none"><code data-text="code" class="language-javascript"></code></pre>
+                </div>
+              </div>
+            </div>
+          </template>
+
           <!-- Interactive demo templates -->
           <template id="template-demo-item">
             <div class="p-3 bg-blue-50 border border-blue-200 rounded mb-2">

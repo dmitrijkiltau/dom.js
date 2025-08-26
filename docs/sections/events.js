@@ -1,4 +1,5 @@
 import dom, { useTemplate, on, off } from '../../dist/index.js';
+import { createTabbedExamples } from '../content.js';
 
 const renderExample = useTemplate('#example-template');
 const renderSubsection = useTemplate('#subsection-template');
@@ -17,22 +18,27 @@ export function addEventExamples() {
     `
   }));
 
-  const eventExample = renderExample({
-    id: 'event-handling-example',
-    title: 'Event Handling',
-    description: 'Bind events to elements with delegation support',
-    demo: `
-      <div class="space-y-4">
-        <div class="space-x-2">
-          <button id="add-button" class="btn btn-primary">Add Button</button>
-          <button id="clear-buttons" class="btn btn-secondary">Clear All</button>
-          <button id="toggle-events" class="btn btn-secondary">Toggle Events</button>
-        </div>
-        <div id="button-container" class="space-y-2 p-4 border border-gray-300 rounded min-h-[100px] bg-gray-50"></div>
-        <div id="event-log" class="text-sm text-gray-600 max-h-32 overflow-y-auto bg-gray-100 p-3 border border-gray-300 rounded"></div>
-      </div>
-    `,
-    code: `import { on, off } from '@dmitrijkiltau/dom.js';
+  // Create tabbed examples for Event functionality
+  const eventTabbedExamples = createTabbedExamples({
+    id: 'event-examples-tabs',
+    title: 'Event Examples',
+    description: 'Explore different event handling patterns with interactive examples',
+    tabs: [
+      {
+        id: 'basic-events',
+        title: 'Basic Events',
+        demo: `
+          <div class="space-y-4">
+            <div class="space-x-2">
+              <button id="add-button" class="btn btn-primary">Add Button</button>
+              <button id="clear-buttons" class="btn btn-secondary">Clear All</button>
+              <button id="toggle-events" class="btn btn-secondary">Toggle Events</button>
+            </div>
+            <div id="button-container" class="space-y-2 p-4 border border-gray-300 rounded min-h-[100px] bg-gray-50"></div>
+            <div id="event-log" class="text-sm text-gray-600 max-h-32 overflow-y-auto bg-gray-100 p-3 border border-gray-300 rounded"></div>
+          </div>
+        `,
+        code: `import { on, off } from '@dmitrijkiltau/dom.js';
 
 // Direct event binding
 dom('#add-button').on('click', () => {
@@ -52,11 +58,156 @@ dom('#button-container').on('mouseenter mouseleave', 'button', (ev, el) => {
 
 // Remove events
 dom(element).off('click', handler);`
+      },
+      {
+        id: 'advanced-patterns',
+        title: 'Advanced Patterns',
+        demo: `
+          <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div class="event-zone border-2 border-dashed border-gray-300 p-4 text-center cursor-pointer hover:border-blue-400 transition-colors">
+                <h4 class="font-medium mb-2">Drag & Drop Zone</h4>
+                <p class="text-sm text-gray-600">Drag files here or click to select</p>
+                <input type="file" multiple class="hidden" id="file-input">
+              </div>
+              
+              <div class="keyboard-zone border-2 border-dashed border-gray-300 p-4 text-center" tabindex="0">
+                <h4 class="font-medium mb-2">Keyboard Events</h4>
+                <p class="text-sm text-gray-600">Click here and type something</p>
+                <div class="mt-2 text-xs bg-gray-100 p-2 rounded min-h-[40px]" id="key-display"></div>
+              </div>
+            </div>
+            
+            <div class="scroll-zone border border-gray-300 p-4 h-32 overflow-y-auto bg-gray-50">
+              <h4 class="font-medium mb-2">Scroll Events</h4>
+              <div class="space-y-2">
+                ${Array.from({ length: 20 }, (_, i) => `<div class="p-2 bg-gray-100 rounded">Item ${i + 1}</div>`).join('')}
+              </div>
+            </div>
+            
+            <div id="advanced-event-log" class="text-sm text-gray-600 max-h-24 overflow-y-auto bg-gray-100 p-3 border border-gray-300 rounded"></div>
+          </div>
+        `,
+        code: `// Multiple event types on same element
+dom('.event-zone').on('dragover dragenter dragleave drop', (ev) => {
+  ev.preventDefault();
+  // Handle drag events
+});
+
+// Keyboard events with key combinations
+dom('.keyboard-zone').on('keydown', (ev, el) => {
+  const key = ev.key;
+  const ctrl = ev.ctrlKey ? 'Ctrl+' : '';
+  const shift = ev.shiftKey ? 'Shift+' : '';
+  console.log(\`Key: \${ctrl}\${shift}\${key}\`);
+});
+
+// Throttled scroll events
+let scrollTimeout;
+dom('.scroll-zone').on('scroll', (ev, el) => {
+  clearTimeout(scrollTimeout);
+  scrollTimeout = setTimeout(() => {
+    const scrollPercent = (el.scrollTop / (el.scrollHeight - el.clientHeight)) * 100;
+    console.log(\`Scrolled: \${scrollPercent.toFixed(1)}%\`);
+  }, 100);
+});
+
+// Custom event handling
+const customHandler = (ev, el, idx) => {
+  console.log('Custom handler called', { ev, el, idx });
+};
+
+// Remove specific handlers
+dom(element).off('click', customHandler);`
+      },
+      {
+        id: 'enhanced-features',
+        title: 'Enhanced Features',
+        demo: `
+          <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <h5 class="font-medium mb-2">One-time Events</h5>
+                <button id="once-button" class="btn btn-primary mb-2">Click Once Only</button>
+                <button id="reset-once" class="btn btn-outline text-sm">Reset</button>
+                <div id="once-counter" class="text-sm text-gray-600">Clicks: 0</div>
+              </div>
+              <div>
+                <h5 class="font-medium mb-2">Custom Events</h5>
+                <button id="trigger-custom" class="btn btn-secondary mb-2">Trigger Custom Event</button>
+                <div id="custom-listener" class="p-2 border border-gray-300 rounded bg-gray-50 text-sm">
+                  Listening for custom events...
+                </div>
+              </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <h5 class="font-medium mb-2">Click Shortcuts</h5>
+                <button id="shortcut-button" class="btn btn-primary mb-2">Button with Click Handler</button>
+                <button id="programmatic-click" class="btn btn-secondary text-sm">Trigger Click Programmatically</button>
+              </div>
+              <div>
+                <h5 class="font-medium mb-2">Focus Management</h5>
+                <input id="focus-input" class="input mb-2" placeholder="Focus me!">
+                <div class="space-x-2">
+                  <button id="focus-btn" class="btn btn-secondary text-sm">Focus Input</button>
+                  <button id="blur-btn" class="btn btn-secondary text-sm">Blur Input</button>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <h5 class="font-medium mb-2">Hover Events</h5>
+              <div class="grid grid-cols-3 gap-2">
+                <div class="hover-box p-4 border-2 border-gray-300 rounded text-center cursor-pointer transition-all duration-200">
+                  Box 1
+                </div>
+                <div class="hover-box p-4 border-2 border-gray-300 rounded text-center cursor-pointer transition-all duration-200">
+                  Box 2
+                </div>
+                <div class="hover-box p-4 border-2 border-gray-300 rounded text-center cursor-pointer transition-all duration-200">
+                  Box 3
+                </div>
+              </div>
+            </div>
+            
+            <div id="new-events-output" class="text-sm text-gray-600 bg-gray-100 p-3 rounded"></div>
+          </div>
+        `,
+        code: `// One-time event binding
+dom('#button').once('click', (ev, el) => {
+  console.log('This will only fire once!');
+});
+
+// Trigger custom events
+dom('#element').trigger('my-custom-event', { data: 'value' });
+
+// Listen for custom events
+dom('#element').on('my-custom-event', (ev, el) => {
+  console.log('Custom event received:', ev.detail);
+});
+
+// Event shortcuts
+dom('#button').click(); // Trigger click programmatically
+dom('#button').click(handler); // Bind click handler
+
+// Focus management
+dom('#input').focus(); // Focus element
+dom('#input').blur(); // Blur element
+
+// Hover events (mouseenter/mouseleave)
+dom('.hover-element').hover(
+  (ev, el) => dom(el).addClass('hovered'), // Enter handler
+  (ev, el) => dom(el).removeClass('hovered') // Leave handler (optional)
+);`
+      }
+    ]
   });
 
-  eventSection.append(eventExample);
+  eventSection.append(eventTabbedExamples);
 
-  // Add event demo functionality
+  // Event handlers for Basic Events tab
   let buttonCount = 0;
   let eventsEnabled = true;
 
@@ -113,72 +264,7 @@ dom(element).off('click', handler);`
     logEvent(`Events ${eventsEnabled ? 'enabled' : 'disabled'}`);
   });
 
-  // Advanced event handling example
-  const advancedExample = renderExample({
-    id: 'advanced-event-handling-example',
-    title: 'Advanced Event Patterns',
-    description: 'Complex event handling patterns and techniques',
-    demo: `
-      <div class="space-y-4">
-        <div class="grid grid-cols-2 gap-4">
-          <div class="event-zone border-2 border-dashed border-gray-300 p-4 text-center cursor-pointer hover:border-blue-400 transition-colors">
-            <h4 class="font-medium mb-2">Drag & Drop Zone</h4>
-            <p class="text-sm text-gray-600">Drag files here or click to select</p>
-            <input type="file" multiple class="hidden" id="file-input">
-          </div>
-          
-          <div class="keyboard-zone border-2 border-dashed border-gray-300 p-4 text-center" tabindex="0">
-            <h4 class="font-medium mb-2">Keyboard Events</h4>
-            <p class="text-sm text-gray-600">Click here and type something</p>
-            <div class="mt-2 text-xs bg-gray-100 p-2 rounded min-h-[40px]" id="key-display"></div>
-          </div>
-        </div>
-        
-        <div class="scroll-zone border border-gray-300 p-4 h-32 overflow-y-auto bg-gray-50">
-          <h4 class="font-medium mb-2">Scroll Events</h4>
-          <div class="space-y-2">
-            ${Array.from({ length: 20 }, (_, i) => `<div class="p-2 bg-gray-100 rounded">Item ${i + 1}</div>`).join('')}
-          </div>
-        </div>
-        
-        <div id="advanced-event-log" class="text-sm text-gray-600 max-h-24 overflow-y-auto bg-gray-100 p-3 border border-gray-300 rounded"></div>
-      </div>
-    `,
-    code: `// Multiple event types on same element
-dom('.event-zone').on('dragover dragenter dragleave drop', (ev) => {
-  ev.preventDefault();
-  // Handle drag events
-});
-
-// Keyboard events with key combinations
-dom('.keyboard-zone').on('keydown', (ev, el) => {
-  const key = ev.key;
-  const ctrl = ev.ctrlKey ? 'Ctrl+' : '';
-  const shift = ev.shiftKey ? 'Shift+' : '';
-  console.log(\`Key: \${ctrl}\${shift}\${key}\`);
-});
-
-// Throttled scroll events
-let scrollTimeout;
-dom('.scroll-zone').on('scroll', (ev, el) => {
-  clearTimeout(scrollTimeout);
-  scrollTimeout = setTimeout(() => {
-    const scrollPercent = (el.scrollTop / (el.scrollHeight - el.clientHeight)) * 100;
-    console.log(\`Scrolled: \${scrollPercent.toFixed(1)}%\`);
-  }, 100);
-});
-
-// Custom event handling
-const customHandler = (ev, el, idx) => {
-  console.log('Custom handler called', { ev, el, idx });
-};
-
-// Remove specific handlers
-dom(element).off('click', customHandler);`
-  });
-
-  eventSection.append(advancedExample);
-
+  // Event handlers for Advanced Patterns tab
   function logAdvancedEvent(message) {
     const log = dom('#advanced-event-log');
     const timestamp = new Date().toLocaleTimeString();
@@ -267,93 +353,7 @@ dom(element).off('click', customHandler);`
     }, 200);
   });
 
-  // New Event Features Example
-  const newEventFeaturesExample = renderExample({
-    id: 'new-event-features-example',
-    title: 'New Event Features',
-    description: 'Enhanced event methods: once, trigger, click shortcuts, hover',
-    demo: `
-      <div class="space-y-4">
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <h5 class="font-medium mb-2">One-time Events</h5>
-            <button id="once-button" class="btn btn-primary mb-2">Click Once Only</button>
-            <button id="reset-once" class="btn btn-outline text-sm">Reset</button>
-            <div id="once-counter" class="text-sm text-gray-600">Clicks: 0</div>
-          </div>
-          <div>
-            <h5 class="font-medium mb-2">Custom Events</h5>
-            <button id="trigger-custom" class="btn btn-secondary mb-2">Trigger Custom Event</button>
-            <div id="custom-listener" class="p-2 border border-gray-300 rounded bg-gray-50 text-sm">
-              Listening for custom events...
-            </div>
-          </div>
-        </div>
-        
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <h5 class="font-medium mb-2">Click Shortcuts</h5>
-            <button id="shortcut-button" class="btn btn-primary mb-2">Button with Click Handler</button>
-            <button id="programmatic-click" class="btn btn-secondary text-sm">Trigger Click Programmatically</button>
-          </div>
-          <div>
-            <h5 class="font-medium mb-2">Focus Management</h5>
-            <input id="focus-input" class="input mb-2" placeholder="Focus me!">
-            <div class="space-x-2">
-              <button id="focus-btn" class="btn btn-secondary text-sm">Focus Input</button>
-              <button id="blur-btn" class="btn btn-secondary text-sm">Blur Input</button>
-            </div>
-          </div>
-        </div>
-        
-        <div>
-          <h5 class="font-medium mb-2">Hover Events</h5>
-          <div class="grid grid-cols-3 gap-2">
-            <div class="hover-box p-4 border-2 border-gray-300 rounded text-center cursor-pointer transition-all duration-200">
-              Box 1
-            </div>
-            <div class="hover-box p-4 border-2 border-gray-300 rounded text-center cursor-pointer transition-all duration-200">
-              Box 2
-            </div>
-            <div class="hover-box p-4 border-2 border-gray-300 rounded text-center cursor-pointer transition-all duration-200">
-              Box 3
-            </div>
-          </div>
-        </div>
-        
-        <div id="new-events-output" class="text-sm text-gray-600 bg-gray-100 p-3 rounded"></div>
-      </div>
-    `,
-    code: `// One-time event binding
-dom('#button').once('click', (ev, el) => {
-  console.log('This will only fire once!');
-});
-
-// Trigger custom events
-dom('#element').trigger('my-custom-event', { data: 'value' });
-
-// Listen for custom events
-dom('#element').on('my-custom-event', (ev, el) => {
-  console.log('Custom event received:', ev.detail);
-});
-
-// Event shortcuts
-dom('#button').click(); // Trigger click programmatically
-dom('#button').click(handler); // Bind click handler
-
-// Focus management
-dom('#input').focus(); // Focus element
-dom('#input').blur(); // Blur element
-
-// Hover events (mouseenter/mouseleave)
-dom('.hover-element').hover(
-  (ev, el) => dom(el).addClass('hovered'), // Enter handler
-  (ev, el) => dom(el).removeClass('hovered') // Leave handler (optional)
-);`
-  });
-
-  eventSection.append(newEventFeaturesExample);
-
+  // Event handlers for Enhanced Features tab
   // One-time event functionality
   let onceClicks = 0;
   let onceHandler = null;

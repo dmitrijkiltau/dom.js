@@ -127,3 +127,56 @@ html, body {
 .input {
   @apply block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary;
 }
+
+/* Tabbed Examples Styling */
+.tabbed-examples-container {
+  @apply border border-gray-200 rounded-lg overflow-hidden;
+}
+
+.tabbed-examples-header {
+  @apply p-6 bg-gray-200 border-b border-gray-200;
+}
+
+.tabs-nav {
+  @apply bg-gray-100 border-b border-gray-200;
+}
+
+.tabs-list {
+  @apply flex overflow-x-auto;
+}
+
+.tab-button {
+  @apply px-6 py-3 text-sm font-medium text-gray-600 bg-transparent border-none cursor-pointer transition-colors whitespace-nowrap;
+  @apply hover:text-gray-800 hover:bg-gray-200;
+  @apply focus:outline-none focus:text-gray-800 focus:bg-gray-200;
+}
+
+.tab-button.active {
+  @apply text-primary bg-white border-b-2 border-primary relative;
+}
+
+.tab-button.active::after {
+  content: '';
+  @apply absolute bottom-0 left-0 right-0 h-0.5 bg-primary;
+}
+
+.tabs-content {
+  @apply bg-gray-100;
+}
+
+.tab-panel {
+  @apply p-0;
+}
+
+.tab-panel .example-container {
+  @apply border-0 rounded-none;
+}
+
+.tab-panel .example-header {
+  @apply bg-gray-100 p-4 border-b border-gray-200;
+  justify-content: flex-end;
+}
+
+.tab-panel .example-demo {
+  @apply bg-gray-50;
+}

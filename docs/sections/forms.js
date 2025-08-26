@@ -1,4 +1,5 @@
 import dom, { useTemplate, onSubmit, serializeForm, toQueryString } from '../../dist/index.js';
+import { createTabbedExamples } from '../content.js';
 
 const renderExample = useTemplate('#example-template');
 const renderSubsection = useTemplate('#subsection-template');
@@ -17,93 +18,98 @@ export function addFormExamples() {
     `
   }));
 
-  const formExample = renderExample({
-    id: 'form-handling-example',
-    title: 'Form Handling',
-    description: 'Serialize forms and handle submissions',
-    demo: `
-      <form id="demo-form" class="space-y-4 mb-4">
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Name *</label>
-            <input name="name" class="input" value="John Doe" required>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-            <input name="email" type="email" class="input" value="john@example.com" required>
-          </div>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Technologies</label>
-          <select name="tags" multiple class="input" size="4">
-            <option value="javascript" selected>JavaScript</option>
-            <option value="html" selected>HTML</option>
-            <option value="css" selected>CSS</option>
-            <option value="react">React</option>
-            <option value="vue">Vue</option>
-            <option value="angular">Angular</option>
-          </select>
-          <p class="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple</p>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Experience Level</label>
-          <div class="space-y-2">
-            <label class="flex items-center">
-              <input type="radio" name="experience" value="beginner" class="mr-2">
-              <span>Beginner</span>
-            </label>
-            <label class="flex items-center">
-              <input type="radio" name="experience" value="intermediate" class="mr-2" checked>
-              <span>Intermediate</span>
-            </label>
-            <label class="flex items-center">
-              <input type="radio" name="experience" value="advanced" class="mr-2">
-              <span>Advanced</span>
-            </label>
-          </div>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Interests</label>
-          <div class="grid grid-cols-2 gap-2">
-            <label class="flex items-center">
-              <input type="checkbox" name="interests" value="frontend" class="mr-2" checked>
-              <span>Frontend</span>
-            </label>
-            <label class="flex items-center">
-              <input type="checkbox" name="interests" value="backend" class="mr-2">
-              <span>Backend</span>
-            </label>
-            <label class="flex items-center">
-              <input type="checkbox" name="interests" value="mobile" class="mr-2" checked>
-              <span>Mobile</span>
-            </label>
-            <label class="flex items-center">
-              <input type="checkbox" name="interests" value="devops" class="mr-2">
-              <span>DevOps</span>
-            </label>
-          </div>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Bio</label>
-          <textarea name="bio" class="input" rows="3" placeholder="Tell us about yourself...">A passionate developer interested in modern web technologies.</textarea>
-        </div>
-        
-        <div>
-          <label class="flex items-center">
-            <input type="checkbox" name="newsletter" value="yes" class="mr-2" checked>
-            <span class="text-sm">Subscribe to newsletter</span>
-          </label>
-        </div>
-        
-        <button type="submit" class="btn btn-primary">Submit Form</button>
-      </form>
-      <div id="form-results"></div>
-    `,
-    code: `import { onSubmit, serializeForm, toQueryString } from '@dmitrijkiltau/dom.js';
+  // Create tabbed examples for Form functionality
+  const formTabbedExamples = createTabbedExamples({
+    id: 'form-examples-tabs',
+    title: 'Form Examples',
+    description: 'Explore different form handling features with interactive examples',
+    tabs: [
+      {
+        id: 'form-handling',
+        title: 'Form Handling',
+        demo: `
+          <form id="demo-form" class="space-y-4 mb-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                <input name="name" class="input" value="John Doe" required>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                <input name="email" type="email" class="input" value="john@example.com" required>
+              </div>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Technologies</label>
+              <select name="tags" multiple class="input" size="4">
+                <option value="javascript" selected>JavaScript</option>
+                <option value="html" selected>HTML</option>
+                <option value="css" selected>CSS</option>
+                <option value="react">React</option>
+                <option value="vue">Vue</option>
+                <option value="angular">Angular</option>
+              </select>
+              <p class="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple</p>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Experience Level</label>
+              <div class="space-y-2">
+                <label class="flex items-center">
+                  <input type="radio" name="experience" value="beginner" class="mr-2">
+                  <span>Beginner</span>
+                </label>
+                <label class="flex items-center">
+                  <input type="radio" name="experience" value="intermediate" class="mr-2" checked>
+                  <span>Intermediate</span>
+                </label>
+                <label class="flex items-center">
+                  <input type="radio" name="experience" value="advanced" class="mr-2">
+                  <span>Advanced</span>
+                </label>
+              </div>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Interests</label>
+              <div class="grid grid-cols-2 gap-2">
+                <label class="flex items-center">
+                  <input type="checkbox" name="interests" value="frontend" class="mr-2" checked>
+                  <span>Frontend</span>
+                </label>
+                <label class="flex items-center">
+                  <input type="checkbox" name="interests" value="backend" class="mr-2">
+                  <span>Backend</span>
+                </label>
+                <label class="flex items-center">
+                  <input type="checkbox" name="interests" value="mobile" class="mr-2" checked>
+                  <span>Mobile</span>
+                </label>
+                <label class="flex items-center">
+                  <input type="checkbox" name="interests" value="devops" class="mr-2">
+                  <span>DevOps</span>
+                </label>
+              </div>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Bio</label>
+              <textarea name="bio" class="input" rows="3" placeholder="Tell us about yourself...">A passionate developer interested in modern web technologies.</textarea>
+            </div>
+            
+            <div>
+              <label class="flex items-center">
+                <input type="checkbox" name="newsletter" value="yes" class="mr-2" checked>
+                <span class="text-sm">Subscribe to newsletter</span>
+              </label>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Submit Form</button>
+          </form>
+          <div id="form-results"></div>
+        `,
+        code: `import { onSubmit, serializeForm, toQueryString } from '@dmitrijkiltau/dom.js';
 
 // Handle form submission
 onSubmit('#demo-form', async (data, event) => {
@@ -135,11 +141,131 @@ onSubmit('#demo-form', async (data, event) => {
 const form = dom('#demo-form').el();
 const data = serializeForm(form);
 console.log(data);`
+      },
+      {
+        id: 'collection-serialize',
+        title: 'Collection Serialize',
+        demo: `
+          <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <h5 class="font-medium mb-2">Form Elements Collection</h5>
+                <div class="space-y-2">
+                  <input name="username" class="input form-element" placeholder="Username" value="johndoe">
+                  <input name="email" type="email" class="input form-element" placeholder="Email" value="john@example.com">
+                  <select name="role" class="input form-element">
+                    <option value="">Select role...</option>
+                    <option value="admin">Admin</option>
+                    <option value="user" selected>User</option>
+                    <option value="guest">Guest</option>
+                  </select>
+                  <label class="flex items-center">
+                    <input name="notifications" type="checkbox" class="mr-2 form-element" checked>
+                    Enable notifications
+                  </label>
+                </div>
+              </div>
+              <div>
+                <h5 class="font-medium mb-2">Product Preferences</h5>
+                <div class="space-y-2">
+                  <label class="flex items-center">
+                    <input name="products" type="checkbox" value="web" class="mr-2 product-element" checked>
+                    Web Development
+                  </label>
+                  <label class="flex items-center">
+                    <input name="products" type="checkbox" value="mobile" class="mr-2 product-element">
+                    Mobile Development
+                  </label>
+                  <label class="flex items-center">
+                    <input name="products" type="checkbox" value="design" class="mr-2 product-element" checked>
+                    UI/UX Design
+                  </label>
+                  <textarea name="comments" class="input product-element" rows="2" placeholder="Additional comments...">Great service!</textarea>
+                </div>
+              </div>
+            </div>
+            
+            <div class="flex space-x-2">
+              <button id="serialize-form-elements" class="btn btn-primary text-sm">Serialize Form Elements</button>
+              <button id="serialize-products" class="btn btn-secondary text-sm">Serialize Product Preferences</button>
+              <button id="serialize-all-inputs" class="btn btn-accent text-sm">Serialize All Inputs</button>
+            </div>
+            
+            <div id="serialize-output" class="text-sm text-gray-600 bg-gray-100 p-3 rounded"></div>
+          </div>
+        `,
+        code: `// Serialize specific form elements using collections
+const formData = dom('.form-element').serialize();
+console.log(formData);
+// Output: { username: 'johndoe', email: 'john@example.com', role: 'user', notifications: 'on' }
+
+// Serialize checkboxes with same name (creates arrays)
+const productData = dom('input[name="products"]:checked').serialize();
+console.log(productData);
+// Output: { products: ['web', 'design'] }
+
+// Serialize all form inputs
+const allData = dom('input, select, textarea').serialize();
+
+// Works with any collection of form elements
+const specificInputs = dom('#form input[type="text"], #form select').serialize();
+
+// Can be chained with other collection methods
+const filteredData = dom('.form-element')
+  .filter('[name]')  // Only elements with name attributes
+  .serialize();`
+      },
+      {
+        id: 'dynamic-building',
+        title: 'Dynamic Building',
+        demo: `
+          <div class="space-y-4">
+            <div class="flex space-x-2">
+              <button id="add-field" class="btn btn-secondary">Add Field</button>
+              <button id="add-section" class="btn btn-secondary">Add Section</button>
+              <button id="serialize-dynamic" class="btn btn-primary">Serialize</button>
+              <button id="clear-dynamic" class="btn btn-danger">Clear</button>
+            </div>
+            
+            <form id="dynamic-form" class="space-y-4 border border-gray-300 p-4 rounded">
+              <div class="dynamic-sections"></div>
+            </form>
+            
+            <div id="dynamic-results" class="hidden"></div>
+          </div>
+        `,
+        code: `// Build forms dynamically
+const form = dom('#dynamic-form');
+
+// Add input field
+const addField = (name, type = 'text', placeholder = '') => {
+  const field = \`
+    <div class="field-group">
+      <label class="block text-sm font-medium mb-1">\${name}</label>
+      <input name="\${name.toLowerCase().replace(/\\s+/g, '_')}" 
+             type="\${type}" 
+             placeholder="\${placeholder}"
+             class="input">
+      <button type="button" class="text-red-500 text-xs mt-1 remove-field">Remove</button>
+    </div>
+  \`;
+  form.append(field);
+};
+
+// Handle dynamic removal
+form.on('click', '.remove-field', (ev, el) => {
+  dom(el).closest('.field-group').remove();
+});
+
+// Serialize anytime
+const data = serializeForm(form.el());`
+      }
+    ]
   });
 
-  formSection.append(formExample);
+  formSection.append(formTabbedExamples);
 
-  // Add form demo functionality
+  // Event handlers for Form Handling tab
   onSubmit('#demo-form', (data, event) => {
     event.preventDefault();
 
@@ -160,84 +286,7 @@ console.log(data);`
     `);
   });
 
-  // Collection Serialize Example
-  const collectionSerializeExample = renderExample({
-    id: 'collection-serialize-example',
-    title: 'Collection Serialize Method',
-    description: 'New .serialize() method on DOM collections for easy form data extraction',
-    demo: `
-      <div class="space-y-4">
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <h5 class="font-medium mb-2">Form Elements Collection</h5>
-            <div class="space-y-2">
-              <input name="username" class="input form-element" placeholder="Username" value="johndoe">
-              <input name="email" type="email" class="input form-element" placeholder="Email" value="john@example.com">
-              <select name="role" class="input form-element">
-                <option value="">Select role...</option>
-                <option value="admin">Admin</option>
-                <option value="user" selected>User</option>
-                <option value="guest">Guest</option>
-              </select>
-              <label class="flex items-center">
-                <input name="notifications" type="checkbox" class="mr-2 form-element" checked>
-                Enable notifications
-              </label>
-            </div>
-          </div>
-          <div>
-            <h5 class="font-medium mb-2">Product Preferences</h5>
-            <div class="space-y-2">
-              <label class="flex items-center">
-                <input name="products" type="checkbox" value="web" class="mr-2 product-element" checked>
-                Web Development
-              </label>
-              <label class="flex items-center">
-                <input name="products" type="checkbox" value="mobile" class="mr-2 product-element">
-                Mobile Development
-              </label>
-              <label class="flex items-center">
-                <input name="products" type="checkbox" value="design" class="mr-2 product-element" checked>
-                UI/UX Design
-              </label>
-              <textarea name="comments" class="input product-element" rows="2" placeholder="Additional comments...">Great service!</textarea>
-            </div>
-          </div>
-        </div>
-        
-        <div class="flex space-x-2">
-          <button id="serialize-form-elements" class="btn btn-primary text-sm">Serialize Form Elements</button>
-          <button id="serialize-products" class="btn btn-secondary text-sm">Serialize Product Preferences</button>
-          <button id="serialize-all-inputs" class="btn btn-accent text-sm">Serialize All Inputs</button>
-        </div>
-        
-        <div id="serialize-output" class="text-sm text-gray-600 bg-gray-100 p-3 rounded"></div>
-      </div>
-    `,
-    code: `// Serialize specific form elements using collections
-const formData = dom('.form-element').serialize();
-console.log(formData);
-// Output: { username: 'johndoe', email: 'john@example.com', role: 'user', notifications: 'on' }
-
-// Serialize checkboxes with same name (creates arrays)
-const productData = dom('input[name="products"]:checked').serialize();
-console.log(productData);
-// Output: { products: ['web', 'design'] }
-
-// Serialize all form inputs
-const allData = dom('input, select, textarea').serialize();
-
-// Works with any collection of form elements
-const specificInputs = dom('#form input[type="text"], #form select').serialize();
-
-// Can be chained with other collection methods
-const filteredData = dom('.form-element')
-  .filter('[name]')  // Only elements with name attributes
-  .serialize();`
-  });
-
-  formSection.append(collectionSerializeExample);
-
+  // Event handlers for Collection Serialize tab
   dom('#serialize-form-elements').on('click', () => {
     const data = dom('.form-element').serialize();
     dom('#serialize-output').html(`
@@ -265,56 +314,7 @@ const filteredData = dom('.form-element')
     `);
   });
 
-  // Dynamic form example
-  const dynamicExample = renderExample({
-    id: 'dynamic-form-example',
-    title: 'Dynamic Form Building',
-    description: 'Build forms dynamically and handle complex structures',
-    demo: `
-      <div class="space-y-4">
-        <div class="flex space-x-2">
-          <button id="add-field" class="btn btn-secondary">Add Field</button>
-          <button id="add-section" class="btn btn-secondary">Add Section</button>
-          <button id="serialize-dynamic" class="btn btn-primary">Serialize</button>
-          <button id="clear-dynamic" class="btn btn-danger">Clear</button>
-        </div>
-        
-        <form id="dynamic-form" class="space-y-4 border border-gray-300 p-4 rounded">
-          <div class="dynamic-sections"></div>
-        </form>
-        
-        <div id="dynamic-results" class="hidden"></div>
-      </div>
-    `,
-    code: `// Build forms dynamically
-const form = dom('#dynamic-form');
-
-// Add input field
-const addField = (name, type = 'text', placeholder = '') => {
-  const field = \`
-    <div class="field-group">
-      <label class="block text-sm font-medium mb-1">\${name}</label>
-      <input name="\${name.toLowerCase().replace(/\s+/g, '_')}" 
-             type="\${type}" 
-             placeholder="\${placeholder}"
-             class="input">
-      <button type="button" class="text-red-500 text-xs mt-1 remove-field">Remove</button>
-    </div>
-  \`;
-  form.append(field);
-};
-
-// Handle dynamic removal
-form.on('click', '.remove-field', (ev, el) => {
-  dom(el).closest('.field-group').remove();
-});
-
-// Serialize anytime
-const data = serializeForm(form.el());`
-  });
-
-  formSection.append(dynamicExample);
-
+  // Event handlers for Dynamic Building tab
   let fieldCounter = 0;
   let sectionCounter = 0;
 

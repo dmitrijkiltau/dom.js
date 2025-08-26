@@ -1,4 +1,5 @@
 import dom, { useTemplate, http } from '../../dist/index.js';
+import { createTabbedExamples } from '../content.js';
 
 const renderExample = useTemplate('#example-template');
 const renderSubsection = useTemplate('#subsection-template');
@@ -17,37 +18,42 @@ export function addHttpExamples() {
     `
   }));
 
-  const httpExample = renderExample({
-    id: 'http-requests-example',
-    title: 'HTTP Requests',
-    description: 'Fetch data and handle responses',
-    demo: `
-      <div class="space-y-4">
-        <div class="grid grid-cols-2 gap-2">
-          <button id="fetch-data" class="btn btn-primary">Fetch JSONPlaceholder Data</button>
-          <button id="fetch-users" class="btn btn-secondary">Fetch Users</button>
-          <button id="post-data" class="btn btn-secondary">Post Data (Demo)</button>
-          <button id="error-demo" class="btn btn-secondary">Test Error Handling</button>
-        </div>
-        
-        <div class="flex space-x-2">
-          <input id="post-url" placeholder="Post ID (1-100)" class="input flex-1" value="1" type="number" min="1" max="100">
-          <button id="fetch-specific" class="btn btn-primary">Fetch Specific Post</button>
-        </div>
-        
-        <div id="http-results" class="p-4 bg-gray-50 border border-gray-300 rounded min-h-[150px] overflow-auto">
-          <p class="text-gray-500 text-center">Click a button above to see results...</p>
-        </div>
-        
-        <div id="loading-indicator" class="hidden text-center py-4">
-          <div class="inline-flex items-center">
-            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-            <span class="ml-2 text-blue-600">Loading...</span>
+  // Create tabbed examples for HTTP functionality
+  const httpTabbedExamples = createTabbedExamples({
+    id: 'http-examples-tabs',
+    title: 'HTTP Request Examples',
+    description: 'Explore different HTTP functionality with interactive examples',
+    tabs: [
+      {
+        id: 'basic-requests',
+        title: 'Basic Requests',
+        demo: `
+          <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-2">
+              <button id="fetch-data" class="btn btn-primary">Fetch JSONPlaceholder Data</button>
+              <button id="fetch-users" class="btn btn-secondary">Fetch Users</button>
+              <button id="post-data" class="btn btn-secondary">Post Data (Demo)</button>
+              <button id="error-demo" class="btn btn-secondary">Test Error Handling</button>
+            </div>
+            
+            <div class="flex space-x-2">
+              <input id="post-url" placeholder="Post ID (1-100)" class="input flex-1" value="1" type="number" min="1" max="100">
+              <button id="fetch-specific" class="btn btn-primary">Fetch Specific Post</button>
+            </div>
+            
+            <div id="http-results" class="p-4 bg-gray-50 border border-gray-300 rounded min-h-[150px] overflow-auto">
+              <p class="text-gray-500 text-center">Click a button above to see results...</p>
+            </div>
+            
+            <div id="loading-indicator" class="hidden text-center py-4">
+              <div class="inline-flex items-center">
+                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                <span class="ml-2 text-blue-600">Loading...</span>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-    `,
-    code: `import { http } from '@dmitrijkiltau/dom.js';
+        `,
+        code: `import { http } from '@dmitrijkiltau/dom.js';
 
 // GET request
 try {
@@ -89,10 +95,178 @@ const response = await http.get('/api/data');
 const text = await response.text();     // String
 const json = await response.json();     // Object  
 const html = await response.html();     // DOM Element`
+      },
+      {
+        id: 'request-helpers',
+        title: 'Request Helpers',
+        demo: `
+          <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <h5 class="font-medium mb-2">Timeout Configuration</h5>
+                <div class="space-y-2">
+                  <input id="timeout-duration" type="number" class="input" value="3000" min="1000" max="10000" step="1000">
+                  <label class="text-sm text-gray-600">Timeout (ms)</label>
+                  <button id="timeout-demo" class="btn btn-primary w-full text-sm">Test Timeout</button>
+                  <button id="slow-request-demo" class="btn btn-secondary w-full text-sm">Slow Request (5s)</button>
+                </div>
+              </div>
+              <div>
+                <h5 class="font-medium mb-2">Default Headers</h5>
+                <div class="space-y-2">
+                  <input id="auth-header" class="input text-sm" placeholder="Authorization" value="Bearer demo-token">
+                  <input id="client-header" class="input text-sm" placeholder="X-Client" value="dom.js-demo">
+                  <input id="version-header" class="input text-sm" placeholder="X-Version" value="1.0">
+                  <button id="headers-demo" class="btn btn-primary w-full text-sm">Test Headers</button>
+                </div>
+              </div>
+            </div>
+            
+            <div class="space-y-2">
+              <h5 class="font-medium">Combined Configuration</h5>
+              <div class="flex space-x-2">
+                <button id="combined-demo" class="btn btn-accent text-sm">Timeout + Headers</button>
+                <button id="chain-demo" class="btn btn-accent text-sm">Chain Helpers</button>
+                <button id="clear-helpers-demo" class="btn btn-outline text-sm">Clear Results</button>
+              </div>
+            </div>
+            
+            <div id="helpers-output" class="text-sm bg-gray-50 border border-gray-300 rounded p-4 min-h-[150px] overflow-auto">
+              <p class="text-gray-500 text-center">Try the HTTP request helpers above...</p>
+            </div>
+          </div>
+        `,
+        code: `import { http } from '@dmitrijkiltau/dom.js';
+
+// Create HTTP client with timeout
+const timeoutHttp = http.withTimeout(5000); // 5 second timeout
+const response = await timeoutHttp.get('/slow-endpoint');
+
+// Create HTTP client with default headers
+const authedHttp = http.withHeaders({
+  'Authorization': 'Bearer token',
+  'X-Client': 'my-app',
+  'Content-Type': 'application/json'
+});
+
+// All requests will include these headers automatically
+const response = await authedHttp.post('/api/data', { name: 'John' });
+
+// Chain helpers for combined configuration
+const configuredHttp = http
+  .withTimeout(3000)
+  .withHeaders({
+    'Authorization': 'Bearer token',
+    'X-Version': '1.0'
   });
 
-  httpSection.append(httpExample);
+// Use the configured client
+const users = await configuredHttp.get('/api/users');
+const result = await configuredHttp.post('/api/users', userData);
 
+// Headers are merged with request-specific headers
+const response = await authedHttp.get('/endpoint', {
+  headers: { 'X-Request-ID': '123' } // Merged with default headers
+});`
+      },
+      {
+        id: 'advanced-patterns',
+        title: 'Advanced Patterns',
+        demo: `
+          <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <div class="space-y-2">
+                  <label class="block text-sm font-medium">Custom Headers</label>
+                  <input id="auth-token" class="input text-sm" placeholder="Authorization token" value="Bearer sample-token">
+                  <input id="custom-header" class="input text-sm" placeholder="X-Custom-Header" value="dom.js-demo">
+                </div>
+              </div>
+              <div>
+                <div class="space-y-2">
+                  <label class="block text-sm font-medium">Request Options</label>
+                  <select id="request-method" class="input">
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                    <option value="PUT">PUT</option>
+                    <option value="DELETE">DELETE</option>
+                  </select>
+                  <input id="request-url" class="input text-sm" placeholder="URL" value="https://httpbin.org/headers">
+                </div>
+              </div>
+            </div>
+            
+            <div class="space-y-2">
+              <label class="block text-sm font-medium">Request Body (for POST/PUT)</label>
+              <textarea id="request-body" class="input" rows="3" placeholder="JSON payload...">{ "message": "Hello from dom.js!", "timestamp": "2025-08-26T14:59:44.987Z" }</textarea>
+            </div>
+            
+            <div class="flex space-x-2">
+              <button id="send-request" class="btn btn-primary">Send Request</button>
+              <button id="parallel-requests" class="btn btn-secondary">Parallel Requests Demo</button>
+            </div>
+            
+            <div id="advanced-results" class="p-4 bg-gray-50 border border-gray-300 rounded min-h-[150px] overflow-auto">
+              <p class="text-gray-500 text-center">Configure and send a request...</p>
+            </div>
+          </div>
+        `,
+        code: `import { http } from '@dmitrijkiltau/dom.js';
+
+// Advanced request with custom headers
+const customHeaders = {
+  'Authorization': 'Bearer your-token',
+  'X-Custom-Header': 'value',
+  'Content-Type': 'application/json'
+};
+
+try {
+  const response = await http.post('/api/data', {
+    message: 'Hello from dom.js!',
+    timestamp: new Date().toISOString()
+  }, {
+    headers: customHeaders
+  });
+
+  if (response.ok) {
+    const result = await response.json();
+    console.log('Success:', result);
+  } else {
+    console.log('Error:', response.status, await response.text());
+  }
+} catch (error) {
+  console.error('Network error:', error);
+}
+
+// Parallel requests
+const [users, posts, comments] = await Promise.all([
+  http.get('/api/users').then(r => r.json()),
+  http.get('/api/posts').then(r => r.json()),
+  http.get('/api/comments').then(r => r.json())
+]);
+
+// Request with timeout and retry logic
+const requestWithRetry = async (url, options = {}, maxRetries = 3) => {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      const response = await http.get(url, {
+        ...options,
+        timeout: 5000
+      });
+      return response;
+    } catch (error) {
+      if (i === maxRetries - 1) throw error;
+      await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+    }
+  }
+};`
+      }
+    ]
+  });
+
+  httpSection.append(httpTabbedExamples);
+
+  // Keep all the existing event handlers and utility functions
   function showLoading() {
     dom('#loading-indicator').removeClass('hidden');
     dom('#http-results').addClass('opacity-50');
@@ -108,6 +282,20 @@ const html = await response.html();     // DOM Element`
     const titleColor = isError ? 'text-red-800' : 'text-gray-800';
 
     dom('#http-results').html(`
+      <div class="${bgColor} border border-gray-300 rounded p-4">
+        <h5 class="font-semibold ${titleColor} mb-2">${title}</h5>
+        <div class="text-sm text-gray-700">
+          ${typeof content === 'string' ? content : `<pre class="whitespace-pre-wrap overflow-x-auto">${JSON.stringify(content, null, 2)}</pre>`}
+        </div>
+      </div>
+    `);
+  }
+
+  function showAdvancedResult(title, content, isError = false) {
+    const bgColor = isError ? 'bg-red-50 border-red-200' : 'bg-gray-100';
+    const titleColor = isError ? 'text-red-800' : 'text-gray-800';
+
+    dom('#advanced-results').html(`
       <div class="${bgColor} border border-gray-300 rounded p-4">
         <h5 class="font-semibold ${titleColor} mb-2">${title}</h5>
         <div class="text-sm text-gray-700">
@@ -319,8 +507,8 @@ const response = await authedHttp.get('/endpoint', {
 });`
   });
 
-  httpSection.append(httpHelpersExample);
-
+  // Keep helper functions and event handlers for the tabbed examples
+  
   function showHelpersResult(title, content, isError = false) {
     const bgColor = isError ? 'bg-red-50 border-red-200' : 'bg-gray-100';
     const titleColor = isError ? 'text-red-800' : 'text-gray-800';
@@ -556,8 +744,7 @@ const fetchWithRetry = async (url, retries = 3) => {
 };`
   });
 
-  httpSection.append(advancedExample);
-
+  // Advanced example event handlers (now used in tabbed structure)
   dom('#send-request').on('click', async () => {
     const method = dom('#request-method').el().value;
     const url = dom('#request-url').el().value;
@@ -607,7 +794,7 @@ const fetchWithRetry = async (url, retries = 3) => {
         responseData = responseText;
       }
 
-      showResult(`${method} Request Response`, {
+      showAdvancedResult(`${method} Request Response`, {
         status: response.status,
         ok: response.ok,
         headers: Object.fromEntries(response.headers),
@@ -615,7 +802,7 @@ const fetchWithRetry = async (url, retries = 3) => {
       });
 
     } catch (error) {
-      showResult('Request Error', `${method} request failed: ${error.message}`, true);
+      showAdvancedResult('Request Error', `${method} request failed: ${error.message}`, true);
     } finally {
       hideLoading();
     }
@@ -640,7 +827,7 @@ const fetchWithRetry = async (url, retries = 3) => {
       const endTime = Date.now();
       const duration = endTime - startTime;
 
-      showResult('Parallel Requests Result', {
+      showAdvancedResult('Parallel Requests Result', {
         duration: `${duration}ms`,
         requestCount: data.length,
         posts: data.map(post => ({
@@ -651,7 +838,7 @@ const fetchWithRetry = async (url, retries = 3) => {
       });
 
     } catch (error) {
-      showResult('Parallel Requests Error', `One or more requests failed: ${error.message}`, true);
+      showAdvancedResult('Parallel Requests Error', `One or more requests failed: ${error.message}`, true);
     } finally {
       hideLoading();
     }
