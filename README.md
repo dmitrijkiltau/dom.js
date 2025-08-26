@@ -136,6 +136,7 @@ dom('.cards')
 // DOM manipulation
 dom('.items').addClass('active')
 dom('.items').removeClass('inactive')
+dom('.items').replaceClass('old-class', 'new-class') // replace specific classes
 dom('.items').toggleClass('visible')
 dom('.items').css('color', 'red')
 dom('.items').attr('data-id', '123')

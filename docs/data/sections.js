@@ -313,6 +313,7 @@ dom('.buttons')
           <ul class="text-gray-700 space-y-1">
             <li>• <code class="bg-gray-200 px-1 rounded">addClass(className)</code> - Add CSS class</li>
             <li>• <code class="bg-gray-200 px-1 rounded">removeClass(className)</code> - Remove CSS class</li>
+            <li>• <code class="bg-gray-200 px-1 rounded">replaceClass(oldClasses, newClasses)</code> - Replace specific classes</li>
             <li>• <code class="bg-gray-200 px-1 rounded">toggleClass(className)</code> - Toggle CSS class</li>
             <li>• <code class="bg-gray-200 px-1 rounded">css(prop, value)</code> - Get/set CSS properties</li>
             <li>• <code class="bg-gray-200 px-1 rounded">text(content)</code> - Get/set text content</li>

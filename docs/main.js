@@ -270,18 +270,18 @@ function initMobileNavigation() {
     
     if (isOpen) {
       // Close menu
-      sidebar.removeClass('translate-x-0').addClass('-translate-x-full');
+      sidebar.replaceClass('translate-x-0', '-translate-x-full');
       overlay.addClass('hidden');
     } else {
       // Open menu
-      sidebar.removeClass('-translate-x-full').addClass('translate-x-0');
+      sidebar.replaceClass('-translate-x-full', 'translate-x-0');
       overlay.removeClass('hidden');
     }
   });
   
   // Close menu when clicking overlay
   overlay.on('click', () => {
-    sidebar.removeClass('translate-x-0').addClass('-translate-x-full');
+    sidebar.replaceClass('translate-x-0', '-translate-x-full');
     overlay.addClass('hidden');
   });
   
@@ -289,7 +289,7 @@ function initMobileNavigation() {
   dom('#nav-menu').on('click', 'a', () => {
     // Only close on mobile (when overlay is visible)
     if (!overlay.elements[0]?.classList.contains('hidden')) {
-      sidebar.removeClass('translate-x-0').addClass('-translate-x-full');
+      sidebar.replaceClass('translate-x-0', '-translate-x-full');
       overlay.addClass('hidden');
     }
   });
@@ -302,7 +302,7 @@ function initMobileNavigation() {
       sidebar.removeClass('translate-x-0 -translate-x-full');
     } else {
       // Mobile: ensure sidebar starts hidden
-      sidebar.removeClass('translate-x-0').addClass('-translate-x-full');
+      sidebar.replaceClass('translate-x-0', '-translate-x-full');
     }
   });
 }

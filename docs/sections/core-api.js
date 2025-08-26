@@ -34,6 +34,17 @@ export function addCoreApiExamples() {
               </div>
               <button id="collection-demo" class="btn btn-primary">Manipulate Collection</button>
             </div>
+            <div class="space-y-2">
+              <h5 class="font-medium">Class Replacement</h5>
+              <div class="class-demo-element p-3 border border-gray-300 rounded bg-red-100">
+                Element with red background
+              </div>
+              <div class="flex space-x-2">
+                <button id="replace-blue" class="btn btn-primary text-sm">Replace with Blue</button>
+                <button id="replace-green" class="btn btn-secondary text-sm">Replace with Green</button>
+                <button id="replace-multi" class="btn btn-outline text-sm">Replace with Multiple</button>
+              </div>
+            </div>
           </div>
         `,
         code: `// Select by ID
@@ -58,7 +69,15 @@ items
   .css('border-color', '#3b82f6')
   .each((el, idx) => {
     dom(el).text(\`Updated Item \${idx + 1}\`);
-  });`
+  });
+
+// Replace specific classes with new ones
+dom('.class-demo-element')
+  .replaceClass('bg-red-100', 'bg-blue-100');
+
+// Replace multiple classes
+dom('.class-demo-element')
+  .replaceClass('bg-red-100 text-red-800', 'bg-green-100 text-green-800');`
       },
       {
         id: 'element-access',
@@ -293,6 +312,25 @@ dom('#target-element')
         el.textContent = `Updated Item ${idx + 1}`;
       });
     }
+  });
+
+  // Event handlers for replaceClass demo
+  dom('#replace-blue').on('click', () => {
+    dom('.class-demo-element')
+      .replaceClass('bg-red-100', 'bg-blue-100 text-blue-800')
+      .html('Element with blue background');
+  });
+
+  dom('#replace-green').on('click', () => {
+    dom('.class-demo-element')
+      .replaceClass('bg-blue-100 text-blue-800', 'bg-green-100 text-green-800')
+      .html('Element with green background');
+  });
+
+  dom('#replace-multi').on('click', () => {
+    dom('.class-demo-element')
+      .replaceClass('bg-green-100 text-green-800', 'bg-purple-100 text-purple-800 font-bold')
+      .html('Element with multiple replaced classes!');
   });
 
   // Event handlers for Element Access tab
