@@ -187,9 +187,12 @@ function init() {
     
     let domJSCode = fs.readFileSync(corePath, 'utf8');
     
-    // Convert CommonJS to make dom available globally
-    // Remove the dead code elimination pattern: 0&&(module.exports={...});
-    domJSCode = domJSCode.replace(/;0&&\([^)]*\);?/g, ';');
+    // Convert CommonJS to browser-compatible code
+    // Remove the dead code elimination pattern that causes "module is not defined" errors
+    domJSCode = domJSCode.replace(/0&&\(module\.exports=\{[^}]*\}\);?/g, '');
+    
+    // Remove the main CommonJS export statement that causes "module is not defined" errors
+    domJSCode = domJSCode.replace(/module\.exports=P\(R\);?/g, '');
     
     // Remove the source map comment
     domJSCode = domJSCode.replace(/\/\/# sourceMappingURL=.*$/gm, '');
