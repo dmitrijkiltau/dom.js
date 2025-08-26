@@ -2,6 +2,7 @@
 export const navigationItems = [
   { title: 'Getting Started', href: '#getting-started' },
   { title: 'Installation', href: '#installation' },
+  { title: 'Modular Architecture', href: '#modular-architecture' },
   { title: 'Core API', href: '#core-api' },
   { title: 'Templates', href: '#templates' },
   { title: 'Forms', href: '#forms' },

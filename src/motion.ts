@@ -1,3 +1,5 @@
+import { DOMCollection } from './collection';
+
 export function animate(el: HTMLElement, keyframes: Keyframe[] | PropertyIndexedKeyframes, options?: KeyframeAnimationOptions) {
   return el.animate(keyframes as any, options);
 }
@@ -35,3 +37,46 @@ export const animations = {
     { duration, easing: 'ease-in-out' }
   ]
 };
+
+/**
+ * Install animation methods on DOMCollection prototype
+ * Called during library initialization
+ */
+export function installAnimationMethods() {
+  // General animate method
+  (DOMCollection as any).prototype.animate = function (keyframes: Keyframe[] | PropertyIndexedKeyframes, options?: KeyframeAnimationOptions) {
+    this.elements.forEach((el: Element) => animate(el as HTMLElement, keyframes as any, options));
+    return this;
+  };
+
+  // Animation shortcuts
+  (DOMCollection as any).prototype.fadeIn = function (duration?: number) {
+    const [keyframes, options] = animations.fadeIn(duration);
+    return this.animate(keyframes, options);
+  };
+  
+  (DOMCollection as any).prototype.fadeOut = function (duration?: number) {
+    const [keyframes, options] = animations.fadeOut(duration);
+    return this.animate(keyframes, options);
+  };
+  
+  (DOMCollection as any).prototype.slideUp = function (duration?: number) {
+    const [keyframes, options] = animations.slideUp(duration);
+    return this.animate(keyframes, options);
+  };
+  
+  (DOMCollection as any).prototype.slideDown = function (duration?: number) {
+    const [keyframes, options] = animations.slideDown(duration);
+    return this.animate(keyframes, options);
+  };
+  
+  (DOMCollection as any).prototype.pulse = function (duration?: number) {
+    const [keyframes, options] = animations.pulse(duration);
+    return this.animate(keyframes, options);
+  };
+  
+  (DOMCollection as any).prototype.shake = function (duration?: number) {
+    const [keyframes, options] = animations.shake(duration);
+    return this.animate(keyframes, options);
+  };
+}

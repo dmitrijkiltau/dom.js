@@ -11,6 +11,31 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
+    },
+    "./core": {
+      "types": "./dist/core.d.ts",
+      "import": "./dist/core.js",
+      "require": "./dist/core.cjs"
+    },
+    "./http": {
+      "types": "./dist/http.d.ts",
+      "import": "./dist/http.js",
+      "require": "./dist/http.cjs"
+    },
+    "./template": {
+      "types": "./dist/template.d.ts",
+      "import": "./dist/template.js",
+      "require": "./dist/template.cjs"
+    },
+    "./forms": {
+      "types": "./dist/forms.d.ts",
+      "import": "./dist/forms.js",
+      "require": "./dist/forms.cjs"
+    },
+    "./motion": {
+      "types": "./dist/motion.d.ts",
+      "import": "./dist/motion.js",
+      "require": "./dist/motion.cjs"
     }
   },
   "sideEffects": false,
@@ -18,9 +43,14 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format esm,cjs --dts --minify --sourcemap",
+    "build": "tsup src/index.ts src/core.ts src/http.ts src/template.ts src/forms.ts src/motion.ts --format esm,cjs --dts --minify --sourcemap",
+    "build:full": "npm run build",
+    "build:core": "tsup src/core.ts --format esm,cjs --dts --minify --sourcemap",
+    "analyze": "node scripts/analyze-bundles.mjs",
     "dev": "tsup src/index.ts --format esm --dts --watch",
-    "test": "node ./tests/sanity.mjs",
+    "test": "node ./tests/sanity.mjs && node ./tests/modular.mjs",
+    "test:core": "node ./tests/sanity.mjs",
+    "test:modular": "node ./tests/modular.mjs",
     "docs:dev": "cd docs && npm run dev",
     "docs:build": "cd docs && npm run build",
     "docs:preview": "cd docs && npm run preview",
