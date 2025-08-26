@@ -308,23 +308,26 @@ function initThemeToggle() {
     // Remove the original large script tag
     let finalHTML = html.replace(/<script[^>]*src="[^"]*assets\/[^"]*\.js"[^>]*><\/script>/g, '');
 
-    // Create optimized script tag (no type="module" needed since we're bundling everything)
-    const optimizedScript = `<script>\n${optimizedJS}\n</script>`;
+    // Create optimized script tag with proper formatting (no type="module" needed since we're bundling everything)
+    const optimizedScript = `
+<script>
+${optimizedJS}
+</script>`;
 
     // Inject before closing body tag
-    finalHTML = finalHTML.replace('</body>', `  ${optimizedScript}\n</body>`);
+    finalHTML = finalHTML.replace('</body>', `${optimizedScript}
+</body>`);
 
     // Add build info comment
-    const buildInfo = `
-<!--
-  Built with dom-ssg
-  Modules: ${analysis.requiredModules.join(', ')}
-  Features: ${analysis.usedFeatures.join(', ')}
-  Bundle optimization: Inlined at build time
--->
-`;
+    const buildInfo = `<!--
+Built with dom-ssg
+Modules: ${analysis.requiredModules.join(', ')}
+Features: ${analysis.usedFeatures.join(', ')}
+Bundle optimization: Inlined at build time
+-->`;
 
-    finalHTML = finalHTML.replace('<head>', `<head>\n${buildInfo}`);
+    finalHTML = finalHTML.replace('<head>', `<head>
+${buildInfo}`);
 
     return finalHTML;
   }
