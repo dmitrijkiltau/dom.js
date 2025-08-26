@@ -55,7 +55,7 @@
     "docs:build": "cd docs && npm run build",
     "docs:preview": "cd docs && npm run preview",
     "docs:install": "cd docs && npm install",
-    "docs:ssg": "npm run build && node scripts/ssg.mjs",
+    "docs:ssg": "npm run build && npm run docs:build && node scripts/ssg.mjs",
     "docs:ssg-preview": "npm run docs:ssg && cd docs && npx vite preview --outDir dist-ssg --port 8080",
     "ssg": "node scripts/ssg.mjs"
   },
