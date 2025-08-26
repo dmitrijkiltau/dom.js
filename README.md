@@ -1,6 +1,6 @@
 # dom.js
 
-A tiny, intuitive, chainable DOM utility for modern browsers (like jQuery, but ESM and no $).
+A lightweight, modular DOM manipulation library with chainable API, zero dependencies, and modern ES modules.
 
 [![npm version](https://badge.fury.io/js/@dmitrijkiltau%2Fdom.js.svg)](https://www.npmjs.com/package/@dmitrijkiltau/dom.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -8,7 +8,7 @@ A tiny, intuitive, chainable DOM utility for modern browsers (like jQuery, but E
 ## Features
 
 - 🚀 **Lightweight** - Modular architecture, import only what you need
-- ⛓️ **Chainable API** - Familiar jQuery-like syntax
+- ⛓️ **Chainable API** - Intuitive method chaining for DOM operations  
 - 📦 **Modern ES Modules** - Built for modern browsers (ES2020+)
 - 🎯 **TypeScript Support** - Full TypeScript definitions included
 - 🏗️ **Template System** - HTML templates with data binding
@@ -64,7 +64,7 @@ import dom from 'https://unpkg.com/@dmitrijkiltau/dom.js/dist/index.js';
 Choose the import style that best fits your needs:
 
 ### Full Bundle (Default)
-Best for: jQuery replacement, complex applications
+Best for: Feature-rich applications, comprehensive DOM manipulation
 ```js
 import dom from '@dmitrijkiltau/dom.js';
 
