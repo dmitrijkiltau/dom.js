@@ -19,6 +19,7 @@ function init() {
   // Run syntax highlighting after content is loaded to catch all code blocks
   setTimeout(() => {
     initSyntaxHighlighting();
+    initTabbedExamples(); // Initialize tabs after content is loaded
   }, 100);
   initExampleToggles();
 
@@ -95,6 +96,49 @@ function initExampleToggles() {
       if (codeIcon) codeIcon.style.display = 'block';
       if (cubeIcon) cubeIcon.style.display = 'none';
       button.setAttribute('data-view', 'demo');
+    }
+  });
+}
+
+// Initialize tabbed examples functionality
+function initTabbedExamples() {
+  // Handle tab button clicks using event delegation
+  dom(document).on('click', '.tab-button', (ev, button) => {
+    ev.preventDefault();
+    
+    // Find the tabbed examples container using native DOM traversal
+    const container = button.closest('.tabbed-examples-container');
+    if (!container) return;
+    
+    const tabId = button.getAttribute('data-tab');
+    if (!tabId) return;
+    
+    // Remove active class from all tab buttons in this container
+    const allTabButtons = container.querySelectorAll('.tab-button');
+    allTabButtons.forEach(btn => btn.classList.remove('active'));
+    
+    // Add active class to clicked button
+    button.classList.add('active');
+    
+    // Hide all tab panels in this container
+    const allPanels = container.querySelectorAll('.tab-panel');
+    allPanels.forEach(panel => panel.style.display = 'none');
+    
+    // Show the corresponding tab panel
+    const targetPanel = container.querySelector(`[data-panel="${tabId}"]`);
+    if (targetPanel) {
+      targetPanel.style.display = 'block';
+    }
+  });
+  
+  // Initialize first tab as active for each tabbed examples container
+  dom('.tabbed-examples-container').each((container) => {
+    const firstTab = container.querySelector('.tab-button');
+    const firstPanel = container.querySelector('.tab-panel');
+    
+    if (firstTab && firstPanel) {
+      firstTab.classList.add('active');
+      firstPanel.style.display = 'block';
     }
   });
 }
