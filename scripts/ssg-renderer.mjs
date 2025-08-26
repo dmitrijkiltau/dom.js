@@ -27,7 +27,7 @@ export class SSGRenderer {
     const dom = new JSDOM(htmlTemplate, {
       url: 'http://localhost',
       pretendToBeVisual: true,
-      resources: 'usable',
+      resources: undefined, // Don't load external resources during SSR
       runScripts: 'dangerously'
     });
 
