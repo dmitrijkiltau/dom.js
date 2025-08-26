@@ -1,4 +1,4 @@
-import dom, { useTemplate, use } from '../../dist/index.js';
+import dom, { useTemplate } from '../../dist/index.js';
 
 const renderExample = useTemplate('#example-template');
 const renderSubsection = useTemplate('#subsection-template');
@@ -55,7 +55,7 @@ export function addPluginExamples() {
     code: `import { use } from '@dmitrijkiltau/dom.js';
 
 // Flash effect plugin
-use((api) => {
+dom.use((api) => {
   api.flash = function(selector, options = {}) {
     const { duration = 300, iterations = 3 } = options;
     
@@ -71,7 +71,7 @@ use((api) => {
 });
 
 // Typewriter effect plugin
-use((api) => {
+dom.use((api) => {
   api.typewriter = function(selector, text, options = {}) {
     const { speed = 50 } = options;
     const element = this(selector).el();
@@ -102,7 +102,7 @@ dom.typewriter('#output', 'Hello World!', { speed: 100 });`
   pluginSection.append(pluginExample);
 
   // Define the flash plugin
-  use((api) => {
+  dom.use((api) => {
     api.flash = function (selector, options = {}) {
       const { duration = 300, iterations = 3 } = options;
 
@@ -114,7 +114,7 @@ dom.typewriter('#output', 'Hello World!', { speed: 100 });`
   });
 
   // Define the typewriter plugin
-  use((api) => {
+  dom.use((api) => {
     api.typewriter = function (selector, text, options = {}) {
       const { speed = 50 } = options;
       const element = this(selector).el();
@@ -138,7 +138,7 @@ dom.typewriter('#output', 'Hello World!', { speed: 100 });`
   });
 
   // Define the toast plugin
-  use((api) => {
+  dom.use((api) => {
     api.toast = function (message, options = {}) {
       const { type = 'info', duration = 3000, position = 'top-right' } = options;
       
@@ -267,7 +267,7 @@ dom.typewriter('#output', 'Hello World!', { speed: 100 });`
       </div>
     `,
     code: `// Draggable plugin with state
-use((api) => {
+dom.use((api) => {
   api.DOMCollection.prototype.draggable = function(options = {}) {
     const { containment = null, axis = 'both' } = options;
     
@@ -316,7 +316,7 @@ use((api) => {
 });
 
 // Highlight plugin
-use((api) => {
+dom.use((api) => {
   api.DOMCollection.prototype.highlight = function(text, className = 'bg-yellow-200') {
     return this.each((el) => {
       const regex = new RegExp(\`(\${text.replace(/[.*+?^()|[\\]\\\\]/g, '\\\\$&')})\`, 'gi');
@@ -333,7 +333,7 @@ dom('#content').highlight('dom.js');`
   pluginSection.append(advancedExample);
 
   // Define advanced plugins FIRST before using them
-  use((api) => {
+  dom.use((api) => {
     api.DOMCollection.prototype.draggable = function(options = {}) {
       const { axis = 'both' } = options;
       
@@ -402,7 +402,7 @@ dom('#content').highlight('dom.js');`
     };
   });
 
-  use((api) => {
+  dom.use((api) => {
     api.DOMCollection.prototype.highlight = function(text, className = 'bg-yellow-200') {
       return this.each((el) => {
         // First, remove existing highlights
@@ -417,7 +417,7 @@ dom('#content').highlight('dom.js');`
     };
   });
 
-  use((api) => {
+  dom.use((api) => {
     api.counter = function(selector, options = {}) {
       const { initial = 0, min = null, max = null, step = 1 } = options;
       const element = this(selector).el();
