@@ -46,7 +46,7 @@ src/
 ## Import Patterns
 
 ### 1. Full Bundle (Default)
-For maximum convenience and full jQuery replacement:
+For maximum convenience and comprehensive DOM manipulation:
 
 ```js
 // Everything included (~12KB total)
@@ -295,7 +295,7 @@ Perfect for: SPAs with API calls, no complex animations
 ```js
 import dom from '@dmitrijkiltau/dom.js'; // ~12KB total  
 ```
-Perfect for: Complex applications, jQuery replacement
+Perfect for: Complex applications, feature-rich DOM manipulation
 
 ## Plugin System
 
@@ -333,7 +333,7 @@ dom('.elements').customChain();
 ## Best Practices
 
 1. **Start with core** for new projects and add modules as needed
-2. **Use full bundle** for jQuery migrations or complex apps
+2. **Use full bundle** for feature-rich applications requiring comprehensive DOM manipulation
 3. **Prefer modular imports** for library authors or size-critical apps  
 4. **Use plugins** to extend functionality across modules
 5. **Check bundle analyzer** to verify optimal imports

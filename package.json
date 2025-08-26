@@ -1,7 +1,7 @@
 {
   "name": "@dmitrijkiltau/dom.js",
   "version": "0.2.0",
-  "description": "A tiny, intuitive, chainable DOM utility for modern browsers (like jQuery, but ESM and no $).",
+  "description": "A lightweight, modular DOM manipulation library with chainable API, zero dependencies, and modern ES modules.",
   "type": "module",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
@@ -61,7 +61,9 @@
     "utility",
     "chainable",
     "dom.js",
-    "jquery-alternative"
+    "modular",
+    "lightweight",
+    "esm"
   ],
   "author": "Dmitrij Kiltau",
   "license": "MIT",

@@ -88,7 +88,7 @@ import { http } from '@dmitrijkiltau/dom.js/http';
 
 | Import Pattern | Size | Use Case |
 |----------------|------|----------|
-| Full Bundle | ~13KB | jQuery replacement, complex apps |
+| Full Bundle | ~13KB | Feature-rich apps, comprehensive DOM manipulation |
 | Core Only | ~7KB | Basic DOM manipulation |
 | Core + HTTP | ~9KB | Simple SPAs with API calls |
 | Individual Modules | Varies | Maximum optimization |
@@ -141,8 +141,8 @@ dom('.elements').fadeIn().css('color', 'blue');
 ```js
 import dom from '@dmitrijkiltau/dom.js';
 ```
-✅ jQuery migrations  
-✅ Complex applications  
+✅ Feature-rich applications  
+✅ Comprehensive DOM manipulation  
 ✅ Need all features  
 
 **Core Only**
@@ -181,4 +181,4 @@ The architectural improvements successfully transform dom.js from a monolithic l
 - ✅ **Enables flexible adoption** with multiple import patterns
 - ✅ **Preserves core philosophy** of zero dependencies and simplicity
 
-This positions dom.js as a truly modern jQuery alternative that scales from simple websites to complex applications while giving developers control over their bundle size.
+This positions dom.js as a truly modern DOM library that scales from simple websites to complex applications while giving developers control over their bundle size.

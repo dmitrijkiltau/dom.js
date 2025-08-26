@@ -124,7 +124,7 @@ dom.typewriter('#output', 'Hello World!', { speed: 100 });`
                 <h5 class="font-medium">Highlight Plugin</h5>
                 <input id="search-text" placeholder="Type to highlight..." class="input text-sm">
                 <div class="demo-area border border-gray-300 rounded p-3 h-32 bg-gray-100 text-sm overflow-y-auto" id="highlight-content">
-                  <p>dom.js is a lightweight, modern DOM manipulation library that provides a jQuery-like API with ES modules support and no dependencies.</p>
+                  <p>dom.js is a lightweight, modern DOM manipulation library that provides an intuitive chainable API with ES modules support and no dependencies.</p>
                   <p>It's designed for modern browsers and offers a chainable, intuitive API for DOM manipulation, templating, forms, events, HTTP requests, and animations.</p>
                 </div>
               </div>
