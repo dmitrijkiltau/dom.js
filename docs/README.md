@@ -1,59 +1,48 @@
 # dom.js Documentation
 
-This is the documentation site for dom.js, built using:
+Interactive documentation for dom.js built with:
 
-- **TailwindCSS 4** (with CSS-only configuration)
-- **Vite** (for development and building)  
-- **dom.js** (using the library to build its own documentation)
-- **HTML-first approach** with HTML templates
+- **TailwindCSS 4** - Modern utility-first CSS
+- **Vite** - Fast development and building
+- **dom.js** - Self-documenting with its own library
+- **Prism.js** - Syntax highlighting for code examples
 
 ## Features
 
-- Interactive examples for all dom.js features
+- Live, interactive examples for all dom.js features
 - Real-time code demonstrations
 - HTML templates with data binding
-- Responsive design with TailwindCSS
+- Responsive design
 - Plugin system examples
 
 ## Development
 
 ```bash
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-
-# Build for production
-npm run build
-
-# Preview production build
-npm run preview
+npm install    # Install dependencies
+npm run dev    # Start development server
+npm run build  # Build for production
+npm run preview # Preview production build
 ```
 
 ## From Root Directory
 
 ```bash
-# Install docs dependencies
-npm run docs:install
-
-# Start docs development server
-npm run docs:dev
-
-# Build docs
-npm run docs:build
+npm run docs:install  # Install docs dependencies
+npm run docs:dev      # Start docs development server
+npm run docs:build    # Build docs
 ```
 
 ## Documentation Sections
 
 1. **Getting Started** - Introduction to dom.js
 2. **Installation** - How to install and import
-3. **Core API** - Basic selector and DOMCollection methods  
-4. **Templates** - HTML template system with data binding
-5. **Forms** - Form handling and serialization
-6. **Events** - Event binding and delegation
-7. **HTTP** - HTTP utilities for requests
-8. **Animation** - Web Animations API integration
-9. **Plugin System** - Extending dom.js with plugins
+3. **Modular Architecture** - Import patterns and bundle sizes
+4. **Core API** - Basic selectors and DOMCollection methods
+5. **Templates** - HTML template system with data binding
+6. **Forms** - Form handling and serialization
+7. **Events** - Event binding and delegation
+8. **HTTP** - HTTP utilities for requests
+9. **Animation** - Web Animations API integration
+10. **Plugin System** - Extending dom.js with plugins
 
 All sections include live, interactive examples demonstrating the features.
