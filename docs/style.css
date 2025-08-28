@@ -45,7 +45,7 @@ html, body {
 }
 
 .nav-link {
-  @apply block px-3 py-2 rounded-md text-sm font-medium transition-colors;
+  @apply block px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer;
 
   &:hover {
     @apply bg-gray-200 text-gray-900;
@@ -146,18 +146,13 @@ html, body {
 }
 
 .tab-button {
-  @apply px-6 py-3 text-sm font-medium text-gray-600 bg-transparent border-none cursor-pointer transition-colors whitespace-nowrap;
-  @apply hover:text-gray-800 hover:bg-gray-200;
-  @apply focus:outline-none focus:text-gray-800 focus:bg-gray-200;
+  @apply px-6 py-3 text-sm font-medium text-gray-600 bg-transparent border-b-2 border-transparent cursor-pointer transition-colors whitespace-nowrap -mb-px;
+  @apply hover:text-gray-800 hover:border-gray-300;
+  @apply focus:outline-none focus:text-gray-800;
 }
 
 .tab-button.active {
-  @apply text-primary bg-white border-b-2 border-primary relative;
-}
-
-.tab-button.active::after {
-  content: '';
-  @apply absolute bottom-0 left-0 right-0 h-0.5 bg-primary;
+  @apply text-primary border-primary;
 }
 
 .tabs-content {
