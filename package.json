@@ -1,11 +1,28 @@
 {
   "name": "@dmitrijkiltau/dom.js",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "A lightweight, modular DOM manipulation library with chainable API, zero dependencies, and modern ES modules.",
   "type": "module",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dmitrijkiltau/dom.js.git"
+  },
+  "homepage": "https://github.com/dmitrijkiltau/dom.js#readme",
+  "bugs": {
+    "url": "https://github.com/dmitrijkiltau/dom.js/issues"
+  },
+  "author": {
+    "name": "Dmitrij Kiltau",
+    "email": "dmitrij.kiltau@gmail.com",
+    "url": "https://github.com/dmitrijkiltau"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -40,7 +57,8 @@
   },
   "sideEffects": false,
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "scripts": {
     "build": "tsup src/index.ts src/core.ts src/http.ts src/template.ts src/forms.ts src/motion.ts --format esm,cjs --dts --minify --sourcemap",
@@ -63,10 +81,21 @@
     "dom.js",
     "modular",
     "lightweight",
-    "esm"
+    "esm",
+    "typescript",
+    "browser",
+    "frontend",
+    "jquery-alternative",
+    "vanilla-js"
   ],
-  "author": "Dmitrij Kiltau",
-  "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/dmitrijkiltau"
+  },
   "devDependencies": {
     "jsdom": "^26.1.0",
     "tsup": "^8.5.0",
