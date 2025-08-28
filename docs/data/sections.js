@@ -98,19 +98,19 @@ import { http } from '@dmitrijkiltau/dom.js/http';
               </thead>
               <tbody>
                 <tr class="border-t">
-                  <td class="px-4 py-2 border-r"><code class="bg-gray-200 px-1 rounded">Full Bundle</code></td>
+                  <td class="px-4 py-2 border-r"><code class="bg-gray-200 text-gray-700 px-1 rounded">Full Bundle</code></td>
                   <td class="px-4 py-2 border-r">~13KB</td>
                   <td class="px-4 py-2 border-r">-</td>
                   <td class="px-4 py-2">Comprehensive DOM library</td>
                 </tr>
-                <tr class="border-t bg-green-50">
-                  <td class="px-4 py-2 border-r"><code class="bg-gray-200 px-1 rounded">Core Only</code></td>
+                <tr class="border-t bg-green-50 text-green-700">
+                  <td class="px-4 py-2 border-r"><code class="bg-gray-200 text-gray-700 px-1 rounded">Core Only</code></td>
                   <td class="px-4 py-2 border-r">~7KB</td>
                   <td class="px-4 py-2 border-r font-semibold text-green-700">43% smaller</td>
                   <td class="px-4 py-2">Basic websites</td>
                 </tr>
                 <tr class="border-t">
-                  <td class="px-4 py-2 border-r"><code class="bg-gray-200 px-1 rounded">Core + HTTP</code></td>
+                  <td class="px-4 py-2 border-r"><code class="bg-gray-200 text-gray-700 px-1 rounded">Core + HTTP</code></td>
                   <td class="px-4 py-2 border-r">~9KB</td>
                   <td class="px-4 py-2 border-r text-green-700">30% smaller</td>
                   <td class="px-4 py-2">Simple SPAs</td>
@@ -215,7 +215,7 @@ const element = renderTemplate('#template', data);</code></pre>
               <p class="text-yellow-700 mb-2">
                 Existing code continues to work unchanged. You can gradually adopt modular imports:
               </p>
-              <div class="space-y-2 text-sm">
+              <div class="space-y-2 text-yellow-700 text-sm">
                 <div><strong>Step 1:</strong> Keep using full bundle during development</div>
                 <div><strong>Step 2:</strong> Switch to core + specific modules for production</div>
                 <div><strong>Step 3:</strong> Optimize further with pure modular imports</div>
