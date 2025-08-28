@@ -20,10 +20,10 @@
   <!-- Mobile Sidebar Overlay -->
   <div id="mobile-sidebar-overlay" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-40 lg:hidden hidden pointer-events-none"></div>
 
-  <div class="min-h-dvh flex">
+  <div id="app">
     <!-- Sidebar Navigation -->
     <nav id="sidebar"
-      class="w-64 bg-gray-100 shadow-sm border-r border-gray-200 fixed h-full overflow-y-auto z-50 transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0 lg:transform-none">
+      class="bg-gray-100 shadow-sm border-r border-gray-200 fixed h-full overflow-y-auto z-50 transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0 lg:transform-none">
       <div class="flex flex-col h-full">
         <div class="p-6 flex-1">
           <h1 class="text-2xl font-bold text-gray-900 mb-6">dom.js</h1>
@@ -57,7 +57,7 @@
     </nav>
 
     <!-- Main Content -->
-    <main class="flex-1 lg:ml-64">
+    <main id="main-content">
       <div class="max-w-4xl mx-auto px-6 py-8 pt-16 lg:pt-8">
         <!-- Header -->
         <header class="mb-8">
