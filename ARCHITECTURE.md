@@ -2,7 +2,7 @@
 
 ## Overview
 
-dom.js now features a **modular architecture** that allows you to import only the functionality you need, resulting in smaller bundle sizes while maintaining full backward compatibility.
+dom.js features a **modular architecture** that allows you to import only the functionality you need, resulting in optimized bundle sizes while maintaining full backward compatibility. The library offers flexible import patterns ranging from a full feature bundle (~13KB) down to individual modules (~2-7KB each).
 
 ## Architecture Principles
 
@@ -19,29 +19,29 @@ dom.js now features a **modular architecture** that allows you to import only th
 ```
 src/
 ├── index.ts          # Main entry point (full functionality)
-├── core.ts           # Core DOM manipulation only (~1.3KB)
-├── collection.ts     # DOMCollection class
-├── http.ts           # HTTP utilities
-├── template.ts       # Template system
-├── forms.ts          # Form handling
-├── motion.ts         # Animation utilities
+├── core.ts           # Core DOM manipulation only (~7KB)
+├── collection.ts     # DOMCollection class with all methods
+├── http.ts           # HTTP utilities (~2KB)
+├── template.ts       # Template system (~2KB)
+├── forms.ts          # Form handling (~7KB)
+├── motion.ts         # Animation utilities (~7KB)
 ├── plugins.ts        # Plugin system
 ├── utils.ts          # Shared utilities
 └── types.ts          # TypeScript definitions
 ```
 
-### Bundle Sizes (ESM, minified)
+### Bundle Sizes (CJS, minified + gzipped)
 
 | Module | Size | Description |
 |--------|------|-------------|
-| **Full Bundle** | ~1.8KB + chunks | Complete functionality (default) |
-| **Core Only** | ~1.3KB + chunks | Basic DOM manipulation + events |
-| **HTTP** | ~86B | HTTP utilities only |
-| **Templates** | ~130B | Template system only |  
-| **Forms** | ~161B | Form utilities only |
-| **Motion** | ~168B | Animation utilities only |
+| **Full Bundle** | ~13KB | Complete functionality (default) |
+| **Core Only** | ~7KB | Basic DOM manipulation + events |
+| **HTTP** | ~2KB | HTTP utilities only |
+| **Templates** | ~2KB | Template system only |  
+| **Forms** | ~7KB | Form utilities only |
+| **Motion** | ~7KB | Animation utilities only |
 
-*Note: Actual sizes include shared chunks for common dependencies*
+*Note: Individual modules include shared dependencies. Actual sizes may vary based on bundler configuration.*
 
 ## Import Patterns
 
@@ -49,12 +49,12 @@ src/
 For maximum convenience and comprehensive DOM manipulation:
 
 ```js
-// Everything included (~12KB total)
+// Everything included (~13KB total)
 import dom from '@dmitrijkiltau/dom.js';
 
 dom('.elements')
   .addClass('active')
-  .fadeIn()
+  .fadeIn(300)
   .on('click', handler);
 
 // All utilities available
@@ -137,14 +137,15 @@ dom(selector)              // Element selection
 dom.create(tag, attrs)     // Element creation  
 dom.on/once/off()         // Event handling
 dom.DOMCollection         // Collection class
-dom.use(plugin)           // Plugin system
+dom.use(plugin)           // Plugin system (automatically available)
 
 // DOMCollection methods:
 .each() .length .first() .last() .eq()
 .find() .filter() .parent() .parents() .siblings()
 .text() .html() .append() .appendTo() .prepend() .prependTo()
 .addClass() .removeClass() .toggleClass() .hasClass()
-.css() .attr() .removeAttr() .val() .prop() .attrs()
+.css() .attr() .removeAttr() .val() .prop() .attrs() .data()
+.show() .hide() .toggle()
 .on() .off() .once() .trigger() .click() .focus() .blur() .hover()
 .remove() .empty() .clone() .after() .before() .serialize()
 ```
@@ -192,8 +193,8 @@ const templateEl = tpl('#template');
 // data-text="key"           - Set text content
 // data-html="key"           - Set HTML content  
 // data-attr-id="key"        - Set attribute (removes marker)
-// data-if="condition"       - Conditional rendering
-// data-show="visible"       - Show/hide with display
+// data-if="condition"       - Conditional rendering (removes if falsy)
+// data-show="visible"       - Show/hide with display style
 // data-hide="hidden"        - Hide when truthy
 // data-on-click="handler"   - Event binding
 ```
@@ -293,7 +294,7 @@ Perfect for: SPAs with API calls, no complex animations
 
 **Scenario 3: Full Featured (Default)**
 ```js
-import dom from '@dmitrijkiltau/dom.js'; // ~12KB total  
+import dom from '@dmitrijkiltau/dom.js'; // ~13KB total  
 ```
 Perfect for: Complex applications, feature-rich DOM manipulation
 
@@ -323,9 +324,9 @@ dom('.elements').customChain();
 
 ## Benefits
 
-1. **Smaller Bundles**: Import only what you need
-2. **Better Tree Shaking**: Modern bundlers can eliminate unused code
-3. **Cleaner Architecture**: Separated concerns, better maintainability  
+1. **Optimized Bundles**: Import only what you need, from ~7KB (core) to ~13KB (full)
+2. **Better Tree Shaking**: Modern bundlers can eliminate unused code effectively
+3. **Clean Architecture**: Separated concerns, better maintainability  
 4. **Backward Compatible**: Existing code works unchanged
 5. **Flexible**: Mix and match based on project needs
 6. **Future Proof**: Easy to add new modules without bloating core
@@ -334,6 +335,7 @@ dom('.elements').customChain();
 
 1. **Start with core** for new projects and add modules as needed
 2. **Use full bundle** for feature-rich applications requiring comprehensive DOM manipulation
-3. **Prefer modular imports** for library authors or size-critical apps  
+3. **Prefer modular imports** for library authors or size-critical applications  
 4. **Use plugins** to extend functionality across modules
-5. **Check bundle analyzer** to verify optimal imports
+5. **Check bundle analyzer** to verify optimal imports and tree shaking
+6. **Consider HTTP + Core** for SPAs that need API integration but minimal DOM features
