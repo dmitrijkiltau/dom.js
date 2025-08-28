@@ -36,7 +36,7 @@ export function addCoreApiExamples() {
             </div>
             <div class="space-y-2">
               <h5 class="font-medium">Class Replacement</h5>
-              <div class="class-demo-element p-3 border border-gray-300 rounded bg-red-100">
+              <div class="class-demo-element p-3 border border-gray-300 rounded bg-red-100 text-red-700">
                 Element with red background
               </div>
               <div class="flex space-x-2">

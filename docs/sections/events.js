@@ -135,7 +135,7 @@ dom(element).off('click', customHandler);`
               <div>
                 <h5 class="font-medium mb-2">Custom Events</h5>
                 <button id="trigger-custom" class="btn btn-secondary mb-2">Trigger Custom Event</button>
-                <div id="custom-listener" class="p-2 border border-gray-300 rounded bg-gray-50 text-sm">
+                <div id="custom-listener" class="p-2 border border-gray-300 rounded bg-gray-50 text-gray-700 text-sm">
                   Listening for custom events...
                 </div>
               </div>

@@ -88,6 +88,8 @@ function initScrollSpy() {
     } else {
       lastSection = current;
       setActive(current.id);
+      history.pushState(null, '', `#${current.id}`);
+      console.log(`Navigated to section: ${current.id}`);
     }
   }
 }

@@ -65,7 +65,7 @@ html, body {
 }
 
 .subsection-title {
-  @apply text-2xl font-semibold mb-4 text-gray-800;
+  @apply text-2xl font-semibold mt-6 mb-4 text-gray-800;
 }
 
 .example-container {
