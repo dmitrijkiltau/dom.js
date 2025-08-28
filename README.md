@@ -18,24 +18,6 @@ A lightweight, modular DOM manipulation library with chainable API, zero depende
 - 🔧 **Plugin System** - Extend functionality with custom plugins
 - 🆔 **Zero Dependencies** - No external dependencies
 
-## Modular Architecture
-
-dom.js features a **modular architecture** for optimal bundle sizes:
-
-```js
-// Full bundle (~13KB) - Everything included
-import dom from '@dmitrijkiltau/dom.js';
-
-// Core only (~7KB) - Basic DOM manipulation + events  
-import dom from '@dmitrijkiltau/dom.js/core';
-
-// Individual modules - Maximum tree-shaking
-import { http } from '@dmitrijkiltau/dom.js/http';
-import { renderTemplate } from '@dmitrijkiltau/dom.js/template';
-```
-
-**[📖 Complete Architecture Guide →](ARCHITECTURE.md)**
-
 ## Installation
 
 ### npm
@@ -69,7 +51,7 @@ Best for: Feature-rich applications, comprehensive DOM manipulation
 import dom from '@dmitrijkiltau/dom.js';
 
 // Everything available (~13KB total)
-dom('.elements').fadeIn();
+dom('.elements').fadeIn(300);
 await dom.http.get('/api/data');
 ```
 
@@ -90,11 +72,17 @@ Best for: Maximum tree-shaking, library authors
 import dom from '@dmitrijkiltau/dom.js/core';
 import { http } from '@dmitrijkiltau/dom.js/http';
 import { renderTemplate } from '@dmitrijkiltau/dom.js/template';
+import { serializeForm, onSubmit } from '@dmitrijkiltau/dom.js/forms';
+import { animate, animations } from '@dmitrijkiltau/dom.js/motion';
 
 // Use only what you import
 const response = await http.get('/api');
 const element = renderTemplate('#template', data);
+const formData = serializeForm('#form');
+dom('.items').fadeIn(300);
 ```
+
+**[📖 Complete Architecture Guide →](ARCHITECTURE.md)**
 
 ## Quick Start
 
@@ -122,12 +110,26 @@ dom('#app')                // by id
 dom('div')                 // by tag
 dom(element)               // wrap existing element
 dom([el1, el2])           // wrap multiple elements
+dom(document)             // wrap document
+dom(window)               // wrap window
 
 // Chain operations
 dom('.cards')
   .addClass('animate')
   .css('opacity', '0.8')
   .on('mouseenter', (ev, el) => dom(el).addClass('hover'));
+```
+
+### Element Creation
+
+```js
+// Create elements
+const div = dom.create('div', { class: 'container', id: 'main' });
+const button = dom.create('button', { type: 'submit' }, 'Click me');
+const list = dom.create('ul', null, [
+  dom.create('li', null, 'Item 1'),
+  dom.create('li', null, 'Item 2')
+]);
 ```
 
 ### DOMCollection Methods
@@ -138,19 +140,29 @@ dom('.items').addClass('active')
 dom('.items').removeClass('inactive')
 dom('.items').replaceClass('old-class', 'new-class') // replace specific classes
 dom('.items').toggleClass('visible')
+dom('.items').hasClass('active') // check if has class
 dom('.items').css('color', 'red')
 dom('.items').attr('data-id', '123')
 dom('.items').attrs({id: 'main', class: 'active'}) // bulk attributes
 dom('.items').prop('checked', true) // properties vs attributes
 dom('.items').val('new value') // form element values
+dom('.items').data('custom', 'value') // data attributes
 dom('.items').html('<span>New content</span>')
 dom('.items').text('New text')
 dom('.items').append('<div>Child</div>')
+dom('.items').appendTo('#container') // append to target
 dom('.items').after('<div>After</div>')
 dom('.items').before('<div>Before</div>')
 dom('.items').empty() // remove all children
 dom('.items').remove() // remove elements
 dom('.items').clone() // clone elements
+
+// Visibility
+dom('.items').show() // show elements
+dom('.items').hide() // hide elements
+dom('.items').toggle() // toggle visibility
+dom('.items').toggle(true) // force show
+dom('.items').toggle(false) // force hide
 
 // Event handling
 dom('.btn').on('click', handler)
@@ -162,6 +174,7 @@ dom('.btn').trigger('custom-event', {data: 'value'}) // dispatch events
 dom('.btn').click() // trigger click
 dom('.btn').click(handler) // bind click handler
 dom('.btn').focus() // focus element
+dom('.btn').blur() // blur element
 dom('.btn').hover(enterHandler, leaveHandler) // mouse enter/leave
 
 // Traversal and filtering
@@ -398,44 +411,11 @@ dom('.buttons').on('click', (ev, el, idx) => {
 ## Browser Support & Size
 
 - **Target**: ES2020+ (modern evergreen browsers)
-- **Bundle Size**: Small (few KB, depending on bundler and used API parts)
+- **Bundle Size**: 
+  - Full bundle: ~13KB (all features)
+  - Core only: ~7KB (DOM manipulation + events)
+  - Individual modules: 2-8KB each
 - **Dependencies**: Zero
-
-## Documentation
-
-Full interactive documentation with live examples: [View Documentation](./docs)
-
-To run the documentation locally:
-
-```bash
-# Install docs dependencies
-npm run docs:install
-
-# Start development server
-npm run docs:dev
-```
-
-## Roadmap
-
-### Recently Added ✅
-- `.last()`, `.filter()`, `.empty()`, `.remove()` collection methods
-- `.parent()`, `.parents()`, `.siblings()` traversal methods
-- `.val()`, `.prop()`, `.attrs()`, `.serialize()` for better form and attribute handling
-- `.once()` event method for one-time event handling
-- `.clone()`, `.after()`, `.before()` element manipulation
-- `.trigger()` for custom event dispatching
-- Event shortcuts (`.click()`, `.focus()`, `.blur()`, `.hover()`)
-- Animation presets (fadeIn, fadeOut, slideUp, slideDown, pulse, shake)
-- Enhanced template system with conditional rendering (`data-if`, `data-show`, `data-hide`)
-- Event binding in templates (`data-on-*`)
-- HTTP request helpers (`withTimeout()`, `withHeaders()`)
-
-### Future Enhancements
-- [ ] Lightweight `morph()`/`swap()` for HTML snippets
-- [ ] Template loops (`data-for`)
-- [ ] Additional animation utilities and chaining
-- [ ] Extended plugin ecosystem
-- [ ] HTTP request interceptors and middleware
 
 ## Contributing
 
