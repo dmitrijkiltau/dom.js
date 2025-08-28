@@ -14,7 +14,6 @@ function init() {
   initNavigation();
   initContent();
   initSidebarFooter();
-  initMobileNavigation(); // Add mobile navigation
   
   // Run syntax highlighting after content is loaded to catch all code blocks
   setTimeout(() => {
@@ -39,14 +38,14 @@ function init() {
 function initSyntaxHighlighting() {
   // Highlight all code blocks that don't have the 'highlighted' class
   const codeBlocks = document.querySelectorAll('pre code:not(.highlighted)');
-  codeBlocks.forEach(codeBlock => {
+  for (const codeBlock of codeBlocks) {
     // Add language-javascript class if no language class exists
     if (!codeBlock.className.includes('language-')) {
       codeBlock.classList.add('language-javascript');
     }
     Prism.highlightElement(codeBlock);
     codeBlock.classList.add('highlighted');
-  });
+  }
 }
 
 // Initialize example toggle functionality
@@ -122,13 +121,12 @@ function handleTabbedExamplesToggle(button, tabbedContainer) {
   
   // Get all tab panels in this tabbed container
   const allPanels = tabbedContainer.querySelectorAll('.tab-panel');
-  
+
   if (currentView === 'demo') {
     // Switch all panels to code view
-    allPanels.forEach(panel => {
+    for (const panel of allPanels) {
       const demoSection = panel.querySelector('.example-demo');
       const codeSection = panel.querySelector('.example-code');
-      
       if (demoSection) demoSection.style.display = 'none';
       if (codeSection) {
         codeSection.style.display = 'block';
@@ -143,8 +141,7 @@ function handleTabbedExamplesToggle(button, tabbedContainer) {
           codeBlock.classList.add('highlighted');
         }
       }
-    });
-    
+    }
     if (toggleText) toggleText.textContent = 'Show Demo';
     // Switch to cube icon (showing demo)
     if (codeIcon) codeIcon.style.display = 'none';
@@ -152,14 +149,12 @@ function handleTabbedExamplesToggle(button, tabbedContainer) {
     button.setAttribute('data-view', 'code');
   } else {
     // Switch all panels to demo view
-    allPanels.forEach(panel => {
+    for (const panel of allPanels) {
       const demoSection = panel.querySelector('.example-demo');
       const codeSection = panel.querySelector('.example-code');
-      
       if (demoSection) demoSection.style.display = 'block';
       if (codeSection) codeSection.style.display = 'none';
-    });
-    
+    }
     if (toggleText) toggleText.textContent = 'Show Code';
     // Switch to code icon (showing code)
     if (codeIcon) codeIcon.style.display = 'block';
@@ -200,15 +195,15 @@ function initTabbedExamples() {
   });
   
   // Initialize first tab as active for each tabbed examples container
-  dom('.tabbed-examples-container').each((container) => {
+  const containers = document.querySelectorAll('.tabbed-examples-container');
+  for (const container of containers) {
     const firstTab = container.querySelector('.tab-button');
     const firstPanel = container.querySelector('.tab-panel');
-    
     if (firstTab && firstPanel) {
       firstTab.classList.add('active');
       firstPanel.style.display = 'block';
     }
-  });
+  }
 }
 
 // Initialize sidebar footer functionality
@@ -258,58 +253,4 @@ function initThemeToggle() {
   }
 }
 
-// Initialize mobile navigation functionality
-function initMobileNavigation() {
-  const mobileMenuButton = dom('#mobile-menu-button');
-  const sidebar = dom('#sidebar');
-  const overlay = dom('#mobile-sidebar-overlay');
-  
-  // Toggle mobile menu
-  mobileMenuButton.on('click', () => {
-    const isOpen = sidebar.elements[0]?.classList.contains('translate-x-0');
-    
-    if (isOpen) {
-      // Close menu
-      sidebar.replaceClass('translate-x-0', '-translate-x-full');
-      overlay.addClass('hidden');
-    } else {
-      // Open menu
-      sidebar.replaceClass('-translate-x-full', 'translate-x-0');
-      overlay.removeClass('hidden');
-    }
-  });
-  
-  // Close menu when clicking overlay
-  overlay.on('click', () => {
-    sidebar.replaceClass('translate-x-0', '-translate-x-full');
-    overlay.addClass('hidden');
-  });
-  
-  // Close menu when clicking navigation links on mobile
-  dom('#nav-menu').on('click', 'a', () => {
-    // Only close on mobile (when overlay is visible)
-    if (!overlay.elements[0]?.classList.contains('hidden')) {
-      sidebar.replaceClass('translate-x-0', '-translate-x-full');
-      overlay.addClass('hidden');
-    }
-  });
-  
-  // Handle resize to ensure proper state
-  window.addEventListener('resize', () => {
-    if (window.innerWidth >= 1024) { // lg breakpoint
-      // Desktop: ensure overlay is hidden and sidebar is visible
-      overlay.addClass('hidden');
-      sidebar.removeClass('translate-x-0 -translate-x-full');
-    } else {
-      // Mobile: ensure sidebar starts hidden
-      sidebar.replaceClass('translate-x-0', '-translate-x-full');
-    }
-  });
-}
-
-// Start when DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
-}
+document.addEventListener('DOMContentLoaded', init);
