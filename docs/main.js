@@ -11,8 +11,8 @@ window.dom = dom;
 
 // Initialize the documentation
 function init() {
-  initNavigation();
   initContent();
+  initNavigation();
   initSidebarFooter();
   
   // Run syntax highlighting after content is loaded to catch all code blocks

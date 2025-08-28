@@ -1,6 +1,8 @@
 import dom, { animations } from '../dist/index.js';
 import { navigationItems } from './data/navigation.js';
 
+let lastSection = null;
+
 export function initNavigation() {
   renderNav();
   initKeyboard();
@@ -56,7 +58,6 @@ function initSmoothScrolling() {
 }
 
 function initScrollSpy() {
-  // TODO: navigationItems is defined, but sections are empty
   const sections = navigationItems.map(i => dom(i.href).el()).filter(Boolean);
 
   if (!('IntersectionObserver' in window) || sections.length === 0) {
@@ -82,7 +83,12 @@ function initScrollSpy() {
     for (const s of sections) {
       if (s.offsetTop <= y) current = s;
     }
-    if (current) setActive(current.id);
+    if (current || current === lastSection) {
+      return;
+    } else {
+      lastSection = current;
+      setActive(current.id);
+    }
   }
 }
 
