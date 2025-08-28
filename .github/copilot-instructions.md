@@ -1,99 +1,206 @@
 # Copilot Instructions for `dom.js`
 
-Concise operational knowledge for AI agents contributing to this repo. Focus on existing patterns—avoid inventing abstractions.
+Precise operational knowledge for AI agents contributing to this repository. Focus on existing patterns—avoid inventing abstractions.
 
-## 1. Architecture & Modules
-- Library lives in `src/` (one concern per file):
-	- `collection.ts` (core chainable wrapper `DOMCollection`)
-	- `index.ts` (public API assembly + plugin system + HTTP wrapper)
-	- `template.ts` (HTML `<template>` binding engine)
-	- `forms.ts` (serialization & submit helper)
-	- `motion.ts` (thin Web Animations wrapper)
-	- `utils.ts`, `types.ts` (internal helpers & types)
-- Build output: `dist/index.js` (ESM) + `dist/index.cjs` (CJS) + d.ts via `tsup`.
-- Docs site (`docs/`) is a separate Vite app consuming the built library (never import raw `src/` in docs).
+## Quick Reference
 
-## 2. Public API Surface (exported from `index.ts`)
-`dom`, `create`, `on`, `off`, `http` (with .get/.post/.put/.patch/.delete), templating (`renderTemplate`, `useTemplate`, `tpl`), forms (`serializeForm`, `toQueryString`, `onSubmit`), `animate`, `DOMCollection`, plus plugin extension via `use(plugin)`.
+**Core Files:**
+- `src/index.ts` - Public API assembly and exports
+- `src/core.ts` - Core DOM manipulation (minimal bundle)
+- `src/collection.ts` - DOMCollection class with chainable methods
+- `src/http.ts` - HTTP utilities
+- `src/template.ts` - HTML template binding engine
+- `src/forms.ts` - Form serialization and handling
+- `src/motion.ts` - Web Animations API wrapper
+- `src/plugins.ts` - Plugin system implementation
+- `src/utils.ts` - Shared utilities
+- `src/types.ts` - TypeScript definitions
+
+**Build Commands:**
+- `npm run build` - Generate dist bundles (ESM + CJS + d.ts)
+- `npm run dev` - Watch mode for development
+- `npm test` - Run sanity tests
+- `npm run docs:dev` - Start documentation site
+
+## 1. Architecture Overview
+
+**Modular Design:** One concern per file in `src/`, zero dependencies, ES2020+ target.
+
+**Build Output:** `dist/index.js` (ESM), `dist/index.cjs` (CJS), TypeScript definitions via tsup.
+
+**Bundle Sizes:** Full (~13KB), Core (~7KB), Individual modules (2-7KB).
+
+**Import Patterns:**
+- Full: `import dom from '@dmitrijkiltau/dom.js'`
+- Core: `import dom from '@dmitrijkiltau/dom.js/core'`
+- Modular: `import { http } from '@dmitrijkiltau/dom.js/http'`
+
+## 2. Public API Surface
+
+**Exported from `index.ts`:**
+- `dom` - Main selector function and API object
+- `create` - Element creation utility
+- `on`/`off` - Event binding utilities
+- `http` - HTTP client with `.get/.post/.put/.patch/.delete`
+- Template: `renderTemplate`, `useTemplate`, `tpl`
+- Forms: `serializeForm`, `toQueryString`, `onSubmit`
+- Animation: `animate`, `animations`
+- `DOMCollection` - Chainable collection class
+- `use` - Plugin registration function
 
 ## 3. DOMCollection Patterns
-- Always return `this` for chainable mutators.
-- Iterate with plain `for` loops; avoid `forEach` (performance + style consistency).
-- Methods work on an internal `elements: Element[]` array; creation wraps selectors, single elements, NodeLists, arrays, or window/document.
-- Keep methods small; no hidden side-effects (e.g. no implicit DOM queries beyond the provided selector or `find()`.)
 
-## 4. Templating Conventions (`template.ts`)
-- Data binding attributes: `data-text`, `data-html`, `data-attr-*`.
-- After binding, `data-attr-*` markers are removed (so dynamic id/class appear as real attributes only).
-- Path resolution supports dotted keys (`user.name`). Missing values fallback to empty string.
-- Add new binding types only if broadly useful; keep zero-dependency approach.
+**Core Principles:**
+- Return `this` from all mutator methods for chaining
+- Use `for` loops, never `forEach` (performance)
+- Internal `elements: Element[]` array
+- Accept: selectors, elements, NodeLists, arrays, window, document
 
-## 5. Forms (`forms.ts`)
-- `serializeForm` collapses scalar fields; repeated names become arrays.
-- `onSubmit` prevents default, serializes, passes `(data, event)` to handler, and awaits async handlers.
-- Input resolution accepts selector | `DOMCollection` | `<form>` element; throw with clear messages if invalid.
+**Method Categories:**
+- **Selection:** `find()`, `filter()`, `first()`, `last()`, `eq()`
+- **Traversal:** `parent()`, `parents()`, `siblings()`
+- **Manipulation:** `append()`, `prepend()`, `after()`, `before()`, `remove()`, `empty()`, `clone()`
+- **Styling:** `addClass()`, `removeClass()`, `toggleClass()`, `hasClass()`, `css()`
+- **Attributes:** `attr()`, `removeAttr()`, `attrs()`, `prop()`, `val()`, `data()`
+- **Events:** `on()`, `off()`, `once()`, `trigger()`, shortcuts (`click()`, `focus()`, `blur()`, `hover()`)
+- **Visibility:** `show()`, `hide()`, `toggle()`
+- **Content:** `text()`, `html()`
 
-## 6. HTTP Wrapper
-- Simple `fetch` sugar producing an object: `{ raw, ok, status, text(), json<T>(), html() }`.
-- JSON body auto-serialized when an object is passed to `post/put/patch`; `Content-Type: application/json` auto-added unless FormData / existing header.
-- Leave advanced concerns (retries, abort, timeouts) to user-land unless repeatedly needed in docs.
+## 4. Module-Specific Patterns
 
-## 7. Animation
-- `animate(el, keyframes, options)` returns native `Animation` from `HTMLElement.animate`.
-- `DOMCollection.prototype.animate` loops elements and returns the collection (fire-and-forget). Don’t introduce promise wrappers.
+### HTTP (`http.ts`)
+- Returns `{ raw, ok, status, text(), json<T>(), html() }`
+- Auto-serializes JSON objects to `post/put/patch`
+- Auto-adds `Content-Type: application/json` unless FormData/existing header
+- Methods: `get()`, `post()`, `put()`, `patch()`, `delete()`
+- Helpers: `withTimeout()`, `withHeaders()`
 
-## 8. Plugin System (`use`)
-- `use(plugin)` passes the exported `api` function (which is also callable as `dom`).
-- Safe-guards: a `Set` prevents duplicate plugin application. Plugins can augment both the callable (`api.someFn = ...`) and `DOMCollection.prototype`.
-- When adding new core methods ensure they’re also exposed on `api` (index export) if part of public surface.
+### Templates (`template.ts`)
+- Bindings: `data-text`, `data-html`, `data-attr-*`, `data-if`, `data-show`, `data-hide`, `data-on-*`
+- `data-attr-*` markers removed after binding (real attributes remain)
+- Dotted paths: `user.name` (fallback to empty string)
+- Functions: `renderTemplate()`, `useTemplate()`, `tpl()`
 
-## 9. Coding Style & Constraints
-- Target ES2020; no polyfills or transpiler helpers beyond TypeScript output.
-- Zero runtime dependencies; adding one requires strong justification.
-- Prefer tiny, explicit helpers over “utility kitchen sinks”.
-- Do not mutate user-provided objects; clone if transformation is required.
-- Avoid optional chaining inside hot loops if simple guards suffice.
+### Forms (`forms.ts`)
+- `serializeForm()` - Collapses scalars, arrays for repeated names
+- `onSubmit()` - Prevents default, serializes, passes `(data, event)`, awaits async handlers
+- Accepts: selector, DOMCollection, or `<form>` element
+- Throws descriptive errors for invalid inputs
 
-## 10. Build & Dev Workflows
-- Install root deps: `npm install`.
-- Build library: `npm run build` (produces minified ESM + CJS + sourcemaps + d.ts).
-- Watch mode: `npm run dev`.
-- Docs: run `npm run docs:install` once, then `npm run docs:dev` (served via Vite, imports from `dist/`).
-- Tests: `npm test` runs `tests/sanity.mjs` (light contract checks). Add new tests adjacent in `tests/` (plain Node; no framework).
+### Motion (`motion.ts`)
+- `animate(element, keyframes, options)` returns native `Animation`
+- Collection method loops elements, returns collection (fire-and-forget)
+- Built-in presets: `fadeIn`, `fadeOut`, `slideUp`, `slideDown`, `pulse`, `shake`
 
-## 11. When Editing / Adding Features
-- Update both TypeScript source and ensure new API is exported in `index.ts`.
-- Preserve chainability (return `this`) for collection mutators; for getters return scalar/array.
-- Add minimal test assertions to `sanity.mjs` or a new file if feature-specific.
-- If templating change affects attributes, verify docs templates still render (IDs/classes applied and markers removed).
+### Plugins (`plugins.ts`)
+- `use(plugin)` passes API function (callable as `dom`)
+- `_plugins` Set prevents duplicate registration
+- Plugins can extend: callable API and `DOMCollection.prototype`
 
-## 12. Common Edge Cases to Handle
-- Empty selector → `dom()` returns empty collection (no throw).
-- Missing `<template>` or empty template content → throw early with clear message.
-- Form names repeating → ensure arrays not overwritten.
-- HTTP helper with `undefined` body → don’t send `Content-Type`.
-- Plugin re-registration → ensure idempotence via `_plugins` Set.
+## 5. Coding Standards
 
-## 13. Performance Notes
-- Favor single pass loops; gather NodeLists once.
-- Avoid allocating interim arrays inside tight loops unless necessary.
+**Language Target:** ES2020, no polyfills beyond TypeScript output.
 
-## 14. Documentation Site Integration
-- Docs consume built `dist/` bundle—rebuild (`npm run build`) to reflect API changes before verifying examples.
-- Examples rely on template binding (IDs like `data-attr-id="id"` -> real `id`). Confirm after changes.
+**Dependencies:** Zero runtime dependencies. Justify any addition.
 
-## 15. Adding New APIs (Checklist)
-1. Implement in focused `src/*.ts` (or extend existing logically related file).
-2. Export in `index.ts` (add to `api` object + named export list if public).
-3. Add brief usage to `README.md` or docs section module.
-4. Add sanity test (import from `dist/`, not `src/`).
-5. Rebuild and verify docs manual examples still function.
+**Performance:**
+- Single-pass loops, gather NodeLists once
+- Avoid interim array allocation in hot loops
+- Simple guards over optional chaining in loops
 
-## 16. Avoid
-- Introducing dependencies, global side-effects, polyfills, or transpiler-specific constructs.
-- Overengineering (no class hierarchies, no decorators, no proxy magic).
-- Large utility aggregations—keep focused.
+**Data Handling:**
+- Never mutate user-provided objects (clone if needed)
+- Return new objects/collections, not modified originals
+
+**Error Handling:**
+- Throw early with clear messages for invalid inputs
+- Empty selector → empty collection (no error)
+- Missing template → descriptive error
+
+## 6. Development Workflow
+
+**Setup:**
+```bash
+npm install                    # Root dependencies
+npm run docs:install          # Docs dependencies (once)
+```
+
+**Development:**
+```bash
+npm run dev                   # Watch mode
+npm run docs:dev             # Docs development server
+npm test                      # Run sanity tests
+```
+
+**Building:**
+```bash
+npm run build                # Library bundles
+npm run docs:build           # Documentation site
+```
+
+**Testing:** Add to `tests/sanity.mjs` or create feature-specific files. Import from `dist/`, not `src/`.
+
+## 7. Adding Features
+
+**Checklist:**
+1. Implement in appropriate `src/*.ts` file
+2. Export from `index.ts` (API object + named export if public)
+3. Add TypeScript definitions to `types.ts`
+4. Update public API surface documentation
+5. Add sanity tests to `tests/`
+6. Rebuild and verify docs examples work
+7. Update README.md with usage examples
+
+**For Collection Methods:**
+- Return `this` for mutators, scalar/array for getters
+- Follow existing naming patterns
+- Add to `DOMCollection` class in `collection.ts`
+
+**For New Modules:**
+- Create focused `src/*.ts` file
+- Export utilities from `index.ts`
+- Consider tree-shaking impact
+- Add to build configuration if needed
+
+## 8. Code Review Guidelines
+
+**Must Verify:**
+- No new runtime dependencies
+- ES2020 compatibility maintained
+- Chainability preserved for collection methods
+- Error messages are descriptive
+- Tests added and passing
+- Documentation examples work
+- Bundle sizes not significantly increased
+
+**Common Issues:**
+- Missing return `this` in collection methods
+- Using `forEach` instead of `for..of` loops
+- Mutating user input objects
+- Optional chaining in performance-critical code
+- Missing TypeScript definitions
+
+## 9. Documentation Integration
+
+**Important:** Docs site imports from `dist/`, never `src/`.
+
+**Template Examples:** Use `data-attr-id="id"` → becomes real `id` attribute.
+
+**Verification:** After changes affecting templates, rebuild and test docs examples.
+
+## 10. Preferred Patterns
+
+**Always:**
+- Maintain zero runtime dependencies
+- Avoid global variables and side-effects
+- Use flat structures over class hierarchies or decorators
+- Stick to ES2020+ without polyfills or transpiler-specific code
+- Keep utilities simple and focused
+- Preserve existing API contracts
+- Use `for..of` loops in collection methods
+- Clone user-provided objects if mutation is needed; return new objects
+- Use simple guards instead of optional chaining in hot loops
 
 ---
 
-If uncertain: inspect the existing file that implements similar behavior (e.g., new collection method → see patterns in `collection.ts`). Ask for clarification if a change would alter public semantics.
+**When Uncertain:** Reference existing implementations in similar modules. For collection methods, check `collection.ts`. For HTTP features, check `http.ts`. Ask for clarification if semantics would change.
