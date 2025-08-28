@@ -35,13 +35,34 @@
   }
 }
 
-html, body {
+html,
+body {
   @apply text-[16px];
 }
 
 /* Custom styles for documentation */
 .code-block {
   @apply font-mono bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto;
+}
+
+#app {
+  @apply min-h-dvh grid;
+  grid-template-columns: 1fr;
+  grid-template-areas: "sidebar" "main";
+
+  @media (width > theme("screens.lg")) {
+    grid-template-columns: 12rem 1fr;
+    grid-template-areas: "sidebar main";
+  }
+
+  & > #sidebar {
+    @apply w-64;
+    grid-area: sidebar;
+  }
+
+  & > #main-content {
+    grid-area: main;
+  }
 }
 
 .nav-link {
