@@ -243,6 +243,34 @@ const template = tpl('#row'); // returns HTMLTemplateElement
 - `data-hide="key"` - Hides element when value is truthy
 - `data-on-*="key"` - Binds event handlers (e.g., `data-on-click="handleClick"`)
 
+### Loops with `data-each`
+
+Repeat an element for each item in an array.
+
+```html
+<template id="users">
+  <li data-each="users as user, i">
+    <a data-text="user.name" data-attr-href="user.url"></a>
+    <span>#<span data-text="$index"></span></span>
+  </li>
+  <!-- Note: You can place data-each on any element inside your template. -->
+  <!-- When used on the root element of the template, renderTemplate returns a DocumentFragment. -->
+  <!-- dom().append() handles both Elements and DocumentFragments. -->
+  <!-- Access current item via the alias (default: `item`) and index via `$index` (or a custom alias). -->
+  <!-- Syntax: data-each="items" | data-each="items as item" | data-each="items as item, idx" -->
+```
+
+```js
+const data = {
+  users: [
+    { name: 'Alice', url: '/u/alice' },
+    { name: 'Bob', url: '/u/bob' }
+  ]
+};
+
+dom('#list').append(renderTemplate('#users', data));
+```
+
 ## Forms
 
 Comprehensive form handling with serialization and submission utilities.

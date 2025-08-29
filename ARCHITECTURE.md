@@ -197,6 +197,7 @@ const templateEl = tpl('#template');
 // data-show="visible"       - Show/hide with display style
 // data-hide="hidden"        - Hide when truthy
 // data-on-click="handler"   - Event binding
+// data-each="list as item,i"- Repeat element for list items
 ```
 
 ### Forms (`@dmitrijkiltau/dom.js/forms`) 
