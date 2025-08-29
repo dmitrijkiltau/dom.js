@@ -150,9 +150,14 @@ dom('.items').data('custom', 'value') // data attributes
 dom('.items').html('<span>New content</span>')
 dom('.items').text('New text')
 dom('.items').append('<div>Child</div>')
+dom('.items').prepend('<div>First</div>')
 dom('.items').appendTo('#container') // append to target
+dom('.items').prependTo('#container') // prepend to target
 dom('.items').after('<div>After</div>')
 dom('.items').before('<div>Before</div>')
+dom('.items').replaceWith('<p>Replaced</p>') // replace element(s)
+dom('.items').wrap('<div class="wrap"></div>') // wrap each element
+dom('.items').unwrap() // remove direct parent wrapper
 dom('.items').empty() // remove all children
 dom('.items').remove() // remove elements
 dom('.items').clone() // clone elements
