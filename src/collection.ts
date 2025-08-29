@@ -96,9 +96,26 @@ export class DOMCollection {
     }
     return this;
   }
+  prepend(child: string | Node | DOMCollection): this {
+    for (const el of this.elements) {
+      if (child == null) continue;
+      if (typeof child === 'string') (el as HTMLElement).insertAdjacentHTML('afterbegin', child);
+      else if (child instanceof DOMCollection) {
+        for (const n of child.elements) el.insertBefore(n, el.firstChild);
+      } else {
+        el.insertBefore(child, el.firstChild);
+      }
+    }
+    return this;
+  }
   appendTo(target: Element | DOMCollection): this {
     if (target instanceof DOMCollection) target.append(this);
     else if (isElement(target)) target.append(...this.elements);
+    return this;
+  }
+  prependTo(target: Element | DOMCollection): this {
+    if (target instanceof DOMCollection) target.prepend(this);
+    else if (isElement(target)) (target as any).prepend(...this.elements);
     return this;
   }
 
@@ -142,6 +159,56 @@ export class DOMCollection {
       } else {
         el.before(content.cloneNode(true));
       }
+    }
+    return this;
+  }
+
+  replaceWith(content: string | Node | DOMCollection): this {
+    for (const el of this.elements) {
+      if (typeof content === 'string') {
+        (el as HTMLElement).outerHTML = content;
+      } else if (content instanceof DOMCollection) {
+        const clones = content.elements.map(node => node.cloneNode(true));
+        (el as any).replaceWith(...clones);
+      } else {
+        el.replaceWith(content.cloneNode(true));
+      }
+    }
+    return this;
+  }
+
+  wrap(wrapper: string | Element | DOMCollection): this {
+    for (const el of this.elements) {
+      let wrapEl: Element | null = null;
+      if (typeof wrapper === 'string') {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = wrapper.trim();
+        wrapEl = tmp.firstElementChild as Element | null;
+      } else if (wrapper instanceof DOMCollection) {
+        wrapEl = (wrapper.elements[0]?.cloneNode(true) as Element) || null;
+      } else if (wrapper instanceof Element) {
+        wrapEl = wrapper.cloneNode(true) as Element;
+      }
+      if (!wrapEl) continue;
+      const parent = el.parentNode;
+      if (!parent) continue;
+      parent.insertBefore(wrapEl, el);
+      wrapEl.appendChild(el);
+    }
+    return this;
+  }
+
+  unwrap(): this {
+    const parents: Element[] = [];
+    for (const el of this.elements) {
+      const p = el.parentElement;
+      if (p && !parents.includes(p)) parents.push(p);
+    }
+    for (const p of parents) {
+      const gp = p.parentNode;
+      if (!gp) continue;
+      while (p.firstChild) gp.insertBefore(p.firstChild, p);
+      p.remove();
     }
     return this;
   }
