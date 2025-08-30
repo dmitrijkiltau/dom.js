@@ -41,6 +41,23 @@ import dom, { renderTemplate, onSubmit, http } from '@dmitrijkiltau/dom.js';
 import dom from 'https://unpkg.com/@dmitrijkiltau/dom.js/dist/index.js';
 ```
 
+Pinned version (recommended for stability):
+
+```js
+import dom from 'https://unpkg.com/@dmitrijkiltau/dom.js@1.2.1/dist/index.js';
+```
+
+### CommonJS (Node/CJS)
+
+```js
+// Full bundle
+const dom = require('@dmitrijkiltau/dom.js');
+
+// Modular subpath imports
+const { http } = require('@dmitrijkiltau/dom.js/http');
+const { renderTemplate } = require('@dmitrijkiltau/dom.js/template');
+```
+
 ## Import Options
 
 Choose the import style that best fits your needs:
@@ -183,6 +200,12 @@ dom('.btn').click(handler) // bind click handler
 dom('.btn').focus() // focus element
 dom('.btn').blur() // blur element
 dom('.btn').hover(enterHandler, leaveHandler) // mouse enter/leave
+
+// Event delegation
+dom('#list').on('click', 'a.item', (ev, el, idx) => {
+  // el is the matched descendant (the anchor)
+  // idx is the index of the bound element within the original collection (#list in this case)
+});
 
 // Traversal and filtering
 dom('.items').filter('.active') // filter by selector or function
@@ -431,6 +454,7 @@ dom('.items').highlight();
 
 - Use `dom(sel).el<HTMLButtonElement>()` for type-safe element access
 - Event handler signature: `(ev: Event, el: Element, idx: number)`
+- For delegated events, `idx` refers to the index of the element you bound the listener on (the collection item), not the matched child.
 - You can wrap elements locally: `const $ = dom(el)`
 
 Example:
@@ -459,3 +483,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## License
 
 MIT © Dmitrij Kiltau
+
+## Security
+
+- `dom().html()` and template `data-html` bindings insert raw HTML into the DOM. Do not pass untrusted input without sanitizing it first.
