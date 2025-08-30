@@ -38,6 +38,43 @@ test('prepend inserts content at the beginning', () => {
   if (root.firstElementChild?.id !== 'p') throw new Error('Expected prepended element first');
 });
 
+test('append appends string/Element/DOMCollection without wrappers', () => {
+  const root = document.createElement('div');
+  // String append
+  $(root).append('<span id="s1">S1</span>');
+  if (root.lastElementChild?.id !== 's1') throw new Error('String append failed');
+  if (root.querySelector('div > div') != null) {
+    throw new Error('Unexpected extra <div> wrapper created');
+  }
+  // Element append
+  const el = document.createElement('em'); el.id = 'e1';
+  $(root).append(el);
+  if (root.lastElementChild?.id !== 'e1') throw new Error('Element append failed');
+  // DOMCollection append
+  const a = document.createElement('i'); a.id = 'c1';
+  const b = document.createElement('i'); b.id = 'c2';
+  $(root).append(new DOMCollection([a, b]));
+  const ids = Array.from(root.children).map(c => c.id).slice(-2);
+  if (ids.join(',') !== 'c1,c2') throw new Error('DOMCollection append failed');
+});
+
+test('html can accept Element and DOMCollection to replace contents', () => {
+  const root = document.createElement('div');
+  root.innerHTML = '<span>old</span>';
+  // Single element
+  const el = document.createElement('strong'); el.id = 'h1';
+  $(root).html(el);
+  if (root.children.length !== 1 || root.firstElementChild?.id !== 'h1') {
+    throw new Error('html(Element) did not replace content correctly');
+  }
+  // DOMCollection
+  const a = document.createElement('b'); a.id = 'h2a';
+  const b = document.createElement('b'); b.id = 'h2b';
+  $(root).html(new DOMCollection([a, b]));
+  const ids = Array.from(root.children).map(c => c.id);
+  if (ids.join(',') !== 'h2a,h2b') throw new Error('html(DOMCollection) did not replace content correctly');
+});
+
 test('prependTo inserts collection at the beginning of target', () => {
   const ul = document.createElement('ul');
   const old = document.createElement('li'); old.id = 'old';

@@ -150,6 +150,8 @@ dom('.items').data('custom', 'value') // data attributes
 dom('.items').html('<span>New content</span>')
 dom('.items').text('New text')
 dom('.items').append('<div>Child</div>')
+// If inserting a Node/DOMCollection into multiple targets, nodes are cloned so each target gets a copy
+dom('.items').append(dom.create('span', null, 'X'))
 dom('.items').prepend('<div>First</div>')
 dom('.items').appendTo('#container') // append to target
 dom('.items').prependTo('#container') // prepend to target

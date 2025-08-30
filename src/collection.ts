@@ -82,28 +82,60 @@ export class DOMCollection {
     if (value === undefined) return (this.elements[0] as HTMLElement | undefined)?.textContent ?? '';
     return this.each(el => (el as HTMLElement).textContent = value == null ? '' : String(value));
   }
-  html(value?: string | number | null): any {
+  html(value?: string | number | null | Node | DOMCollection): any {
     if (value === undefined) return (this.elements[0] as HTMLElement | undefined)?.innerHTML ?? '';
-    return this.each(el => (el as HTMLElement).innerHTML = value == null ? '' : String(value));
+    if (typeof value === 'string' || typeof value === 'number' || value === null) {
+      return this.each(el => (el as HTMLElement).innerHTML = value == null ? '' : String(value));
+    }
+    // Replace content with provided node(s)
+    if (value instanceof DOMCollection) {
+      return this.each(el => {
+        (el as HTMLElement).innerHTML = '';
+        for (const n of value.elements) el.appendChild(n);
+      });
+    }
+    // Single Node
+    return this.each(el => {
+      (el as HTMLElement).innerHTML = '';
+      el.appendChild(value as Node);
+    });
   }
 
   append(child: string | Node | DOMCollection): this {
-    for (const el of this.elements) {
-      if (child == null) continue;
-      if (typeof child === 'string') (el as HTMLElement).insertAdjacentHTML('beforeend', child);
-      else if (child instanceof DOMCollection) for (const n of child.elements) el.appendChild(n);
-      else el.appendChild(child);
+    if (child == null) return this;
+    const recipients = this.elements;
+    const lastIdx = recipients.length - 1;
+    for (let i = 0; i < recipients.length; i++) {
+      const el = recipients[i];
+      if (typeof child === 'string') {
+        (el as HTMLElement).insertAdjacentHTML('beforeend', child);
+      } else if (child instanceof DOMCollection) {
+        for (const n of child.elements) {
+          el.appendChild(i === lastIdx ? n : n.cloneNode(true));
+        }
+      } else {
+        el.appendChild(i === lastIdx ? child : child.cloneNode(true));
+      }
     }
     return this;
   }
   prepend(child: string | Node | DOMCollection): this {
-    for (const el of this.elements) {
-      if (child == null) continue;
-      if (typeof child === 'string') (el as HTMLElement).insertAdjacentHTML('afterbegin', child);
-      else if (child instanceof DOMCollection) {
-        for (const n of child.elements) el.insertBefore(n, el.firstChild);
+    if (child == null) return this;
+    const recipients = this.elements;
+    const lastIdx = recipients.length - 1;
+    for (let i = 0; i < recipients.length; i++) {
+      const el = recipients[i];
+      if (typeof child === 'string') {
+        (el as HTMLElement).insertAdjacentHTML('afterbegin', child);
+      } else if (child instanceof DOMCollection) {
+        // Insert in order so final order matches input
+        const first = el.firstChild;
+        for (let j = child.elements.length - 1; j >= 0; j--) {
+          const n = child.elements[j];
+          el.insertBefore(i === lastIdx ? n : n.cloneNode(true), first);
+        }
       } else {
-        el.insertBefore(child, el.firstChild);
+        el.insertBefore(i === lastIdx ? child : child.cloneNode(true), el.firstChild);
       }
     }
     return this;
