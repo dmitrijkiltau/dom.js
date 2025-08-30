@@ -328,6 +328,29 @@ dom('.buttons')
     `
   },
   {
+    id: 'dom-manipulation',
+    title: 'DOM Manipulation',
+    content: `
+      <p class="text-gray-700 mb-4">
+        Manipulate elements with a concise, chainable API. Update content, classes, styles, attributes, and structure with clear, predictable behavior.
+      </p>
+      <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+        <div class="flex">
+          <div class="ml-3">
+            <h4 class="text-lg font-medium text-blue-900 mb-2">What You Can Do</h4>
+            <ul class="text-blue-800 space-y-1">
+              <li>• Content: <code class="bg-gray-200 px-1 rounded">.text()</code>, <code class="bg-gray-200 px-1 rounded">.html()</code></li>
+              <li>• Structure: <code class="bg-gray-200 px-1 rounded">.append()</code>, <code class="bg-gray-200 px-1 rounded">.prepend()</code>, <code class="bg-gray-200 px-1 rounded">.before()</code>, <code class="bg-gray-200 px-1 rounded">.after()</code>, <code class="bg-gray-200 px-1 rounded">.wrap()</code>, <code class="bg-gray-200 px-1 rounded">.unwrap()</code>, <code class="bg-gray-200 px-1 rounded">.replaceWith()</code></li>
+              <li>• Classes & styles: <code class="bg-gray-200 px-1 rounded">.addClass()</code>, <code class="bg-gray-200 px-1 rounded">.removeClass()</code>, <code class="bg-gray-200 px-1 rounded">.replaceClass()</code>, <code class="bg-gray-200 px-1 rounded">.css()</code></li>
+              <li>• Attributes & data: <code class="bg-gray-200 px-1 rounded">.attr()</code>, <code class="bg-gray-200 px-1 rounded">.attrs()</code>, <code class="bg-gray-200 px-1 rounded">.prop()</code>, <code class="bg-gray-200 px-1 rounded">.data()</code></li>
+              <li>• Visibility: <code class="bg-gray-200 px-1 rounded">.show()</code>, <code class="bg-gray-200 px-1 rounded">.hide()</code>, <code class="bg-gray-200 px-1 rounded">.toggle()</code></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    `
+  },
+  {
     id: 'templates',
     title: 'Templates',
     content: `

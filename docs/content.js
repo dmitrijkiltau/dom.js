@@ -2,6 +2,7 @@ import dom, { useTemplate } from '../dist/index.js';
 import { sections } from './data/sections.js';
 import { addCoreApiExamples } from './sections/core-api.js';
 import { addTemplateExamples } from './sections/templates.js';
+import { addDomManipulationExamples } from './sections/dom-manipulation.js';
 import { addFormExamples } from './sections/forms.js';
 import { addEventExamples } from './sections/events.js';
 import { addHttpExamples } from './sections/http.js';
@@ -52,6 +53,7 @@ export function initContent() {
 
   // Add examples to specific sections
   addCoreApiExamples();
+  addDomManipulationExamples();
   addTemplateExamples();
   addFormExamples();
   addEventExamples();
