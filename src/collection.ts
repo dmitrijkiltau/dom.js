@@ -305,7 +305,11 @@ export class DOMCollection {
   // CSS
   css(nameOrInput: string | CSSInput, value?: CSSValue | null): any {
     if (typeof nameOrInput === 'string') {
-      if (value === undefined) return getComputedStyle(this.elements[0] as Element).getPropertyValue(camelToKebab(nameOrInput)).trim();
+      if (value === undefined) {
+        const first = this.elements[0] as Element | undefined;
+        if (!first) return '';
+        return getComputedStyle(first).getPropertyValue(camelToKebab(nameOrInput)).trim();
+      }
       return this.each(el => {
         const s = (el as HTMLElement).style;
         const prop = camelToKebab(nameOrInput);
@@ -340,11 +344,11 @@ export class DOMCollection {
     }
     const selector = String(selectorOrHandler);
     const handler = maybeHandler as Handler;
-    return this.each((el) => el.addEventListener(type, (ev) => {
+    return this.each((el, i) => el.addEventListener(type, (ev) => {
       const target = ev.target as Element | null;
       if (!target) return;
       const match = target.closest(selector);
-      if (match && el.contains(match)) handler(ev, match, this.elements.indexOf(match));
+      if (match && el.contains(match)) handler(ev, match, i);
     }));
   }
   once(type: string, selectorOrHandler: any, maybeHandler?: any): this {
@@ -360,13 +364,13 @@ export class DOMCollection {
     }
     const selector = String(selectorOrHandler);
     const handler = maybeHandler as Handler;
-    return this.each((el) => {
+    return this.each((el, i) => {
       const onceHandler = (ev: Event) => {
         const target = ev.target as Element | null;
         if (!target) return;
         const match = target.closest(selector);
         if (match && el.contains(match)) {
-          handler(ev, match, this.elements.indexOf(match));
+          handler(ev, match, i);
           el.removeEventListener(type, onceHandler);
         }
       };

@@ -48,46 +48,8 @@ export const http: HttpMethod = {
   },
   
   // Request helpers
-  withTimeout(ms: number): HttpMethod {
-    const timeoutHttp = {} as any;
-    for (const [method, fn] of Object.entries(http)) {
-      if (typeof fn === 'function' && method !== 'withTimeout' && method !== 'withHeaders') {
-        timeoutHttp[method] = async (...args: any[]) => {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), ms);
-          try {
-            const init = args[args.length - 1] || {};
-            args[args.length - 1] = { ...init, signal: controller.signal };
-            return await (fn as any).apply(null, args);
-          } finally {
-            clearTimeout(timeoutId);
-          }
-        };
-      }
-    }
-    timeoutHttp.withTimeout = http.withTimeout;
-    timeoutHttp.withHeaders = http.withHeaders;
-    return timeoutHttp;
-  },
-  
-  withHeaders(defaultHeaders: Record<string, string>): HttpMethod {
-    const headersHttp = {} as any;
-    for (const [method, fn] of Object.entries(http)) {
-      if (typeof fn === 'function' && method !== 'withTimeout' && method !== 'withHeaders') {
-        headersHttp[method] = async (...args: any[]) => {
-          const init = args[args.length - 1] || {};
-          args[args.length - 1] = {
-            ...init,
-            headers: { ...defaultHeaders, ...(init.headers || {}) }
-          };
-          return await (fn as any).apply(null, args);
-        };
-      }
-    }
-    headersHttp.withTimeout = http.withTimeout;
-    headersHttp.withHeaders = http.withHeaders;
-    return headersHttp;
-  }
+  withTimeout(ms: number): HttpMethod { return createWithTimeout(http, ms); },
+  withHeaders(defaultHeaders: Record<string, string>): HttpMethod { return createWithHeaders(http, defaultHeaders); }
 };
 
 function wrap(r: Response) {
@@ -114,4 +76,60 @@ function headers(init: RequestInit | undefined, body: any) {
     h.set('Content-Type', 'application/json');
   }
   return h;
+}
+
+// ——— Helper factories for composable helpers ———
+function createWithTimeout(base: HttpMethod, ms: number): HttpMethod {
+  const wrapper = {
+    async get(url: string, init?: RequestInit) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), ms);
+      try { return await base.get(url, { ...(init || {}), signal: controller.signal }); }
+      finally { clearTimeout(timeoutId); }
+    },
+    async delete(url: string, init?: RequestInit) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), ms);
+      try { return await base.delete(url, { ...(init || {}), signal: controller.signal }); }
+      finally { clearTimeout(timeoutId); }
+    },
+    async post(url: string, body?: any, init?: RequestInit) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), ms);
+      try { return await base.post(url, body, { ...(init || {}), signal: controller.signal }); }
+      finally { clearTimeout(timeoutId); }
+    },
+    async put(url: string, body?: any, init?: RequestInit) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), ms);
+      try { return await base.put(url, body, { ...(init || {}), signal: controller.signal }); }
+      finally { clearTimeout(timeoutId); }
+    },
+    async patch(url: string, body?: any, init?: RequestInit) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), ms);
+      try { return await base.patch(url, body, { ...(init || {}), signal: controller.signal }); }
+      finally { clearTimeout(timeoutId); }
+    },
+    withTimeout(nextMs: number) { return createWithTimeout(base, nextMs); },
+    withHeaders(defaultHeaders: Record<string, string>) { return createWithHeaders(wrapper as unknown as HttpMethod, defaultHeaders); }
+  } as HttpMethod;
+  return wrapper;
+}
+
+function createWithHeaders(base: HttpMethod, defaultHeaders: Record<string, string>): HttpMethod {
+  const merge = (init?: RequestInit): RequestInit => ({
+    ...(init || {}),
+    headers: { ...defaultHeaders, ...(init?.headers || {}) }
+  });
+  const wrapper = {
+    get(url: string, init?: RequestInit) { return base.get(url, merge(init)); },
+    delete(url: string, init?: RequestInit) { return base.delete(url, merge(init)); },
+    post(url: string, body?: any, init?: RequestInit) { return base.post(url, body, merge(init)); },
+    put(url: string, body?: any, init?: RequestInit) { return base.put(url, body, merge(init)); },
+    patch(url: string, body?: any, init?: RequestInit) { return base.patch(url, body, merge(init)); },
+    withTimeout(ms: number) { return createWithTimeout(wrapper as unknown as HttpMethod, ms); },
+    withHeaders(next: Record<string, string>) { return createWithHeaders(base, { ...defaultHeaders, ...next }); }
+  } as HttpMethod;
+  return wrapper;
 }
