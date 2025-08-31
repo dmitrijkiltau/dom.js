@@ -32,95 +32,93 @@ src/
 
 ### Bundle Sizes (CJS, minified + gzipped)
 
-| Module | Size | Description |
-|--------|------|-------------|
+| Module          | Size  | Description                      |
+| --------------- | ----- | -------------------------------- |
 | **Full Bundle** | ~13KB | Complete functionality (default) |
-| **Core Only** | ~7KB | Basic DOM manipulation + events |
-| **HTTP** | ~2KB | HTTP utilities only |
-| **Templates** | ~2KB | Template system only |  
-| **Forms** | ~7KB | Form utilities only |
-| **Motion** | ~7KB | Animation utilities only |
+| **Core Only**   | ~7KB  | Basic DOM manipulation + events  |
+| **HTTP**        | ~2KB  | HTTP utilities only              |
+| **Templates**   | ~2KB  | Template system only             |
+| **Forms**       | ~7KB  | Form utilities only              |
+| **Motion**      | ~7KB  | Animation utilities only         |
 
-*Note: Individual modules include shared dependencies. Actual sizes may vary based on bundler configuration.*
+_Note: Individual modules include shared dependencies. Actual sizes may vary based on bundler configuration._
 
 ## Import Patterns
 
 ### 1. Full Bundle (Default)
+
 For maximum convenience and comprehensive DOM manipulation:
 
 ```js
 // Everything included (~13KB total)
-import dom from '@dmitrijkiltau/dom.js';
+import dom from "@dmitrijkiltau/dom.js";
 
-dom('.elements')
-  .addClass('active')
-  .fadeIn(300)
-  .on('click', handler);
+dom(".elements").addClass("active").fadeIn(300).on("click", handler);
 
 // All utilities available
-const response = await dom.http.get('/api/data');
-const element = dom.renderTemplate('#template', data);
+const response = await dom.http.get("/api/data");
+const element = dom.renderTemplate("#template", data);
 ```
 
-### 2. Core Only  
+### 2. Core Only
+
 For basic DOM manipulation with minimal overhead:
 
 ```js
 // Core functionality only (~7KB total)
-import dom from '@dmitrijkiltau/dom.js/core';
+import dom from "@dmitrijkiltau/dom.js/core";
 
-dom('.elements')
-  .addClass('active')
-  .css('color', 'red')
-  .on('click', handler);
+dom(".elements").addClass("active").css("color", "red").on("click", handler);
 
 // HTTP, templates, animations not included
-// dom.http          // ❌ Not available
-// dom.renderTemplate // ❌ Not available  
-// .fadeIn()         // ❌ Not available
+// dom.http           // ❌ Not available
+// dom.renderTemplate // ❌ Not available
+// .fadeIn()          // ❌ Not available
 ```
 
 ### 3. Modular Imports
+
 Cherry-pick specific functionality:
 
 ```js
 // Import only what you need
-import dom from '@dmitrijkiltau/dom.js/core';
-import { http } from '@dmitrijkiltau/dom.js/http';
-import { renderTemplate } from '@dmitrijkiltau/dom.js/template';
+import dom from "@dmitrijkiltau/dom.js/core";
+import { http } from "@dmitrijkiltau/dom.js/http";
+import { renderTemplate } from "@dmitrijkiltau/dom.js/template";
 
-// Use core DOM functionality  
-dom('.elements').addClass('active');
+// Use core DOM functionality
+dom(".elements").addClass("active");
 
 // Use HTTP separately
-const response = await http.get('/api/data');
+const response = await http.get("/api/data");
 
 // Use templates separately
-const element = renderTemplate('#template', data);
+const element = renderTemplate("#template", data);
 ```
 
 ### 4. Mixed Approach
+
 Combine approaches based on your needs:
 
 ```js
 // Core + specific modules
-import dom from '@dmitrijkiltau/dom.js/core';
-import { animate, animations } from '@dmitrijkiltau/dom.js/motion';
+import dom from "@dmitrijkiltau/dom.js/core";
+import { animate, animations } from "@dmitrijkiltau/dom.js/motion";
 
 // Add animation to core
-dom.use(function(api) {
+dom.use(function (api) {
   api.animate = animate;
   api.animations = animations;
-  
+
   // Add prototype methods
-  api.DOMCollection.prototype.fadeIn = function(duration) {
+  api.DOMCollection.prototype.fadeIn = function (duration) {
     const [keyframes, options] = animations.fadeIn(duration);
     return this.animate(keyframes, options);
   };
 });
 
 // Now available
-dom('.elements').fadeIn();
+dom(".elements").fadeIn();
 ```
 
 ## Module Details
@@ -133,10 +131,10 @@ dom('.elements').fadeIn();
 import dom from '@dmitrijkiltau/dom.js/core';
 
 // Available:
-dom(selector, context?)    // Element selection (with optional context)
-dom('<div>…</div>')        // Create elements from HTML
-dom.fromHTML(html)         // Explicit HTML-to-elements
-dom.create(tag, attrs)     // Element creation  
+dom(selector, context?)   // Element selection (with optional context)
+dom('<div>…</div>')       // Create elements from HTML
+dom.fromHTML(html)        // Explicit HTML-to-elements
+dom.create(tag, attrs)    // Element creation
 dom.on/once/off()         // Event handling (multi-type, namespaces, options; on() returns unbind)
 dom.ready(fn)             // DOMContentLoaded shortcut
 dom.DOMCollection         // Collection class
@@ -164,7 +162,7 @@ dom.use(plugin)           // Plugin system (automatically available)
 .touchstart() .touchend() .touchmove() .touchcancel()
 .remove() .detach() .empty() .clone() .after() .before() .serialize()
 .wrap() .wrapAll() .wrapInner() .unwrap() .replaceWith() .replaceAll()
-  
+
 // Notes:
 // - wrap/wrapAll/wrapInner accept HTML strings or selector strings (selectors are cloned)
 // - .toggleClass() accepts space-separated multiple class names
@@ -182,7 +180,7 @@ import { http } from '@dmitrijkiltau/dom.js/http';
 
 // Methods
 const response = await http.get(url, init?);
-const response = await http.post(url, body?, init?);  
+const response = await http.post(url, body?, init?);
 const response = await http.put(url, body?, init?);
 const response = await http.patch(url, body?, init?);
 const response = await http.delete(url, init?);
@@ -196,39 +194,68 @@ response.raw      // Original Response
 response.ok       // Boolean
 response.status   // Number
 response.text()   // Promise<string>
-response.json()   // Promise<T>  
+response.json()   // Promise<T>
 response.html()   // Promise<Document>
 ```
 
 ### Templates (`@dmitrijkiltau/dom.js/template`)
 
-**HTML template binding system**
+**HTML template binding system with incremental updates**
 
 ```js
-import { renderTemplate, useTemplate, tpl } from '@dmitrijkiltau/dom.js/template';
+import {
+  renderTemplate,
+  useTemplate,
+  mountTemplate,
+  tpl,
+  escapeHTML,
+  unsafeHTML,
+} from "@dmitrijkiltau/dom.js/template";
 
-// Usage
-const element = renderTemplate('#template', data);
-const render = useTemplate('#template');
-const templateEl = tpl('#template');
+// One-shot rendering
+const element = renderTemplate("#template", data);
+
+// Reusable renderer
+const render = useTemplate("#template");
+
+// Stateful instance with .update()
+const instance = render.mount(data);
+container.append(instance.el);
+instance.update(nextData);
+
+// Access template element
+const templateEl = tpl("#template");
+
+// Safe escaping helpers
+escapeHTML("<b>X</b>");
+unsafeHTML("<b>trusted</b>");
 
 // Bindings supported:
-// data-text="key"           - Set text content
-// data-html="key"           - Set HTML content  
-// data-attr-id="key"        - Set attribute (removes marker)
-// data-if="condition"       - Conditional rendering (removes if falsy)
-// data-show="visible"       - Show/hide with display style
-// data-hide="hidden"        - Hide when truthy
-// data-on-click="handler"   - Event binding
-// data-each="list as item,i"- Repeat element for list items
+// data-text="expr"                       - textContent (escaped by nature)
+// data-html="expr"                       - innerHTML (raw, accepts unsafeHTML)
+// data-safe-html="expr"                  - innerHTML from escaped string
+// data-attr-id="expr"                    - attribute (removed if null/false)
+// data-if / data-elseif / data-else      - sibling conditional chain
+// data-show / data-hide                  - toggle with display style
+// data-on-<type>="fn(args)"              - event binding with args; event is first arg
+// data-each="list as item, i by key"     - loops with optional keyed diff
+// data-include="#id" / "ref"             - partials/includes; optional data-with for context
 ```
 
-### Forms (`@dmitrijkiltau/dom.js/forms`) 
+### Forms (`@dmitrijkiltau/dom.js/forms`)
 
 **Form handling utilities**
 
 ```js
-import { serializeForm, toFormData, toQueryString, setForm, resetForm, validateForm, onSubmit } from '@dmitrijkiltau/dom.js/forms';
+import {
+  serializeForm,
+  toFormData,
+  toQueryString,
+  setForm,
+  resetForm,
+  validateForm,
+  onSubmit,
+} from "@dmitrijkiltau/dom.js/forms";
 
 // Serialize form data (nested names → objects)
 const data = serializeForm(form);
@@ -236,7 +263,7 @@ const fd = toFormData(data); // FormData with bracket encoding for nested/arrays
 const query = toQueryString(data); // URL query string with bracket encoding
 
 // Populate and reset
-setForm(form, { user: { name: 'Alice' }, tags: ['js','css'] });
+setForm(form, { user: { name: "Alice" }, tags: ["js", "css"] });
 resetForm(form);
 
 // Validate with the Constraint Validation API
@@ -245,7 +272,7 @@ if (!valid) console.warn(errors);
 
 // Handle form submission
 onSubmit(form, (data, event) => {
-  console.log('Form data:', data);
+  console.log("Form data:", data);
 });
 ```
 
@@ -254,7 +281,7 @@ onSubmit(form, (data, event) => {
 **Web Animations API utilities**
 
 ```js
-import { animate, animations } from '@dmitrijkiltau/dom.js/motion';
+import { animate, animations } from "@dmitrijkiltau/dom.js/motion";
 
 // Direct animation
 animate(element, keyframes, options);
@@ -268,8 +295,8 @@ const [keyframes, options] = animations.pulse(600);
 const [keyframes, options] = animations.shake(500);
 
 // Install on core (if desired)
-import dom from '@dmitrijkiltau/dom.js/core';
-import { installAnimationMethods } from '@dmitrijkiltau/dom.js/motion';
+import dom from "@dmitrijkiltau/dom.js/core";
+import { installAnimationMethods } from "@dmitrijkiltau/dom.js/motion";
 
 installAnimationMethods(); // Adds .animate(), .fadeIn(), etc. to collections
 ```
@@ -277,35 +304,38 @@ installAnimationMethods(); // Adds .animate(), .fadeIn(), etc. to collections
 ## Migration Guide
 
 ### From Full Bundle (No Changes)
+
 Existing code continues to work unchanged:
 
 ```js
 // This still works exactly the same
-import dom from '@dmitrijkiltau/dom.js';
+import dom from "@dmitrijkiltau/dom.js";
 ```
 
 ### To Core + Modules
+
 Gradually adopt modular imports:
 
 ```js
 // Before (full bundle)
-import dom from '@dmitrijkiltau/dom.js';
-const response = await dom.http.get('/api');
+import dom from "@dmitrijkiltau/dom.js";
+const response = await dom.http.get("/api");
 
-// After (modular)  
-import dom from '@dmitrijkiltau/dom.js/core';
-import { http } from '@dmitrijkiltau/dom.js/http';
-const response = await http.get('/api');
+// After (modular)
+import dom from "@dmitrijkiltau/dom.js/core";
+import { http } from "@dmitrijkiltau/dom.js/http";
+const response = await http.get("/api");
 ```
 
 ### To Pure Modular
+
 Ultimate optimization:
 
 ```js
 // Only import exactly what you use
-import { DOMCollection, dom } from '@dmitrijkiltau/dom.js/core';  
-import { animate } from '@dmitrijkiltau/dom.js/motion';
-import { renderTemplate } from '@dmitrijkiltau/dom.js/template';
+import { DOMCollection, dom } from "@dmitrijkiltau/dom.js/core";
+import { animate } from "@dmitrijkiltau/dom.js/motion";
+import { renderTemplate } from "@dmitrijkiltau/dom.js/template";
 ```
 
 ## Bundle Size Analysis
@@ -313,22 +343,28 @@ import { renderTemplate } from '@dmitrijkiltau/dom.js/template';
 ### Usage Scenarios
 
 **Scenario 1: Basic DOM Manipulation**
+
 ```js
-import dom from '@dmitrijkiltau/dom.js/core'; // ~7KB total
+import dom from "@dmitrijkiltau/dom.js/core"; // ~7KB total
 ```
+
 Perfect for: Simple websites, basic interactivity
 
-**Scenario 2: DOM + HTTP**  
+**Scenario 2: DOM + HTTP**
+
 ```js
-import dom from '@dmitrijkiltau/dom.js/core';
-import { http } from '@dmitrijkiltau/dom.js/http'; // ~9KB total
+import dom from "@dmitrijkiltau/dom.js/core";
+import { http } from "@dmitrijkiltau/dom.js/http"; // ~9KB total
 ```
+
 Perfect for: SPAs with API calls, no complex animations
 
 **Scenario 3: Full Featured (Default)**
+
 ```js
-import dom from '@dmitrijkiltau/dom.js'; // ~13KB total  
+import dom from "@dmitrijkiltau/dom.js"; // ~13KB total
 ```
+
 Perfect for: Complex applications, feature-rich DOM manipulation
 
 ## Plugin System
@@ -336,14 +372,14 @@ Perfect for: Complex applications, feature-rich DOM manipulation
 The modular architecture maintains full plugin compatibility:
 
 ```js
-import dom from '@dmitrijkiltau/dom.js/core';
+import dom from "@dmitrijkiltau/dom.js/core";
 
 // Custom plugin
 const myPlugin = (api) => {
-  api.customMethod = () => 'Hello from plugin';
-  
-  api.DOMCollection.prototype.customChain = function() {
-    console.log('Custom chaining method');
+  api.customMethod = () => "Hello from plugin";
+
+  api.DOMCollection.prototype.customChain = function () {
+    console.log("Custom chaining method");
     return this;
   };
 };
@@ -352,14 +388,14 @@ dom.use(myPlugin);
 
 // Now available
 dom.customMethod();
-dom('.elements').customChain();
+dom(".elements").customChain();
 ```
 
 ## Benefits
 
 1. **Optimized Bundles**: Import only what you need, from ~7KB (core) to ~13KB (full)
 2. **Better Tree Shaking**: Modern bundlers can eliminate unused code effectively
-3. **Clean Architecture**: Separated concerns, better maintainability  
+3. **Clean Architecture**: Separated concerns, better maintainability
 4. **Backward Compatible**: Existing code works unchanged
 5. **Flexible**: Mix and match based on project needs
 6. **Future Proof**: Easy to add new modules without bloating core
@@ -368,7 +404,7 @@ dom('.elements').customChain();
 
 1. **Start with core** for new projects and add modules as needed
 2. **Use full bundle** for feature-rich applications requiring comprehensive DOM manipulation
-3. **Prefer modular imports** for library authors or size-critical applications  
+3. **Prefer modular imports** for library authors or size-critical applications
 4. **Use plugins** to extend functionality across modules
 5. **Check bundle analyzer** to verify optimal imports and tree shaking
 6. **Consider HTTP + Core** for SPAs that need API integration but minimal DOM features
