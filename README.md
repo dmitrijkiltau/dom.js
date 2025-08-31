@@ -44,7 +44,7 @@ import dom from "https://unpkg.com/@dmitrijkiltau/dom.js/dist/index.js";
 Pinned version (recommended for stability):
 
 ```js
-import dom from "https://unpkg.com/@dmitrijkiltau/dom.js@1.2.1/dist/index.js";
+import dom from "https://unpkg.com/@dmitrijkiltau/dom.js@1.5.1/dist/index.js";
 ```
 
 ### CommonJS (Node/CJS)
@@ -69,7 +69,7 @@ Best for: Feature-rich applications, comprehensive DOM manipulation
 ```js
 import dom from "@dmitrijkiltau/dom.js";
 
-// Everything available (~13KB total)
+// Everything available (~10.6 KB gzip)
 dom(".elements").fadeIn(300);
 await dom.http.get("/api/data");
 ```
@@ -81,7 +81,7 @@ Best for: Basic DOM manipulation, size-critical applications
 ```js
 import dom from "@dmitrijkiltau/dom.js/core";
 
-// Core functionality only (~7KB total)
+// Core functionality only (~6.8 KB gzip)
 dom(".elements").addClass("active").on("click", handler);
 ```
 
@@ -108,7 +108,8 @@ const response = await http.get("/api");
 const element = renderTemplate("#template", data);
 const data = serializeForm("#form");
 const fd = toFormData(data);
-dom(".items").fadeIn(300);
+const [keyframes, options] = animations.fadeIn(300);
+animate(dom(".items").el(), keyframes, options);
 ```
 
 **[📖 Complete Architecture Guide →](ARCHITECTURE.md)**
@@ -454,8 +455,7 @@ Supported argument values: string/number/boolean/null/undefined literals, scope 
 
 - `data-text` uses `textContent` (safe by default)
 - `data-safe-html="expr"` escapes with `escapeHTML(expr)`
-- `data-html` inserts raw HTML. For explicit unsafe content, you can return `{__html: '...'}
-via `unsafeHTML('...')`:
+- `data-html` inserts raw HTML. For explicit unsafe content, return `{__html: '...'}` via `unsafeHTML('...')`:
 
 ```js
 import { escapeHTML, unsafeHTML } from "@dmitrijkiltau/dom.js";
@@ -689,10 +689,10 @@ dom(".buttons").on("click", (ev, el, idx) => {
 ## Browser Support & Size
 
 - **Target**: ES2020+ (modern evergreen browsers)
-- **Bundle Size**:
-  - Full bundle: ~13KB (all features)
-  - Core only: ~7KB (DOM manipulation + events)
-  - Individual modules: 2-8KB each
+- **Bundle Size (minified + gzip, ESM, v1.5.1)**:
+  - Full bundle: ~10.6 KB
+  - Core only: ~6.8 KB
+  - Individual modules (each): HTTP ~0.7 KB, Forms ~1.7 KB, Template ~2.8 KB, Motion ~6.5 KB
 - **Dependencies**: Zero
 
 ## Contributing

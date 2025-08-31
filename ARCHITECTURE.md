@@ -2,7 +2,7 @@
 
 ## Overview
 
-dom.js features a **modular architecture** that allows you to import only the functionality you need, resulting in optimized bundle sizes while maintaining full backward compatibility. The library offers flexible import patterns ranging from a full feature bundle (~13KB) down to individual modules (~2-7KB each).
+dom.js features a **modular architecture** that allows you to import only the functionality you need, resulting in optimized bundle sizes while maintaining full backward compatibility. The library offers flexible import patterns ranging from a full feature bundle (~10.6 KB gzip) down to individual modules (~0.7–6.8 KB gzip each).
 
 ## Architecture Principles
 
@@ -19,27 +19,27 @@ dom.js features a **modular architecture** that allows you to import only the fu
 ```
 src/
 ├── index.ts          # Main entry point (full functionality)
-├── core.ts           # Core DOM manipulation only (~7KB)
+├── core.ts           # Core DOM manipulation only (~6.8 KB gzip)
 ├── collection.ts     # DOMCollection class with all methods
-├── http.ts           # HTTP utilities (~2KB)
-├── template.ts       # Template system (~2KB)
-├── forms.ts          # Form handling (~7KB)
-├── motion.ts         # Animation utilities (~7KB)
+├── http.ts           # HTTP utilities (~0.7 KB gzip)
+├── template.ts       # Template system (~2.8 KB gzip)
+├── forms.ts          # Form handling (~1.7 KB gzip)
+├── motion.ts         # Animation utilities (~6.5 KB gzip)
 ├── plugins.ts        # Plugin system
 ├── utils.ts          # Shared utilities
 └── types.ts          # TypeScript definitions
 ```
 
-### Bundle Sizes (CJS, minified + gzipped)
+### Bundle Sizes (ESM, minified + gzip, v1.5.1)
 
 | Module          | Size  | Description                      |
 | --------------- | ----- | -------------------------------- |
-| **Full Bundle** | ~13KB | Complete functionality (default) |
-| **Core Only**   | ~7KB  | Basic DOM manipulation + events  |
-| **HTTP**        | ~2KB  | HTTP utilities only              |
-| **Templates**   | ~2KB  | Template system only             |
-| **Forms**       | ~7KB  | Form utilities only              |
-| **Motion**      | ~7KB  | Animation utilities only         |
+| **Full Bundle** | ~10.6 KB | Complete functionality (default) |
+| **Core Only**   | ~6.8 KB  | Basic DOM manipulation + events  |
+| **HTTP**        | ~0.7 KB  | HTTP utilities only              |
+| **Templates**   | ~2.8 KB  | Template system only             |
+| **Forms**       | ~1.7 KB  | Form utilities only              |
+| **Motion**      | ~6.5 KB  | Animation utilities only         |
 
 _Note: Individual modules include shared dependencies. Actual sizes may vary based on bundler configuration._
 
@@ -50,7 +50,7 @@ _Note: Individual modules include shared dependencies. Actual sizes may vary bas
 For maximum convenience and comprehensive DOM manipulation:
 
 ```js
-// Everything included (~13KB total)
+// Everything included (~10.6 KB gzip)
 import dom from "@dmitrijkiltau/dom.js";
 
 dom(".elements").addClass("active").fadeIn(300).on("click", handler);
@@ -65,7 +65,7 @@ const element = dom.renderTemplate("#template", data);
 For basic DOM manipulation with minimal overhead:
 
 ```js
-// Core functionality only (~7KB total)
+// Core functionality only (~6.8 KB gzip)
 import dom from "@dmitrijkiltau/dom.js/core";
 
 dom(".elements").addClass("active").css("color", "red").on("click", handler);
@@ -345,7 +345,7 @@ import { renderTemplate } from "@dmitrijkiltau/dom.js/template";
 **Scenario 1: Basic DOM Manipulation**
 
 ```js
-import dom from "@dmitrijkiltau/dom.js/core"; // ~7KB total
+import dom from "@dmitrijkiltau/dom.js/core"; // ~6.8 KB gzip
 ```
 
 Perfect for: Simple websites, basic interactivity
@@ -354,7 +354,7 @@ Perfect for: Simple websites, basic interactivity
 
 ```js
 import dom from "@dmitrijkiltau/dom.js/core";
-import { http } from "@dmitrijkiltau/dom.js/http"; // ~9KB total
+import { http } from "@dmitrijkiltau/dom.js/http"; // ~7.5 KB gzip (core + http)
 ```
 
 Perfect for: SPAs with API calls, no complex animations
@@ -362,7 +362,7 @@ Perfect for: SPAs with API calls, no complex animations
 **Scenario 3: Full Featured (Default)**
 
 ```js
-import dom from "@dmitrijkiltau/dom.js"; // ~13KB total
+import dom from "@dmitrijkiltau/dom.js"; // ~10.6 KB gzip
 ```
 
 Perfect for: Complex applications, feature-rich DOM manipulation
@@ -393,7 +393,7 @@ dom(".elements").customChain();
 
 ## Benefits
 
-1. **Optimized Bundles**: Import only what you need, from ~7KB (core) to ~13KB (full)
+1. **Optimized Bundles**: Import only what you need, from ~6.8 KB (core) to ~10.6 KB (full)
 2. **Better Tree Shaking**: Modern bundlers can eliminate unused code effectively
 3. **Clean Architecture**: Separated concerns, better maintainability
 4. **Backward Compatible**: Existing code works unchanged
