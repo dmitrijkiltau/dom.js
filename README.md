@@ -14,7 +14,7 @@ A lightweight, modular DOM manipulation library with chainable API, zero depende
 - 🏗️ **Template System** - HTML templates with data binding
 - 📝 **Form Utilities** - Easy form handling and serialization
 - 🌐 **HTTP Utilities** - Simple fetch wrapper with response helpers
-- 🎬 **Animation Support** - Web Animations API integration
+- 🎬 **Animation Support** - Web Animations API integration (awaitable, queued, reduced-motion aware)
 - 🔧 **Plugin System** - Extend functionality with custom plugins
 - 🆔 **Zero Dependencies** - No external dependencies
 
@@ -618,15 +618,15 @@ Web Animations API integration with common presets and smooth animations.
 import { animate, animations } from "@dmitrijkiltau/dom.js";
 
 // Built-in animation presets
-dom(".notice").fadeIn(300);
-dom(".modal").slideUp(400);
-dom(".button").pulse();
-dom(".error").shake();
+await dom(".notice").fadeIn(300); // returns a Promise<DOMCollection>
+await dom(".modal").slideUp(400); // queued per element
+await dom(".button").pulse();
+await dom(".error").shake();
 
-// Available presets: fadeIn, fadeOut, slideUp, slideDown, pulse, shake
+// Available presets: fadeIn, fadeOut, fadeToggle, slideUp, slideDown, slideToggle, pulse, shake
 
 // Custom animations
-dom(".notice").animate(
+await dom(".notice").animate(
   [
     { opacity: 0, transform: "translateY(-20px)" },
     { opacity: 1, transform: "translateY(0)" },
@@ -639,7 +639,45 @@ dom(".notice").animate(
 
 // Or use the function directly
 const [keyframes, options] = animations.fadeIn(500);
-animate(element, keyframes, options);
+const anim = animate(element, keyframes, options); // returns Animation
+await anim.finished; // await the low-level Animation promise if you need
+```
+
+### Animation Queueing and Control
+
+- Per-element calls are automatically queued in order. Multiple chained calls play sequentially.
+- Collection methods now return a Promise that resolves to the collection when all animations finish (await-friendly).
+- Control helpers on collections:
+  - `pause()` / `resume()`: pause or resume active animations
+  - `cancel()`: cancel active animations and clear the queue
+  - `stop(jumpToEnd?)`: cancel or finish immediately (`true` to jump to end)
+
+```js
+// Queueing
+await dom(".box").fadeIn(200).then($ => $.slideDown(200));
+// Control
+const $box = dom(".box");
+$box.fadeIn(300);
+$box.pause();
+$box.resume();
+$box.stop(true); // jump to end state
+$box.cancel(); // cancel and clear queue
+```
+
+### Visibility Integration and Toggles
+
+- `fadeIn`/`slideDown` ensure the element is shown before animating.
+- `fadeOut`/`slideUp` hide the element (`display: none`) after finishing.
+- `fadeToggle`/`slideToggle` switch between visible and hidden states.
+
+```js
+await dom(".panel").fadeToggle(200);
+await dom(".panel").slideToggle(200);
+```
+
+### Reduced Motion
+
+The animation helpers respect `prefers-reduced-motion: reduce` and reduce durations to zero (no motion), while still updating visibility. You can still use the low-level `animate()` directly if you need explicit control.
 ```
 
 ## Plugin System

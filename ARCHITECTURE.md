@@ -278,27 +278,45 @@ onSubmit(form, (data, event) => {
 
 ### Motion (`@dmitrijkiltau/dom.js/motion`)
 
-**Web Animations API utilities**
+**Web Animations API utilities (awaitable, queued, reduced-motion aware)**
 
 ```js
-import { animate, animations } from "@dmitrijkiltau/dom.js/motion";
+import { animate, animations, installAnimationMethods } from "@dmitrijkiltau/dom.js/motion";
 
-// Direct animation
-animate(element, keyframes, options);
+// Low-level: returns Animation
+const anim = animate(element, [{ opacity: 0 }, { opacity: 1 }], { duration: 250 });
+await anim.finished;
 
 // Presets
-const [keyframes, options] = animations.fadeIn(300);
-const [keyframes, options] = animations.fadeOut(300);
-const [keyframes, options] = animations.slideUp(300);
-const [keyframes, options] = animations.slideDown(300);
-const [keyframes, options] = animations.pulse(600);
-const [keyframes, options] = animations.shake(500);
+const [kf1, op1] = animations.fadeIn(300);
+const [kf2, op2] = animations.fadeOut(300);
+const [kf3, op3] = animations.slideUp(300);
+const [kf4, op4] = animations.slideDown(300);
+const [kf5, op5] = animations.pulse(600);
+const [kf6, op6] = animations.shake(500);
 
-// Install on core (if desired)
+// Install collection helpers (if using core-only entry)
 import dom from "@dmitrijkiltau/dom.js/core";
-import { installAnimationMethods } from "@dmitrijkiltau/dom.js/motion";
+installAnimationMethods();
 
-installAnimationMethods(); // Adds .animate(), .fadeIn(), etc. to collections
+// Collection helpers return Promise<DOMCollection> and queue per element
+await dom(".el").fadeIn(200);
+await dom(".el").fadeToggle(200);
+await dom(".el").slideUp(200);
+
+// Control helpers
+dom(".el").pause();
+dom(".el").resume();
+dom(".el").stop(true);  // jump to end state
+dom(".el").cancel();    // cancel and clear queue
+
+// Visibility integration
+// - fadeIn/slideDown show before animating
+// - fadeOut/slideUp hide after finishing
+// - fadeToggle/slideToggle switch between states
+
+// Reduced motion
+// Respects prefers-reduced-motion; animations run with zero duration while preserving visibility effects
 ```
 
 ## Migration Guide
