@@ -351,6 +351,30 @@ dom('.buttons')
     `
   },
   {
+    id: 'layout-geometry',
+    title: 'Layout & Geometry',
+    content: `
+      <p class="text-gray-700 mb-4">
+        Measure element sizes and positions, control scroll offsets, and get bounding rectangles. These helpers mirror common jQuery-style APIs with modern, predictable behavior.
+      </p>
+      <div class="bg-indigo-50 border-l-4 border-indigo-400 p-4 mb-6">
+        <div class="flex">
+          <div class="ml-3">
+            <h4 class="text-lg font-medium text-indigo-900 mb-2">Available Methods</h4>
+            <ul class="text-indigo-800 space-y-1">
+              <li>• <code class="bg-gray-200 px-1 rounded">.width([value])</code>, <code class="bg-gray-200 px-1 rounded">.height([value])</code></li>
+              <li>• <code class="bg-gray-200 px-1 rounded">.innerWidth()</code>, <code class="bg-gray-200 px-1 rounded">.innerHeight()</code></li>
+              <li>• <code class="bg-gray-200 px-1 rounded">.outerWidth([includeMargin])</code>, <code class="bg-gray-200 px-1 rounded">.outerHeight([includeMargin])</code></li>
+              <li>• <code class="bg-gray-200 px-1 rounded">.offset()</code>, <code class="bg-gray-200 px-1 rounded">.position()</code>, <code class="bg-gray-200 px-1 rounded">.offsetParent()</code></li>
+              <li>• <code class="bg-gray-200 px-1 rounded">.scrollTop([value])</code>, <code class="bg-gray-200 px-1 rounded">.scrollLeft([value])</code></li>
+              <li>• <code class="bg-gray-200 px-1 rounded">.rect()</code> — wrapper around <code class="bg-gray-200 px-1 rounded">getBoundingClientRect()</code></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    `
+  },
+  {
     id: 'templates',
     title: 'Templates',
     content: `
