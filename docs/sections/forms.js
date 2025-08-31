@@ -357,8 +357,8 @@ const data = serializeForm(form.el());`
   formSection.append(formTabbedExamples);
 
   // Event handlers for Form Handling tab
-  onSubmit('#demo-form', (data, event) => {
-    event.preventDefault();
+  dom(document).on('submit', '#demo-form',  (event, el) => {
+    event.preventDefault(); const data = serializeForm(el)
 
     const resultTemplate = useTemplate('#form-result-template');
     const result = resultTemplate({
@@ -442,7 +442,7 @@ const data = serializeForm(form.el());`
     }
   });
 
-  onSubmit('#validation-form', (data, ev) => {
+  dom(document).on('submit', '#validation-form', (event, el) => {
     const result = validateForm('#validation-form');
     if (!result.valid) {
       ev.preventDefault();
