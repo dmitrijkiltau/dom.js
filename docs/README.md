@@ -2,47 +2,34 @@
 
 Interactive documentation for dom.js built with:
 
-- **TailwindCSS 4** - Modern utility-first CSS
-- **Vite** - Fast development and building
-- **dom.js** - Self-documenting with its own library
-- **Prism.js** - Syntax highlighting for code examples
+- **TailwindCSS 4**: utility-first styling
+- **Vite**: fast dev/build
+- **dom.js**: the docs use the library itself
+- **Prism.js**: code highlighting
 
 ## Features
 
-- Live, interactive examples for all dom.js features
-- Real-time code demonstrations
+- Live, interactive examples across all features
+- Real-time code and demo toggles
 - HTML templates with data binding
-- Responsive design
-- Plugin system examples
+- Responsive layout and theme toggle
+- Plugin system demonstrations
 
 ## Development
 
-```bash
-npm install    # Install dependencies
-npm run dev    # Start development server
-npm run build  # Build for production
-npm run preview # Preview production build
-```
-
-## From Root Directory
+Run docs from the repository root (single source of truth):
 
 ```bash
 npm run docs:install  # Install docs dependencies
-npm run docs:dev      # Start docs development server
-npm run docs:build    # Build docs
+npm run docs:dev      # Start docs dev server
+npm run docs:build    # Build static docs
+npm run docs:preview  # Preview the production build
 ```
 
-## Documentation Sections
+Note: The docs also have local scripts in `docs/package.json`, but prefer the root-level scripts above to avoid duplication.
 
-1. **Getting Started** - Introduction to dom.js
-2. **Installation** - How to install and import
-3. **Modular Architecture** - Import patterns and bundle sizes
-4. **Core API** - Basic selectors and DOMCollection methods
-5. **Templates** - HTML template system with data binding
-6. **Forms** - Form handling and serialization
-7. **Events** - Event binding and delegation
-8. **HTTP** - HTTP utilities for requests
-9. **Animation** - Web Animations API integration
-10. **Plugin System** - Extending dom.js with plugins
+## Navigation & Sections
 
-All sections include live, interactive examples demonstrating the features.
+- Sections are defined in `docs/data/navigation.js` and rendered at runtime.
+- Content scaffolding lives in `docs/data/sections.js`; interactive demos live in `docs/sections/`.
+- See `docs/STRUCTURE.md` for module responsibilities and how to add new content.

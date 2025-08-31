@@ -21,6 +21,10 @@ docs/
 │   └── sections.js         # Section content
 └── sections/
     ├── core-api.js         # Core API examples
+    ├── dom-manipulation.js # DOM manipulation examples
+    ├── layout.js           # Layout & geometry examples
+    ├── utilities.js        # Utilities examples
+    ├── observers.js        # Intersection/Resize/Mutation examples
     ├── templates.js        # Template examples
     ├── forms.js            # Form examples
     ├── events.js           # Event examples
@@ -61,6 +65,11 @@ Each `sections/*.js` file contains interactive examples:
 - **`vite.config.js`**: Build configuration and optimization
 - **`package.json`**: Dependencies and development scripts
 
+### Single Source of Truth
+
+- Use root-level scripts in the repo (`npm run docs:*`) to run, build, and preview the docs. The local `docs/package.json` scripts are secondary and should not be duplicated elsewhere.
+- Section lists are driven by `docs/data/navigation.js`. Avoid repeating static lists in READMEs.
+
 ## Benefits
 
 - **Maintainability**: Self-contained sections, easy updates
@@ -69,16 +78,7 @@ Each `sections/*.js` file contains interactive examples:
 - **Developer Experience**: Hot reload, modern tooling
 - **Performance**: Optimized build process
 
-## Development
-
-### Local Development
-```bash
-npm install    # Install dependencies
-npm run dev    # Start development server
-npm run build  # Build for production
-```
-
-### Adding New Content
+## Adding New Content
 
 1. Add navigation item to `data/navigation.js`
 2. Add section content to `data/sections.js`
