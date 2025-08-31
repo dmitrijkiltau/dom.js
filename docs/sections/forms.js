@@ -1,4 +1,4 @@
-import dom, { useTemplate, onSubmit, serializeForm, toQueryString } from '../../dist/index.js';
+import dom, { useTemplate, onSubmit, serializeForm, toQueryString, setForm, resetForm, validateForm } from '../../dist/index.js';
 import { createTabbedExamples } from '../content.js';
 
 const renderExample = useTemplate('#example-template');
@@ -143,6 +143,97 @@ const data = serializeForm(form);
 console.log(data);`
       },
       {
+        id: 'set-reset',
+        title: 'Populate & Reset',
+        demo: `
+          <form id="populate-form" class="space-y-4 mb-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">User Name</label>
+                <input name="user[name]" class="input" placeholder="Name">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input name="user[email]" type="email" class="input" placeholder="Email">
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Tags</label>
+              <div class="grid grid-cols-3 gap-2">
+                <label class="flex items-center"><input type="checkbox" class="mr-2" name="tags[]" value="js">JS</label>
+                <label class="flex items-center"><input type="checkbox" class="mr-2" name="tags[]" value="css">CSS</label>
+                <label class="flex items-center"><input type="checkbox" class="mr-2" name="tags[]" value="html">HTML</label>
+              </div>
+            </div>
+            <div>
+              <label class="flex items-center">
+                <input type="checkbox" class="mr-2" name="settings[newsletter]" value="yes">
+                <span class="text-sm">Subscribe to newsletter</span>
+              </label>
+            </div>
+          </form>
+          <div class="flex space-x-2 mb-3">
+            <button id="btn-populate" class="btn btn-secondary text-sm">Populate Values</button>
+            <button id="btn-serialize-populated" class="btn btn-primary text-sm">Serialize</button>
+            <button id="btn-reset-form" class="btn btn-outline text-sm">Reset</button>
+          </div>
+          <div id="populate-output" class="text-sm text-gray-700 bg-gray-100 p-3 rounded"></div>
+        `,
+        code: `import { setForm, resetForm, serializeForm } from '@dmitrijkiltau/dom.js/forms';
+
+// Populate with nested values
+setForm('#populate-form', {
+  user: { name: 'Jane', email: 'jane@example.com' },
+  tags: ['js', 'css'],
+  settings: { newsletter: true }
+});
+
+// Serialize
+const data = serializeForm('#populate-form');
+
+// Reset to initial defaults
+resetForm('#populate-form');`
+      },
+      {
+        id: 'validation',
+        title: 'Validation',
+        demo: `
+          <form id="validation-form" class="space-y-4 mb-4" novalidate>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                <input name="name" class="input" required minlength="2" placeholder="Your name">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                <input name="email" type="email" class="input" required placeholder="you@example.com">
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Age</label>
+              <input name="age" type="number" class="input" min="18" max="120" placeholder="18+">
+            </div>
+          </form>
+          <div class="flex space-x-2 mb-3">
+            <button id="btn-validate" class="btn btn-primary text-sm">Validate</button>
+            <button id="btn-submit-validation" class="btn btn-secondary text-sm">Submit</button>
+          </div>
+          <div id="validation-output" class="text-sm bg-gray-100 p-3 rounded text-gray-800"></div>
+        `,
+        code: `import { validateForm, onSubmit } from '@dmitrijkiltau/dom.js/forms';
+
+// Validate manually
+const { valid, errors } = validateForm('#validation-form');
+if (!valid) console.log(errors);
+
+// With submit helper
+onSubmit('#validation-form', (data, ev) => {
+  const v = validateForm(ev.target);
+  if (!v.valid) return console.warn('Fix errors before submitting', v.errors);
+  // proceed
+});`
+      },
+      {
         id: 'collection-serialize',
         title: 'Collection Serialize',
         demo: `
@@ -253,7 +344,7 @@ const addField = (name, type = 'text', placeholder = '') => {
 };
 
 // Handle dynamic removal
-form.on('click', '.remove-field', (ev, el) => {
+form.click('.remove-field', (ev, el) => {
   dom(el).closest('.field-group').remove();
 });
 
@@ -287,7 +378,7 @@ const data = serializeForm(form.el());`
   });
 
   // Event handlers for Collection Serialize tab
-  dom('#serialize-form-elements').on('click', () => {
+  dom('#serialize-form-elements').click(() => {
     const data = dom('.form-element').serialize();
     dom('#serialize-output').html(`
       <strong>Form Elements Data:</strong>
@@ -296,7 +387,7 @@ const data = serializeForm(form.el());`
     `);
   });
 
-  dom('#serialize-products').on('click', () => {
+  dom('#serialize-products').click(() => {
     const data = dom('.product-element').serialize();
     dom('#serialize-output').html(`
       <strong>Product Preferences Data:</strong>
@@ -305,7 +396,7 @@ const data = serializeForm(form.el());`
     `);
   });
 
-  dom('#serialize-all-inputs').on('click', () => {
+  dom('#serialize-all-inputs').click(() => {
     const data = dom('input, select, textarea').serialize();
     dom('#serialize-output').html(`
       <strong>All Form Data:</strong>
@@ -314,11 +405,67 @@ const data = serializeForm(form.el());`
     `);
   });
 
+  // Event handlers for Populate & Reset tab
+  dom('#btn-populate').click(() => {
+    setForm('#populate-form', {
+      user: { name: 'Jane', email: 'jane@example.com' },
+      tags: ['js', 'css'],
+      settings: { newsletter: true }
+    });
+    dom('#populate-output').html('<div class="text-green-700">Form populated.</div>');
+  });
+
+  dom('#btn-serialize-populated').click(() => {
+    const data = serializeForm('#populate-form');
+    dom('#populate-output').html(`
+      <strong>Serialized Data:</strong>
+      <pre class="mt-2 text-xs">${JSON.stringify(data, null, 2)}</pre>
+    `);
+  });
+
+  dom('#btn-reset-form').click(() => {
+    resetForm('#populate-form');
+    dom('#populate-output').html('<div class="text-gray-700">Form reset to defaults.</div>');
+  });
+
+  // Event handlers for Validation tab
+  dom('#btn-validate').click(() => {
+    const { valid, errors } = validateForm('#validation-form');
+    if (valid) {
+      dom('#validation-output').html('<div class="text-green-700">Form is valid ✅</div>');
+    } else {
+      const list = errors.map(e => `- ${e.name}: ${e.message}`).join('\n');
+      dom('#validation-output').html(`
+        <div class="text-red-700">Found ${errors.length} error(s):</div>
+        <pre class="mt-2 text-xs">${list}</pre>
+      `);
+    }
+  });
+
+  onSubmit('#validation-form', (data, ev) => {
+    const result = validateForm('#validation-form');
+    if (!result.valid) {
+      ev.preventDefault();
+      const list = result.errors.map(e => `- ${e.name}: ${e.message}`).join('\n');
+      dom('#validation-output').html(`
+        <div class="text-red-700">Please fix the following before submitting:</div>
+        <pre class="mt-2 text-xs">${list}</pre>
+      `);
+      return;
+    }
+    dom('#validation-output').html('<div class="text-green-700">Submitted successfully ✔️</div>');
+  });
+
+  dom('#btn-submit-validation').click(() => {
+    const f = dom('#validation-form').el();
+    if (f && 'requestSubmit' in f) f.requestSubmit();
+  });
+
   // Event handlers for Dynamic Building tab
   let fieldCounter = 0;
   let sectionCounter = 0;
 
-  dom('#add-field').on('click', () => {
+  dom('#add-field').click(() => {
     fieldCounter++;
     const fieldHtml = `
       <div class="field-group border-l-2 border-blue-200 pl-4 py-2">
@@ -337,7 +484,7 @@ const data = serializeForm(form.el());`
     dom('.dynamic-sections').append(fieldHtml);
   });
 
-  dom('#add-section').on('click', () => {
+  dom('#add-section').click(() => {
     sectionCounter++;
     const sectionHtml = `
       <div class="section-group border border-gray-300 rounded p-3 bg-gray-50">
@@ -352,15 +499,15 @@ const data = serializeForm(form.el());`
     dom('.dynamic-sections').append(sectionHtml);
   });
 
-  dom('#dynamic-form').on('click', '.remove-field', (ev, el) => {
+  dom('#dynamic-form').click('.remove-field', (ev, el) => {
     dom(el).closest('.field-group').remove();
   });
 
-  dom('#dynamic-form').on('click', '.remove-section', (ev, el) => {
+  dom('#dynamic-form').click('.remove-section', (ev, el) => {
     dom(el).closest('.section-group').remove();
   });
 
-  dom('#serialize-dynamic').on('click', () => {
+  dom('#serialize-dynamic').click(() => {
     const data = serializeForm(dom('#dynamic-form').el());
     dom('#dynamic-results').removeClass('hidden').html(`
       <div class="p-4 bg-green-50 border border-green-200 rounded">
@@ -370,7 +517,7 @@ const data = serializeForm(form.el());`
     `);
   });
 
-  dom('#clear-dynamic').on('click', () => {
+  dom('#clear-dynamic').click(() => {
     dom('.dynamic-sections').html('');
     dom('#dynamic-results').addClass('hidden');
     fieldCounter = 0;

@@ -163,7 +163,7 @@ body {
 }
 
 .tabs-list {
-  @apply flex overflow-x-auto;
+  @apply flex overflow-x-auto overflow-y-clip;
 }
 
 .tab-button {
