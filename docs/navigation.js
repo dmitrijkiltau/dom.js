@@ -1,7 +1,8 @@
-import dom, { animations } from '../dist/index.js';
+import dom, { animations, useTemplate } from '../dist/index.js';
 import { navigationItems } from './data/navigation.js';
 
 let lastSection = null;
+let currentActiveId = null;
 
 export function initNavigation() {
   renderNav();
@@ -10,6 +11,7 @@ export function initNavigation() {
   initHashOnLoad();
   initSmoothScrolling();
   initScrollSpy();
+  initHashChangeSync();
 }
 
 /**
@@ -27,33 +29,34 @@ function cleanIdFromHref(href) {
 
 function renderNav() {
   const navMenu = dom('#nav-menu');
-  navMenu.attr({ 'aria-label': 'Main navigation' });
+  const renderItem = useTemplate('#nav-item-template');
 
-  const frag = document.createDocumentFragment();
+  navMenu.attrs({ 'aria-label': 'Main navigation', role: 'list' }).empty();
+
   for (const item of navigationItems) {
-    const li = document.createElement('li');
-    const a = document.createElement('a');
-    a.className = 'nav-link';
-    a.href = item.href;
-    a.textContent = item.title;
-    li.appendChild(a);
-    frag.appendChild(li);
+    navMenu.append(renderItem(item));
   }
 
-  navMenu.el()?.appendChild(frag);
-  dom('#nav-menu .nav-link').animate(...animations.fadeIn(300));
+  dom('#nav-menu .nav-link').fadeIn(300);
 }
 
 function initSmoothScrolling() {
-  let busy = false;
-
   dom('#nav-menu').on('click', '.nav-link', (ev, link) => {
     const href = link.getAttribute('href');
     if (!href || !href.startsWith('#')) return;
+    ev.preventDefault();
+    // Be extra safe to avoid duplicate delegated handlers
+    if ('stopImmediatePropagation' in ev) ev.stopImmediatePropagation();
+    ev.stopPropagation();
+
     const id = href.slice(1);
-    history.pushState(null, '', href);
-    setActive(id);
-    setTimeout(() => (busy = false), 600);
+    const target = dom(`#${CSS.escape(id)}`).el();
+    if (!target) return;
+
+    // Update URL without reloading and perform smooth scroll
+    if (window.location.hash !== `#${id}`) history.pushState(null, '', `#${id}`);
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setActive(id, true);
   });
 }
 
@@ -72,7 +75,10 @@ function initScrollSpy() {
       if (!e.isIntersecting) continue;
       if (!best || e.intersectionRatio > best.intersectionRatio) best = e;
     }
-    if (best) setActive(best.target.id);
+    if (best) {
+      const changed = setActive(best.target.id, false);
+      if (changed) history.replaceState(null, '', `#${best.target.id}`);
+    }
   }, { rootMargin: '-64px 0px -60% 0px', threshold: [0, 0.25, 0.5, 0.75, 1] });
 
   sections.forEach(sec => io.observe(sec));
@@ -83,32 +89,33 @@ function initScrollSpy() {
     for (const s of sections) {
       if (s.offsetTop <= y) current = s;
     }
-    if (current || current === lastSection) {
-      return;
-    } else {
-      lastSection = current;
-      setActive(current.id);
-      history.pushState(null, '', `#${current.id}`);
-      console.log(`Navigated to section: ${current.id}`);
-    }
+    if (current === lastSection) return;
+    lastSection = current;
+    const changed = setActive(current.id, false);
+    if (changed) history.replaceState(null, '', `#${current.id}`);
   }
 }
 
-function setActive(id) {
+function setActive(id, animate = true) {
+  if (currentActiveId === id) return false;
+  currentActiveId = id;
   dom('#nav-menu .nav-link').each(a => {
-    const cleanId = cleanIdFromHref(a.href);
-    const navLink = dom(`#nav-menu .nav-link[href="${cleanId}"]`)
-
-    if (cleanId === `#${id}`) {
-      navLink.addClass('active')
-        .prop('aria-current', 'page')
-        .animate(...animations.pulse(200));
+    const href = a.getAttribute('href') || '';
+    const isActive = cleanIdFromHref(href) === `#${id}`;
+    const $a = dom(a);
+    if (isActive) {
+      $a.addClass('active').attr('aria-current', 'page');
+      if (animate) {
+        const anyA = $a;
+        // Prefer built-in pulse helper if available
+        if (typeof (anyA).pulse === 'function') (anyA).pulse(200);
+        else $a.animate(...animations.pulse(200));
+      }
     } else {
-      dom(`#nav-menu .nav-link[href="${cleanId}"]`)
-        .removeClass('active')
-        .prop('aria-current', 'false');
+      $a.removeClass('active').attr('aria-current', null);
     }
   });
+  return true;
 }
 
 function initKeyboard() {
@@ -149,9 +156,11 @@ function initMobileToggle() {
     if (open) {
       sidebar.replaceClass('translate-x-0', '-translate-x-full');
       overlay.replaceClass('pointer-events-auto', 'hidden pointer-events-none');
+      btn.attr('aria-expanded', 'false');
     } else {
       sidebar.replaceClass('-translate-x-full', 'translate-x-0');
       overlay.replaceClass('hidden pointer-events-none', 'pointer-events-auto');
+      btn.attr('aria-expanded', 'true').attr('aria-controls', 'sidebar');
       const first = sidebar.find('a,button,[tabindex]:not([tabindex="-1"])').first();
       first.el()?.focus();
     }
@@ -178,8 +187,16 @@ function initHashOnLoad() {
   if (!el) return;
   setTimeout(() => {
     el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    setActive(h);
+    setActive(h, false);
   }, 0);
+}
+
+function initHashChangeSync() {
+  // Keep nav state in sync when hash changes externally
+  dom.on(window, 'hashchange', () => {
+    const h = window.location.hash?.slice(1) || '';
+    if (h) setActive(h);
+  });
 }
 
 function throttle(fn, wait) {
