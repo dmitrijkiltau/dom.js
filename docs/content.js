@@ -9,6 +9,8 @@ import { addHttpExamples } from './sections/http.js';
 import { addAnimationExamples } from './sections/animation.js';
 import { addPluginExamples } from './sections/plugins.js';
 import { addLayoutExamples } from './sections/layout.js';
+import { addUtilitiesExamples } from './sections/utilities.js';
+import { addObserverExamples } from './sections/observers.js';
 
 const renderSection = useTemplate('#section-template');
 const renderTabbedExamples = useTemplate('#tabbed-examples-template');
@@ -56,6 +58,8 @@ export function initContent() {
   addCoreApiExamples();
   addDomManipulationExamples();
   addLayoutExamples();
+  addUtilitiesExamples();
+  addObserverExamples();
   addTemplateExamples();
   addFormExamples();
   addEventExamples();

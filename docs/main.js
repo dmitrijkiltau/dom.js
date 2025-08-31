@@ -31,7 +31,8 @@ function init() {
     const targetElement = document.getElementById(targetId);
 
     if (targetElement) {
-      targetElement.scrollIntoView({ behavior: 'smooth' });
+      // Use library helper for consistency
+      dom.scrollIntoView(targetElement, { behavior: 'smooth', block: 'start' });
     }
   });
 }
