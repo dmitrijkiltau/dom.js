@@ -13,7 +13,7 @@ A lightweight, modular DOM manipulation library with chainable API, zero depende
 - 🎯 **TypeScript Support** - Full TypeScript definitions included
 - 🏗️ **Template System** - HTML templates with data binding
 - 📝 **Form Utilities** - Easy form handling and serialization
-- 🌐 **HTTP Utilities** - Simple fetch wrapper with response helpers
+- 🌐 **HTTP Utilities** - Fetch wrapper with baseUrl, query, interceptors, retries, errors, progress, caching
 - 🎬 **Animation Support** - Web Animations API integration (awaitable, queued, reduced-motion aware)
 - 🔧 **Plugin System** - Extend functionality with custom plugins
 - 🆔 **Zero Dependencies** - No external dependencies
@@ -566,16 +566,21 @@ ready(() => {
 
 ## HTTP
 
-Simple fetch wrapper with response helpers, automatic JSON handling, and request utilities.
+Enhanced fetch wrapper with:
+- baseUrl support, query helpers, and default headers
+- pre/post interceptors and error hooks
+- retries with exponential backoff
+- automatic throw on non-ok responses (opt-in) and `okOrThrow()`
+- upload progress hooks
+- AbortController helpers for cancellation
+- simple in-memory caching
 
 ```js
 import { http } from "@dmitrijkiltau/dom.js";
 
 // GET request
-const response = await http.get("/api/users");
-if (response.ok) {
-  const users = await response.json();
-}
+const response = await http.get("/api/users", { query: { page: 2 } });
+const users = await response.okOrThrow().json();
 
 // POST request
 const result = await http.post("/api/items", { title: "New Item" });
@@ -586,15 +591,31 @@ await http.patch("/api/items/1", partialData);
 await http.delete("/api/items/1");
 
 // Request helpers
-const timeoutHttp = http.withTimeout(5000); // 5 second timeout
-const authedHttp = http.withHeaders({
-  Authorization: "Bearer token",
-  "X-Client": "my-app",
+const api = http
+  .withBaseUrl("/api")
+  .withHeaders({ Authorization: "Bearer token" })
+  .withQuery({ locale: "en" })
+  .withTimeout(5000)
+  .withRetry({ retries: 2, retryDelay: 250, retryBackoff: 2 })
+  .withThrowOnError();
+
+const result = await api.post("/secure-data", payload);
+
+// Query helper (append params to URL)
+const url = http.appendQuery("/items", { q: "abc", tags: [1, 2] });
+await http.get(url);
+
+// Upload progress
+await http.post("/upload", fileBlob, {
+  onUploadProgress: ({ loaded, total, percent }) => {
+    console.log(Math.round(percent || 0));
+  },
 });
 
-// Use configured HTTP clients
-const response = await timeoutHttp.get("/slow-endpoint");
-const result = await authedHttp.post("/api/secure-data", payload);
+// Abort/cancel
+const { controller, signal } = http.abortable();
+const p = http.get("/slow", { signal });
+controller.abort(); // cancel when needed
 ```
 
 ### Response Object
@@ -606,8 +627,48 @@ const result = await authedHttp.post("/api/secure-data", payload);
   status,        // response.status
   text(),        // response.text()
   json<T>(),     // response.json() with type support
-  html()         // parse response as HTML document
+  html(),        // parse response as HTML document
+  okOrThrow(),   // throw HttpError on non-ok
+  cancel(),      // abort via attached controller (if present)
 }
+
+### Interceptors
+
+```js
+const api = http.withInterceptors({
+  onRequest: ({ method, url, init }) => {
+    // mutate or return a new context
+    return { method, url, init };
+  },
+  onResponse: ({ response }) => {
+    // inspect/modify/replace response
+  },
+  onError: ({ error, attempt }) => {
+    // return { response } to recover, or do nothing to continue retries/throws
+  },
+});
+```
+
+### Retries
+
+```js
+// Global
+const api = http.withRetry({ retries: 3, retryDelay: 300, retryBackoff: 2 });
+// Per request
+await api.get("/unstable", { retries: 1 });
+```
+
+By default, retries occur on network errors, 5xx, and 429.
+
+### Caching
+
+```js
+const api = http.withCache({ enabled: true, ttl: 60_000 }); // cache GET for 60s
+await api.get("/items"); // served from cache within TTL
+api.cache.clear(); // clear client cache
+```
+
+Per-request options: `{ noCache, cacheKey, cacheTtl }`.
 ```
 
 ## Animation

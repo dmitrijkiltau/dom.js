@@ -1,6 +1,6 @@
 {
   "name": "@dmitrijkiltau/dom.js",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "A lightweight, modular DOM manipulation library with chainable API, zero dependencies, and modern ES modules.",
   "type": "module",
   "main": "dist/index.cjs",

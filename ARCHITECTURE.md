@@ -175,27 +175,62 @@ dom.use(plugin)           // Plugin system (automatically available)
 
 **Fetch-based HTTP utilities**
 
+Features:
+- Base URL + default query + default headers
+- Interceptors (pre-request, post-response, error)
+- Retries with backoff, configurable strategy
+- Throw-on-error mode (`withThrowOnError` or `okOrThrow()`)
+- Upload progress hooks (streamed body)
+- Abort helpers
+- Simple client-local caching for GET
+
 ```js
 import { http } from '@dmitrijkiltau/dom.js/http';
 
 // Methods
-const response = await http.get(url, init?);
-const response = await http.post(url, body?, init?);
-const response = await http.put(url, body?, init?);
-const response = await http.patch(url, body?, init?);
-const response = await http.delete(url, init?);
+await http.get(url, init?);
+await http.post(url, body?, init?);
+await http.put(url, body?, init?);
+await http.patch(url, body?, init?);
+await http.delete(url, init?);
 
-// Helpers
-const timeoutHttp = http.withTimeout(5000);
-const authedHttp = http.withHeaders({'Authorization': 'Bearer token'});
+// Chainable helpers
+const api = http
+  .withBaseUrl('/api')
+  .withHeaders({ Authorization: 'Bearer token' })
+  .withQuery({ locale: 'en' })
+  .withTimeout(5000)
+  .withRetry({ retries: 2, retryDelay: 250, retryBackoff: 2 })
+  .withThrowOnError()
+  .withCache({ enabled: true, ttl: 60_000 })
+  .withInterceptors({
+    onRequest: ({ url, init }) => ({ method: 'GET', url, init }),
+    onResponse: ({ response }) => ({ method: 'GET', url: response.url, init: {}, response }),
+  });
 
-// Response object
-response.raw      // Original Response
-response.ok       // Boolean
-response.status   // Number
-response.text()   // Promise<string>
-response.json()   // Promise<T>
-response.html()   // Promise<Document>
+// Per-request options (subset)
+await api.get('/items', {
+  query: { page: 2 },
+  retries: 1,
+  timeout: 3000,
+  throwOnError: true,
+  onUploadProgress: p => console.log(p.percent),
+  cacheTtl: 10_000,
+});
+
+// Response wrapper
+const r = await api.get('/users');
+r.ok; r.status; await r.text(); await r.json(); await r.html();
+await r.okOrThrow();
+
+// Utilities
+http.appendQuery('/path', { q: 'x' });
+const { controller, signal } = http.abortable();
+const p = http.get('/slow', { signal }); controller.abort();
+
+// Cache controls
+api.cache.clear();
+api.cache.delete(api.cache.computeKey('GET', '/api/items', { } as any));
 ```
 
 ### Templates (`@dmitrijkiltau/dom.js/template`)
