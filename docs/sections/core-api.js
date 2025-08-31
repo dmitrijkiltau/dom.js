@@ -312,13 +312,13 @@ dom('#target-element')
   coreSection.append(coreApiTabbedExamples);
 
   // Event handlers for Selection & Chaining tab
-  dom('#select-demo').on('click', () => {
+  dom('#select-demo').click(() => {
     dom('#demo-btn-1').toggleClass('bg-yellow-200');
     dom('.demo-text').css('color', dom('.demo-text').css('color') === 'rgb(59, 130, 246)' ? '' : 'rgb(59, 130, 246)');
     dom('#demo-btn-2').text(dom('#demo-btn-2').text() === 'Button 2' ? 'Updated!' : 'Button 2');
   });
 
-  dom('#collection-demo').on('click', () => {
+  dom('#collection-demo').click(() => {
     const items = dom('.example-list div');
     if (items.hasClass('bg-blue-100')) {
       items.removeClass('bg-blue-100').css('border-color', '').each((el, idx) => {
@@ -332,26 +332,26 @@ dom('#target-element')
   });
 
   // Event handlers for replaceClass demo
-  dom('#replace-blue').on('click', () => {
+  dom('#replace-blue').click(() => {
     dom('.class-demo-element')
       .replaceClass('bg-red-100', 'bg-blue-100 text-blue-800')
       .html('Element with blue background');
   });
 
-  dom('#replace-green').on('click', () => {
+  dom('#replace-green').click(() => {
     dom('.class-demo-element')
       .replaceClass('bg-blue-100 text-blue-800', 'bg-green-100 text-green-800')
       .html('Element with green background');
   });
 
-  dom('#replace-multi').on('click', () => {
+  dom('#replace-multi').click(() => {
     dom('.class-demo-element')
       .replaceClass('bg-green-100 text-green-800', 'bg-purple-100 text-purple-800 font-bold')
       .html('Element with multiple replaced classes!');
   });
 
   // Event handlers for Element Access tab
-  dom('#access-demo').on('click', () => {
+  dom('#access-demo').click(() => {
     const elements = dom('.access-examples span');
     const first = elements.get(0);
     const second = elements.el(1);
@@ -386,102 +386,105 @@ dom('#target-element')
     </div>
   `;
 
-  dom('#last-demo').on('click', () => {
+  dom('#last-demo').click(() => {
     const lastItem = dom('.demo-item').last();
     dom('.demo-item').removeClass('bg-yellow-200');
     lastItem.addClass('bg-yellow-200');
     dom('#methods-output').html('<strong>Last item highlighted!</strong> The .last() method selects the final element in the collection.');
   });
 
-  dom('#filter-demo').on('click', () => {
+  dom('#filter-demo').click(() => {
     const activeItems = dom('.demo-item').filter('.active');
     dom('.demo-item').removeClass('bg-blue-200');
     activeItems.addClass('bg-blue-200');
     dom('#methods-output').html(`<strong>Filtered ${activeItems.length} active items!</strong> The .filter() method can use selectors or predicate functions.`);
   });
 
-  dom('#clone-demo').on('click', () => {
+  dom('#clone-demo').click(() => {
     const clonedItems = dom('.demo-item').clone();
     clonedItems.addClass('bg-green-100').find('h4').each((el) => {
       el.textContent = el.textContent.replace('Item', 'Cloned Item');
     });
-    dom('#clone-area').empty().append('<h5 class="font-medium mb-2 text-green-800">Cloned Items:</h5>').append(clonedItems);
+    dom('#clone-area').html('<h5 class="font-medium mb-2 text-green-800">Cloned Items:</h5>').append(clonedItems);
     dom('#methods-output').html('<strong>Items cloned!</strong> The .clone() method creates deep copies of elements that can be modified independently.');
   });
 
-  dom('#empty-demo').on('click', () => {
+  dom('#empty-demo').click(() => {
     dom('.demo-item').empty();
     dom('#methods-output').html('<strong>Content emptied!</strong> The .empty() method removes all child elements while keeping the containers.');
   });
 
-  dom('#remove-demo').on('click', () => {
+  dom('#remove-demo').click(() => {
     dom('.demo-item').remove();
     dom('#methods-output').html('<strong>Items removed!</strong> The .remove() method completely removes elements from the DOM.');
   });
 
-  dom('#reset-demo').on('click', () => {
+  dom('#reset-demo').click(() => {
     dom('#demo-items').html(originalItems);
     dom('#clone-area').empty();
     dom('#methods-output').html('Demo reset! Try the different methods above.');
   });
 
+  const coreApiAndItems = dom('#core-api, #core-api *');
+
   // Event handlers for DOM Traversal tab
-  dom('#parent-demo').on('click', () => {
-    dom('.container *').removeClass('ring-2 ring-blue-500 ring-red-500 ring-green-500');
+  dom('#parent-demo').click(() => {
+    coreApiAndItems.removeClass('ring-2 ring-blue-500 ring-red-500 ring-green-500');
     const parents = dom('.target').parent();
     parents.addClass('ring-2 ring-blue-500');
     dom('#traversal-output').html('<strong>Parent highlighted!</strong> The .parent() method selects immediate parent elements.');
   });
 
-  dom('#parents-demo').on('click', () => {
-    dom('.container *').removeClass('ring-2 ring-blue-500 ring-red-500 ring-green-500');
-    const parents = dom('.target').parents();
+  dom('#parents-demo').click(() => {
+    coreApiAndItems.removeClass('ring-2 ring-blue-500 ring-red-500 ring-green-500');
+    const container = dom('.container').el();
+    const parents = dom('.target').parents().filter((el) => container ? (container.contains(el) || el === container) : true);
     parents.addClass('ring-2 ring-red-500');
-    dom('#traversal-output').html(`<strong>${parents.length} ancestors highlighted!</strong> The .parents() method selects all ancestor elements.`);
+    dom('#traversal-output').html(`<strong>${parents.length} ancestors highlighted!</strong> The .parents() method selects all ancestor elements (scoped to the example).`);
   });
 
-  dom('#children-demo').on('click', () => {
-    dom('.container *').removeClass('ring-2 ring-blue-500 ring-red-500 ring-green-500');
+  dom('#children-demo').click(() => {
+    coreApiAndItems.removeClass('ring-2 ring-blue-500 ring-red-500 ring-green-500');
     const kids = dom('.section').children('.subsection');
     kids.addClass('ring-2 ring-green-500');
     dom('#traversal-output').html(`<strong>${kids.length} children highlighted!</strong> The .children() method selects immediate children (optionally filtered).`);
   });
 
-  dom('#siblings-demo').on('click', () => {
-    dom('.container *').removeClass('ring-2 ring-blue-500 ring-red-500 ring-green-500');
+  dom('#siblings-demo').click(() => {
+    coreApiAndItems.removeClass('ring-2 ring-blue-500 ring-red-500 ring-green-500');
     const siblings = dom('.target').siblings();
     siblings.addClass('ring-2 ring-green-500');
     dom('#traversal-output').html(`<strong>${siblings.length} siblings highlighted!</strong> The .siblings() method selects all sibling elements.`);
   });
 
-  dom('#closest-demo').on('click', () => {
-    dom('.container *').removeClass('ring-2 ring-blue-500 ring-red-500 ring-green-500');
+  dom('#closest-demo').click(() => {
+    coreApiAndItems.removeClass('ring-2 ring-blue-500 ring-red-500 ring-green-500');
     const closest = dom('.target').closest('.section');
     closest.addClass('ring-2 ring-blue-500');
     dom('#traversal-output').html('<strong>Closest .section highlighted!</strong> The .closest() method finds the nearest matching ancestor.');
   });
 
-  dom('#next-demo').on('click', () => {
-    dom('.container *').removeClass('ring-2 ring-blue-500 ring-red-500 ring-green-500');
+  dom('#next-demo').click(() => {
+    coreApiAndItems.removeClass('ring-2 ring-blue-500 ring-red-500 ring-green-500');
     const next = dom('.target').next();
     next.addClass('ring-2 ring-red-500');
     dom('#traversal-output').html('<strong>Next sibling highlighted!</strong> The .next() method selects the immediate next sibling (optionally filtered).');
   });
 
-  dom('#prev-demo').on('click', () => {
-    dom('.container *').removeClass('ring-2 ring-blue-500 ring-red-500 ring-green-500');
+  dom('#prev-demo').click(() => {
+    coreApiAndItems.removeClass('ring-2 ring-blue-500 ring-red-500 ring-green-500');
     const prev = dom('.sibling').first().prev();
     prev.addClass('ring-2 ring-blue-500');
     dom('#traversal-output').html('<strong>Previous sibling highlighted!</strong> Demonstrating .prev() using the first sibling (previous is the target).');
   });
 
-  dom('#clear-traversal').on('click', () => {
-    dom('.container *').removeClass('ring-2 ring-blue-500 ring-red-500 ring-green-500');
+  dom('#clear-traversal').click(() => {
+    coreApiAndItems.removeClass('ring-2 ring-blue-500 ring-red-500 ring-green-500');
     dom('#traversal-output').html('Highlights cleared. Try the traversal methods above!');
   });
 
   // Event handlers for Forms & Properties tab
-  dom('#get-values').on('click', () => {
+  dom('#get-values').click(() => {
     const values = {
       text: dom('#text-input').val(),
       number: dom('#number-input').val(),
@@ -491,7 +494,7 @@ dom('#target-element')
     dom('#form-output').html(`<strong>Current values:</strong><br><pre>${JSON.stringify(values, null, 2)}</pre>`);
   });
 
-  dom('#set-values').on('click', () => {
+  dom('#set-values').click(() => {
     dom('#text-input').val('Updated text!');
     dom('#number-input').val('99');
     dom('#select-input').val('option3');
@@ -499,7 +502,7 @@ dom('#target-element')
     dom('#form-output').html('<strong>Values updated!</strong> All form fields have been set to new values.');
   });
 
-  dom('#set-attrs').on('click', () => {
+  dom('#set-attrs').click(() => {
     dom('#text-input').attrs({
       'data-id': '456',
       'placeholder': 'Type here...',
@@ -508,7 +511,7 @@ dom('#target-element')
     dom('#form-output').html('<strong>Attributes set!</strong> Check the text input element - it now has data-id, placeholder, and data-category attributes.');
   });
 
-  dom('#serialize-form').on('click', () => {
+  dom('#serialize-form').click(() => {
     const serialized = dom('#text-input, #number-input, #select-input, #checkbox-input').serialize();
     dom('#form-output').html(`<strong>Serialized form data:</strong><br><pre>${JSON.stringify(serialized, null, 2)}</pre>`);
   });
@@ -517,19 +520,19 @@ dom('#target-element')
   let beforeCount = 0;
   let afterCount = 0;
 
-  dom('#add-before').on('click', () => {
+  dom('#add-before').click(() => {
     beforeCount++;
     dom('#target-element').before(`<div class="p-2 bg-green-100 border border-green-300 rounded mb-2">Before Element #${beforeCount}</div>`);
     dom('#positioning-output').html(`<strong>Added before element #${beforeCount}!</strong> The .before() method inserts content before the target element.`);
   });
 
-  dom('#add-after').on('click', () => {
+  dom('#add-after').click(() => {
     afterCount++;
     dom('#target-element').after(`<div class="p-2 bg-red-100 border border-red-300 rounded mt-2">After Element #${afterCount}</div>`);
     dom('#positioning-output').html(`<strong>Added after element #${afterCount}!</strong> The .after() method inserts content after the target element.`);
   });
 
-  dom('#clear-additions').on('click', () => {
+  dom('#clear-additions').click(() => {
     dom('#target-element').parent().find('div').each((el) => {
       if (el !== dom('#target-element').el() && (el.textContent.includes('Before Element') || el.textContent.includes('After Element'))) {
         el.remove();
