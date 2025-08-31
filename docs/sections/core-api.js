@@ -1,7 +1,5 @@
-import dom, { useTemplate } from '../../dist/index.js';
+import dom from '../../dist/index.js';
 import { createTabbedExamples } from '../content.js';
-
-const renderExample = useTemplate('#example-template');
 
 export function addCoreApiExamples() {
   const coreSection = dom('#core-api');

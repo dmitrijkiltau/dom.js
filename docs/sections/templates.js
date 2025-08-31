@@ -1,7 +1,6 @@
 import dom, { useTemplate, renderTemplate } from '../../dist/index.js';
 import { createTabbedExamples } from '../content.js';
 
-const renderExample = useTemplate('#example-template');
 const renderSubsection = useTemplate('#subsection-template');
 
 export function addTemplateExamples() {
@@ -102,20 +101,6 @@ dom('#items-list').append(
             <button id="create-card" class="btn btn-primary">Create Card</button>
             <div id="cards-container" class="space-y-3"></div>
           </div>
-
-          <template id="advanced-card-template">
-            <div class="border border-gray-600 rounded-lg p-4 bg-gray-100 shadow-sm" data-attr-class="statusClass">
-              <div class="flex justify-between items-start mb-2">
-                <h3 class="text-lg font-semibold" data-text="title"></h3>
-                <span class="text-xs px-2 py-1 rounded" data-attr-class="statusBadge" data-text="status"></span>
-              </div>
-              <div class="text-gray-600 mb-3" data-html="content"></div>
-              <div class="flex justify-between text-sm text-gray-500">
-                <span>Priority: <span data-text="priority" class="font-medium"></span>/5</span>
-                <span data-text="dueDate"></span>
-              </div>
-            </div>
-          </template>
         `,
         code: `// Advanced template with conditional classes
 <template id="advanced-card-template">

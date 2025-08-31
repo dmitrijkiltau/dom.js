@@ -1,7 +1,6 @@
 import dom, { useTemplate, onSubmit, serializeForm, toQueryString, setForm, resetForm, validateForm } from '../../dist/index.js';
 import { createTabbedExamples } from '../content.js';
 
-const renderExample = useTemplate('#example-template');
 const renderSubsection = useTemplate('#subsection-template');
 
 export function addFormExamples() {
@@ -442,7 +441,7 @@ const data = serializeForm(form.el());`
     }
   });
 
-  dom(document).on('submit', '#validation-form', (event, el) => {
+  dom(document).on('submit', '#validation-form', (ev, el) => {
     const result = validateForm('#validation-form');
     if (!result.valid) {
       ev.preventDefault();

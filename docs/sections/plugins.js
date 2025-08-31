@@ -1,7 +1,6 @@
 import dom, { useTemplate } from '../../dist/index.js';
 import { createTabbedExamples } from '../content.js';
 
-const renderExample = useTemplate('#example-template');
 const renderSubsection = useTemplate('#subsection-template');
 
 export function addPluginExamples() {
