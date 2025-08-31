@@ -131,40 +131,7 @@ const el = renderTemplate('#template', data);</code></pre>
           </div>
         </div>
 
-        <div class="grid gap-6 md:grid-cols-1 lg:grid-cols-3 hidden">
-          <div class="bg-gray-50 rounded-lg p-4 border">
-            <h5 class="font-semibold text-gray-800 mb-2">📦 Full Bundle (~13KB)</h5>
-            <p class="text-sm text-gray-600 mb-3">Best for: Feature-rich applications, comprehensive DOM manipulation</p>
-            <pre class="code-block text-xs"><code>import dom from '@dmitrijkiltau/dom.js';
-
-// Everything available
-dom('.elements').fadeIn();
-await dom.http.get('/api/data');</code></pre>
-          </div>
-          
-          <div class="bg-green-50 rounded-lg p-4 border border-green-200">
-            <h5 class="font-semibold text-green-800 mb-2">🎯 Core Only (~7KB)</h5>
-            <p class="text-sm text-green-600 mb-3">Best for: Basic DOM manipulation, size-critical apps</p>
-            <pre class="code-block text-xs"><code>import dom from '@dmitrijkiltau/dom.js/core';
-
-// Core functionality only
-dom('.elements')
-  .addClass('active')
-  .on('click', handler);</code></pre>
-          </div>
-          
-          <div class="bg-purple-50 rounded-lg p-4 border border-purple-200">
-            <h5 class="font-semibold text-purple-800 mb-2">🧩 Modular (Flexible)</h5>
-            <p class="text-sm text-purple-600 mb-3">Best for: Maximum tree-shaking, library authors</p>
-            <pre class="code-block text-xs"><code>import dom from '@dmitrijkiltau/dom.js/core';
-import { http } from '@dmitrijkiltau/dom.js/http';
-
-// Import only what you use</code></pre>
-          </div>
-        </div>
-
         
-
         <div>
           <h4 class="text-lg font-semibold mb-2">CDN Options</h4>
           <div class="import-picker">
