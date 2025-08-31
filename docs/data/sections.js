@@ -264,32 +264,47 @@ const element = renderTemplate('#template', data);</code></pre>
             <div class="bg-gray-50 p-3 rounded border">
               <h5 class="font-medium text-gray-800">core.js</h5>
               <p class="text-sm text-gray-600 mt-1">DOM manipulation, events, plugins</p>
-              <code class="text-xs bg-gray-200 px-1 rounded">~1.3KB</code>
+              <code class="text-xs bg-gray-200 px-1 rounded">~6.64 KB gzip</code>
             </div>
             <div class="bg-gray-50 p-3 rounded border">
               <h5 class="font-medium text-gray-800">http.js</h5>
               <p class="text-sm text-gray-600 mt-1">Fetch-based HTTP utilities</p>
-              <code class="text-xs bg-gray-200 px-1 rounded">~86B</code>
+              <code class="text-xs bg-gray-200 px-1 rounded">~2.53 KB gzip</code>
             </div>
             <div class="bg-gray-50 p-3 rounded border">
               <h5 class="font-medium text-gray-800">template.js</h5>
               <p class="text-sm text-gray-600 mt-1">HTML template binding</p>
-              <code class="text-xs bg-gray-200 px-1 rounded">~130B</code>
+              <code class="text-xs bg-gray-200 px-1 rounded">~2.74 KB gzip</code>
             </div>
             <div class="bg-gray-50 p-3 rounded border">
               <h5 class="font-medium text-gray-800">forms.js</h5>
               <p class="text-sm text-gray-600 mt-1">Form handling & serialization</p>
-              <code class="text-xs bg-gray-200 px-1 rounded">~161B</code>
+              <code class="text-xs bg-gray-200 px-1 rounded">~1.66 KB gzip</code>
             </div>
             <div class="bg-gray-50 p-3 rounded border">
               <h5 class="font-medium text-gray-800">motion.js</h5>
               <p class="text-sm text-gray-600 mt-1">Web Animations API</p>
-              <code class="text-xs bg-gray-200 px-1 rounded">~168B</code>
+              <code class="text-xs bg-gray-200 px-1 rounded">~6.87 KB gzip</code>
+            </div>
+            <div class="bg-gray-50 p-3 rounded border">
+              <h5 class="font-medium text-gray-800">utils.js</h5>
+              <p class="text-sm text-gray-600 mt-1">Debounce/throttle, nextTick/raf helpers</p>
+              <code class="text-xs bg-gray-200 px-1 rounded">~0.73 KB gzip</code>
+            </div>
+            <div class="bg-gray-50 p-3 rounded border">
+              <h5 class="font-medium text-gray-800">observers.js</h5>
+              <p class="text-sm text-gray-600 mt-1">Intersection/Resize/Mutation wrappers</p>
+              <code class="text-xs bg-gray-200 px-1 rounded">~6.38 KB gzip</code>
+            </div>
+            <div class="bg-gray-50 p-3 rounded border">
+              <h5 class="font-medium text-gray-800">scroll.js</h5>
+              <p class="text-sm text-gray-600 mt-1">scrollIntoView helpers (container aware)</p>
+              <code class="text-xs bg-gray-200 px-1 rounded">~6.64 KB gzip</code>
             </div>
             <div class="bg-gray-50 p-3 rounded border">
               <h5 class="font-medium text-gray-800">index.js</h5>
               <p class="text-sm text-gray-600 mt-1">Full bundle (all modules)</p>
-              <code class="text-xs bg-gray-200 px-1 rounded">~1.8KB</code>
+              <code class="text-xs bg-gray-200 px-1 rounded">~13.93 KB gzip</code>
             </div>
           </div>
           <p class="text-xs text-gray-500 mt-2">
@@ -357,6 +372,60 @@ dom('.buttons')
             <li>• <code class="bg-gray-200 px-1 rounded">on(event, handler)</code> - Event binding</li>
             <li>• <code class="bg-gray-200 px-1 rounded">find(selector)</code>, <code class="bg-gray-200 px-1 rounded">parent()</code>, <code class="bg-gray-200 px-1 rounded">siblings()</code> - Traversal</li>
           </ul>
+        </div>
+      </div>
+    `
+  },
+  {
+    id: 'utilities',
+    title: 'Utilities',
+    content: `
+      <p class="text-gray-700 mb-4">
+        Handy helpers for scheduling and rate limiting: debounce, throttle, nextTick, raf, and rafThrottle.
+      </p>
+
+      <div class="bg-gray-50 border-l-4 border-gray-400 p-4 mb-6">
+        <div class="flex">
+          <div class="ml-3">
+            <h4 class="text-lg font-medium text-gray-900 mb-2">📦 Import Options</h4>
+            <div class="grid gap-4 md:grid-cols-2">
+              <div>
+                <h5 class="font-medium text-gray-800 mb-2">Full Bundle</h5>
+                <pre class="text-sm bg-gray-100 p-2 rounded"><code>import dom, { debounce, throttle, nextTick, raf, rafThrottle } from '@dmitrijkiltau/dom.js';</code></pre>
+              </div>
+              <div>
+                <h5 class="font-medium text-gray-800 mb-2">Modular Import</h5>
+                <pre class="text-sm bg-gray-100 p-2 rounded"><code>import { debounce, throttle, nextTick, raf, rafThrottle } from '@dmitrijkiltau/dom.js/utils';</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `
+  },
+  {
+    id: 'observers',
+    title: 'Observers',
+    content: `
+      <p class="text-gray-700 mb-4">
+        Lightweight wrappers for native observers: IntersectionObserver, ResizeObserver, and MutationObserver.
+      </p>
+
+      <div class="bg-gray-50 border-l-4 border-gray-400 p-4 mb-6">
+        <div class="flex">
+          <div class="ml-3">
+            <h4 class="text-lg font-medium text-gray-900 mb-2">📦 Import Options</h4>
+            <div class="grid gap-4 md:grid-cols-2">
+              <div>
+                <h5 class="font-medium text-gray-800 mb-2">Full Bundle</h5>
+                <pre class="text-sm bg-gray-100 p-2 rounded"><code>import dom, { onIntersect, onResize, onMutation } from '@dmitrijkiltau/dom.js';</code></pre>
+              </div>
+              <div>
+                <h5 class="font-medium text-gray-800 mb-2">Modular Import</h5>
+                <pre class="text-sm bg-gray-100 p-2 rounded"><code>import { onIntersect, onResize, onMutation } from '@dmitrijkiltau/dom.js/observers';</code></pre>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     `

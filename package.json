@@ -1,6 +1,6 @@
 {
   "name": "@dmitrijkiltau/dom.js",
-  "version": "1.5.4",
+  "version": "1.5.5",
   "description": "A lightweight, modular DOM manipulation library with chainable API, zero dependencies, and modern ES modules.",
   "type": "module",
   "main": "dist/index.cjs",
@@ -53,6 +53,21 @@
       "types": "./dist/motion.d.ts",
       "import": "./dist/motion.js",
       "require": "./dist/motion.cjs"
+    },
+    "./utils": {
+      "types": "./dist/utils.d.ts",
+      "import": "./dist/utils.js",
+      "require": "./dist/utils.cjs"
+    },
+    "./observers": {
+      "types": "./dist/observers.d.ts",
+      "import": "./dist/observers.js",
+      "require": "./dist/observers.cjs"
+    },
+    "./scroll": {
+      "types": "./dist/scroll.d.ts",
+      "import": "./dist/scroll.js",
+      "require": "./dist/scroll.cjs"
     }
   },
   "sideEffects": false,
@@ -60,7 +75,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup src/index.ts src/core.ts src/http.ts src/template.ts src/forms.ts src/motion.ts --format esm,cjs --dts --minify --splitting false --clean",
+    "build": "tsup src/index.ts src/core.ts src/http.ts src/template.ts src/forms.ts src/motion.ts src/utils.ts src/observers.ts src/scroll.ts --format esm,cjs --dts --minify --splitting false --clean",
     "build:full": "npm run build",
     "build:core": "tsup src/core.ts --format esm,cjs --dts --minify",
     "analyze": "node scripts/analyze-bundles.mjs",

@@ -6,6 +6,8 @@ export const navigationItems = [
   { title: 'Core API', href: '#core-api' },
   { title: 'DOM Manipulation', href: '#dom-manipulation' },
   { title: 'Layout & Geometry', href: '#layout-geometry' },
+  { title: 'Utilities', href: '#utilities' },
+  { title: 'Observers', href: '#observers' },
   { title: 'Templates', href: '#templates' },
   { title: 'Forms', href: '#forms' },
   { title: 'Events', href: '#events' },

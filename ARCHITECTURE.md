@@ -26,7 +26,9 @@ src/
 ├── forms.ts          # Form handling (~1.7 KB gzip)
 ├── motion.ts         # Animation utilities (~6.5 KB gzip)
 ├── plugins.ts        # Plugin system
-├── utils.ts          # Shared utilities
+├── utils.ts          # Shared utilities (debounce/throttle, nextTick/raf)
+├── observers.ts      # Intersection/Resize/Mutation observer wrappers
+├── scroll.ts         # Scroll helpers (scrollIntoView)
 └── types.ts          # TypeScript definitions
 ```
 
@@ -85,6 +87,9 @@ Cherry-pick specific functionality:
 import dom from "@dmitrijkiltau/dom.js/core";
 import { http } from "@dmitrijkiltau/dom.js/http";
 import { renderTemplate } from "@dmitrijkiltau/dom.js/template";
+import { debounce, throttle, nextTick, raf, rafThrottle } from "@dmitrijkiltau/dom.js/utils";
+import { onIntersect, onResize, onMutation } from "@dmitrijkiltau/dom.js/observers";
+import { scrollIntoView, scrollIntoViewIfNeeded } from "@dmitrijkiltau/dom.js/scroll";
 
 // Use core DOM functionality
 dom(".elements").addClass("active");
@@ -369,6 +374,46 @@ dom(".el").cancel();    // cancel and clear queue
 
 // Reduced motion
 // Respects prefers-reduced-motion; animations run with zero duration while preserving visibility effects
+```
+
+### Utilities (`@dmitrijkiltau/dom.js/utils`)
+
+Lightweight helpers for scheduling and rate-limiting.
+
+```js
+import { debounce, throttle, nextTick, raf, rafThrottle } from '@dmitrijkiltau/dom.js/utils';
+
+const onType = debounce(() => {/* ... */}, 150);
+const onScroll = throttle(() => {/* ... */}, 100);
+await nextTick(); // microtask
+await raf();      // next frame
+const draw = rafThrottle(() => {/* once per frame */});
+```
+
+### Observers (`@dmitrijkiltau/dom.js/observers`)
+
+Small wrappers around native observers.
+
+```js
+import { onIntersect, onResize, onMutation } from '@dmitrijkiltau/dom.js/observers';
+
+const stop1 = onIntersect('.watch', (entry, el) => {/* ... */}, { threshold: 0.1 });
+const stop2 = onResize('.box', (entry, el) => {/* ... */});
+const stop3 = onMutation('#list', (records, el) => {/* ... */}, { childList: true, subtree: true });
+
+// Each returns an unobserve/disconnect function
+stop1(); stop2(); stop3();
+```
+
+### Scroll (`@dmitrijkiltau/dom.js/scroll`)
+
+Scroll elements into view within window or scrollable containers.
+
+```js
+import { scrollIntoView, scrollIntoViewIfNeeded } from '@dmitrijkiltau/dom.js/scroll';
+
+scrollIntoView('#details', { behavior: 'smooth', block: 'start' });
+scrollIntoViewIfNeeded('.row', { behavior: 'smooth', block: 'center' });
 ```
 
 ## Migration Guide

@@ -64,7 +64,7 @@ function initScrollSpy() {
   const sections = navigationItems.map(i => dom(i.href).el()).filter(Boolean);
 
   if (!('IntersectionObserver' in window) || sections.length === 0) {
-    window.addEventListener('scroll', throttle(updateByScroll, 150), { passive: true });
+    window.addEventListener('scroll', dom.throttle(updateByScroll, 150), { passive: true });
     updateByScroll();
     return;
   }
@@ -199,16 +199,4 @@ function initHashChangeSync() {
   });
 }
 
-function throttle(fn, wait) {
-  let t = 0, lastArgs = null, running = false;
-  return function (...args) {
-    lastArgs = args;
-    const now = Date.now();
-    if (!t || now - t >= wait) {
-      t = now; fn(...lastArgs); running = false;
-    } else if (!running) {
-      running = true;
-      setTimeout(() => { t = Date.now(); fn(...lastArgs); running = false; }, wait - (now - t));
-    }
-  };
-}
+// Using dom.throttle from library for rate-limiting

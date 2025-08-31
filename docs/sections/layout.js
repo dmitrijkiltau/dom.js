@@ -109,6 +109,32 @@ dom('#box').scrollLeft(100);  // set
 dom('#box').scrollTop(0).scrollLeft(0);`
       },
       {
+        id: 'scroll-into-view',
+        title: 'Scroll Into View',
+        demo: `
+          <div class="space-y-4">
+            <div class="flex flex-wrap gap-2">
+              <button id="siv-center" class="btn btn-primary text-sm">Center Row 15</button>
+              <button id="siv-start" class="btn btn-secondary text-sm">Start Row 5</button>
+              <button id="siv-ifneeded" class="btn btn-outline text-sm">Scroll If Needed</button>
+            </div>
+            <div class="p-3 border border-gray-300 rounded bg-white">
+              <div id="siv-container" style="height: 140px; overflow: auto; border: 2px solid #cbd5e1; padding: 8px;">
+                <div class="space-y-2">
+                  ${Array.from({ length: 25 }, (_, i) => `<div id=\"siv-item-${i+1}\" class=\"p-2 bg-gray-50 border rounded\">Row ${i + 1}</div>`).join('')}
+                </div>
+              </div>
+            </div>
+            <div id="siv-log" class="text-sm text-gray-700 bg-gray-100 p-3 rounded"></div>
+          </div>
+        `,
+        code: `import { scrollIntoView, scrollIntoViewIfNeeded } from '@dmitrijkiltau/dom.js/scroll';
+
+scrollIntoView('#item-15', { container: '#list', behavior: 'smooth', block: 'center' });
+scrollIntoView('#item-5', { container: '#list', behavior: 'smooth', block: 'start' });
+scrollIntoViewIfNeeded('#item-5', { container: '#list', behavior: 'smooth' });`
+      },
+      {
         id: 'rect',
         title: 'Rect',
         demo: `
@@ -205,6 +231,21 @@ const r = dom('#el').rect();
     dom('#scroll-log').text('Scrolled to bottom-right');
   });
 
+  // Scroll-into-view handlers
+  const getContainer = () => dom('#siv-container').el();
+  dom('#siv-center').on('click', () => {
+    dom('#siv-item-15').scrollIntoView({ container: getContainer(), behavior: 'smooth', block: 'center' });
+    dom('#siv-log').text('Centered Row 15');
+  });
+  dom('#siv-start').on('click', () => {
+    dom('#siv-item-5').scrollIntoView({ container: getContainer(), behavior: 'smooth', block: 'start' });
+    dom('#siv-log').text('Scrolled Row 5 to start');
+  });
+  dom('#siv-ifneeded').on('click', () => {
+    dom('#siv-item-5').scrollIntoViewIfNeeded({ container: getContainer(), behavior: 'smooth', block: 'center' });
+    dom('#siv-log').text('Scrolled Row 5 if needed');
+  });
+
   // Rect handlers
   dom('#measure-rect').click(() => {
     const r = dom('#rect-target').rect();
@@ -222,4 +263,3 @@ const r = dom('#el').rect();
   });
   dom('#reset-rect-target').click(() => { dom('#rect-target').width(null).height(null); dom('#rect-log').text('Reset size'); });
 }
-

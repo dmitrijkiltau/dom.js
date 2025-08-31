@@ -31,23 +31,28 @@ function init() {
     const targetElement = document.getElementById(targetId);
 
     if (targetElement) {
-      targetElement.scrollIntoView({ behavior: 'smooth' });
+      // Use library helper for consistency
+      dom.scrollIntoView(targetElement, { behavior: 'smooth', block: 'start' });
     }
   });
+}
+
+// Re-highlight a code element if needed
+function rehighlight(codeEl) {
+  if (!codeEl) return;
+  codeEl.classList.remove('highlighted');
+  if (!codeEl.className.includes('language-')) {
+    codeEl.classList.add('language-javascript');
+  }
+  Prism.highlightElement(codeEl);
+  codeEl.classList.add('highlighted');
 }
 
 // Initialize syntax highlighting for all code blocks
 function initSyntaxHighlighting() {
   // Highlight all code blocks that don't have the 'highlighted' class
   const codeBlocks = document.querySelectorAll('pre code:not(.highlighted):not([data-no-highlight])');
-  for (const codeBlock of codeBlocks) {
-    // Add language-javascript class if no language class exists
-    if (!codeBlock.className.includes('language-')) {
-      codeBlock.classList.add('language-javascript');
-    }
-    Prism.highlightElement(codeBlock);
-    codeBlock.classList.add('highlighted');
-  }
+  for (const codeBlock of codeBlocks) rehighlight(codeBlock);
 }
 
 // Initialize the simple import picker tabs in Getting Started
@@ -69,11 +74,7 @@ function initImportPicker() {
 
     // Update code text and re-highlight
     targetCode.textContent = sourceCode.textContent;
-    // Re-run Prism highlighting
-    targetCode.classList.remove('highlighted');
-    if (!targetCode.className.includes('language-')) targetCode.classList.add('language-javascript');
-    Prism.highlightElement(targetCode);
-    targetCode.classList.add('highlighted');
+    rehighlight(targetCode);
   });
 
   // Initialize each picker with its first tab
@@ -147,16 +148,8 @@ function handleSingleExampleToggle(button, container) {
     if (demoSection) demoSection.style.display = 'none';
     if (codeSection) {
       codeSection.style.display = 'block';
-      // Apply syntax highlighting to code blocks
       const codeBlock = codeSection.querySelector('code');
-      if (codeBlock && !codeBlock.classList.contains('highlighted')) {
-        // Add language-javascript class if no language class exists
-        if (!codeBlock.className.includes('language-')) {
-          codeBlock.classList.add('language-javascript');
-        }
-        Prism.highlightElement(codeBlock);
-        codeBlock.classList.add('highlighted');
-      }
+      if (codeBlock) rehighlight(codeBlock);
     }
     if (toggleText) toggleText.textContent = 'Show Demo';
     // Switch to cube icon (showing demo)
@@ -193,16 +186,8 @@ function handleTabbedExamplesToggle(button, tabbedContainer) {
       if (demoSection) demoSection.style.display = 'none';
       if (codeSection) {
         codeSection.style.display = 'block';
-        // Apply syntax highlighting to code blocks
         const codeBlock = codeSection.querySelector('code');
-        if (codeBlock && !codeBlock.classList.contains('highlighted')) {
-          // Add language-javascript class if no language class exists
-          if (!codeBlock.className.includes('language-')) {
-            codeBlock.classList.add('language-javascript');
-          }
-          Prism.highlightElement(codeBlock);
-          codeBlock.classList.add('highlighted');
-        }
+        if (codeBlock) rehighlight(codeBlock);
       }
     }
     if (toggleText) toggleText.textContent = 'Show Demo';
