@@ -173,12 +173,10 @@ function createClient(config: ClientConfig = {}): HttpMethod {
       if (cached) return wrap(cloneResponse(cached), controller);
     }
 
-    // Timeout support
+    // Timeout support (applies only if we control a controller)
     let timeoutId: any = null;
-    if (timeoutMs && timeoutMs > 0 && (controller || mergedInit.signal)) {
-      const aborter = controller || new AbortController();
-      if (!mergedInit.signal) mergedInit.signal = aborter.signal;
-      timeoutId = setTimeout(() => aborter.abort(), timeoutMs);
+    if (timeoutMs && timeoutMs > 0 && controller) {
+      timeoutId = setTimeout(() => controller.abort(), timeoutMs);
     }
 
     // Fetch with retry
@@ -191,9 +189,9 @@ function createClient(config: ClientConfig = {}): HttpMethod {
     let lastError: unknown = null;
     while (attempt < maxAttempts) {
       try {
-        const res = await fetch(reqCtx.url, { ...reqCtx.init, method });
+        const res = await fetch(reqCtx.url, { ...reqCtx.init, method: reqCtx.method });
         // Post-response interceptors (allow response replacement)
-        let resCtx: ResponseContext = { method, url: reqCtx.url, init: reqCtx.init, response: res };
+        let resCtx: ResponseContext = { method: reqCtx.method, url: reqCtx.url, init: reqCtx.init, response: res };
         for (const ints of (cfg.interceptors || [])) {
           if (!ints.onResponse) continue;
           const out = await ints.onResponse(resCtx);
@@ -204,7 +202,7 @@ function createClient(config: ClientConfig = {}): HttpMethod {
         if (!resCtx.response.ok && throwOnError) {
           const err = new HttpError(`HTTP ${resCtx.response.status} for ${reqCtx.url}`, resCtx.response, reqCtx.url);
           // Allow onError interceptors
-          const maybeHandled = await handleErrorInterceptors(cfg.interceptors || [], { method, url: reqCtx.url, init: reqCtx.init, error: err, attempt });
+          const maybeHandled = await handleErrorInterceptors(cfg.interceptors || [], { method: reqCtx.method, url: reqCtx.url, init: reqCtx.init, error: err, attempt });
           if (maybeHandled) {
             // Interceptor returned a replacement response
             if (cacheEnabled) cache.set(cacheKey, cloneResponse(maybeHandled.response), mergedInit.cacheTtl ?? cacheOpts.ttl);
@@ -227,7 +225,7 @@ function createClient(config: ClientConfig = {}): HttpMethod {
         return wrap(resCtx.response, controller);
       } catch (error) {
         lastError = error;
-        const ctx: ErrorContext = { method, url: reqCtx.url, init: reqCtx.init, error, attempt };
+        const ctx: ErrorContext = { method: reqCtx.method, url: reqCtx.url, init: reqCtx.init, error, attempt };
         const maybeHandled = await handleErrorInterceptors(cfg.interceptors || [], ctx);
         if (maybeHandled) {
           if (cacheEnabled) cache.set(cacheKey, cloneResponse(maybeHandled.response), mergedInit.cacheTtl ?? cacheOpts.ttl);

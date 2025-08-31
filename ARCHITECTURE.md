@@ -233,6 +233,23 @@ api.cache.clear();
 api.cache.delete(api.cache.computeKey('GET', '/api/items', { } as any));
 ```
 
+#### HTTP Quick Reference
+
+Client builders:
+
+| Helper | Purpose |
+| --- | --- |
+| `withBaseUrl(baseUrl)` | Default base URL for relative paths |
+| `withHeaders(headers)` | Default headers (merged) |
+| `withQuery(params)` | Default query params |
+| `withTimeout(ms)` | Global request timeout |
+| `withRetry({ retries, retryDelay, retryBackoff, retryOn })` | Retry strategy |
+| `withInterceptors({ onRequest, onResponse, onError })` | Lifecycle hooks |
+| `withCache({ enabled, ttl, key })` | In-memory GET cache |
+| `withThrowOnError([on=true])` | Throw on non-ok responses |
+
+Per-request options (partial): `baseUrl`, `query`, `headers`, `timeout`, `controller`/`signal`, `throwOnError`, `onUploadProgress`, `retries`, `retryDelay`, `retryBackoff`, `retryOn`, `cacheKey`, `cacheTtl`, `noCache`.
+
 ### Templates (`@dmitrijkiltau/dom.js/template`)
 
 **HTML template binding system with incremental updates**

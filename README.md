@@ -631,6 +631,7 @@ controller.abort(); // cancel when needed
   okOrThrow(),   // throw HttpError on non-ok
   cancel(),      // abort via attached controller (if present)
 }
+```
 
 ### Interceptors
 
@@ -669,7 +670,62 @@ api.cache.clear(); // clear client cache
 ```
 
 Per-request options: `{ noCache, cacheKey, cacheTtl }`.
-```
+
+### HTTP Quick Reference
+
+Client builders (chainable):
+
+| Helper | Description |
+| --- | --- |
+| `withBaseUrl(baseUrl)` | Applies a base URL to relative request URLs. Per-request override via `baseUrl`. |
+| `withHeaders(headers)` | Sets default headers (merged with per-request `headers`). |
+| `withQuery(params)` | Adds default query parameters. Per-request via `query`. |
+| `withTimeout(ms)` | Aborts requests after `ms` milliseconds unless resolved/cancelled. |
+| `withRetry({ retries, retryDelay, retryBackoff, retryOn })` | Configures global retry strategy. |
+| `withInterceptors({ onRequest, onResponse, onError })` | Hooks into request/response/error lifecycle. |
+| `withCache({ enabled, ttl, key })` | Enables in-memory caching for GET requests. |
+| `withThrowOnError([on=true])` | Throws `HttpError` on non-ok responses. Also `response.okOrThrow()`. |
+
+Per-request options (subset):
+
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `baseUrl` | `string` | client base | Override base URL for this request |
+| `query` | `Record<string, any>` | `{}` | Query params to append to URL |
+| `headers` | `HeadersInit` | merged | Extra headers for this request |
+| `timeout` | `number` | client timeout | Abort after ms |
+| `controller` | `AbortController` | auto | Explicit controller; also supports `signal` from RequestInit |
+| `throwOnError` | `boolean` | client setting | Throw `HttpError` on non-ok |
+| `onUploadProgress` | `(p) => void` | — | Upload progress for streamed bodies (Blob/string/ArrayBuffer) |
+| `retries` | `number` | client setting | Additional retry attempts |
+| `retryDelay` | `number` | 250 | Initial backoff delay in ms |
+| `retryBackoff` | `number` | 2 | Exponential multiplier |
+| `retryOn` | `(res, err, attempt) => boolean` | default (errors, 5xx, 429) | Custom retry decision |
+| `cacheKey` | `string` | computed | Override cache key |
+| `cacheTtl` | `number` | client ttl | TTL for this request (ms) |
+| `noCache` | `boolean` | `false` | Skip cache read/store |
+
+Interceptors:
+
+| Hook | Signature | Purpose |
+| --- | --- | --- |
+| `onRequest` | `({ method, url, init }) => void | ctx | Promise` | Inspect/mutate request before fetch |
+| `onResponse` | `({ method, url, init, response }) => void | ctx | Promise` | Inspect/replace response |
+| `onError` | `({ method, url, init, error, attempt }) => void | {response} | Promise` | Handle errors; return `{response}` to recover |
+
+Response wrapper:
+
+| Member | Type | Description |
+| --- | --- | --- |
+| `raw` | `Response` | Native Response |
+| `ok` | `boolean` | `response.ok` |
+| `status` | `number` | Status code |
+| `text()` | `() => Promise<string>` | Body as text |
+| `json<T>()` | `() => Promise<T>` | Body as JSON |
+| `html()` | `() => Promise<Document>` | Body parsed as HTML |
+| `okOrThrow()` | `() => this` | Throw on non-ok, else return wrapper |
+| `controller` | `AbortController | undefined` | Attached controller if created |
+| `cancel()` | `() => void` | Abort via attached controller |
 
 ## Animation
 
