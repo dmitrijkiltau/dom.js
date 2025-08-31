@@ -2,6 +2,20 @@ import { CSSInput, CSSValue, Handler } from './types';
 import { addManaged, removeManaged, removeAllManaged } from './events';
 import { camelToKebab, toArray, isElement } from './utils';
 
+// CSS helpers
+const UNITLESS_CSS_PROPS = new Set<string>([
+  'opacity', 'z-index', 'font-weight', 'line-height',
+  'flex', 'flex-grow', 'flex-shrink', 'order',
+  'grid-row-start', 'grid-row-end', 'grid-column-start', 'grid-column-end',
+  'scale', 'zoom', 'orphans', 'widows', 'tab-size', 'column-count'
+]);
+
+function formatCssValue(propKebab: string, value: string | number): string {
+  if (typeof value !== 'number') return String(value);
+  if (propKebab.startsWith('--')) return String(value);
+  return UNITLESS_CSS_PROPS.has(propKebab) ? String(value) : `${value}px`;
+}
+
 export class DOMCollection {
   elements: Element[];
 
@@ -549,7 +563,12 @@ export class DOMCollection {
       el.classList.add(...newNames);
     });
   }
-  toggleClass(name: string, force?: boolean): this { return this.each(el => el.classList.toggle(name, force)); }
+  toggleClass(name: string, force?: boolean): this {
+    const allNames = String(name).split(/\s+/).filter(Boolean);
+    return this.each(el => {
+      for (const n of allNames) el.classList.toggle(n, force as any);
+    });
+  }
   hasClass(name: string): boolean { return !!this.elements[0]?.classList.contains(name); }
 
   // CSS
@@ -563,7 +582,8 @@ export class DOMCollection {
       return this.each(el => {
         const s = (el as HTMLElement).style;
         const prop = camelToKebab(nameOrInput);
-        if (value === null) s.removeProperty(prop); else s.setProperty(prop, String(value));
+        if (value === null) s.removeProperty(prop);
+        else s.setProperty(prop, formatCssValue(prop, value as any));
       });
     }
     const map = nameOrInput;
@@ -571,6 +591,34 @@ export class DOMCollection {
       const s = (el as HTMLElement).style;
       for (const [k, v] of Object.entries(map)) {
         const prop = camelToKebab(k);
+        if (v == null) s.removeProperty(prop);
+        else s.setProperty(prop, formatCssValue(prop, v as any));
+      }
+    });
+  }
+
+  // CSS Custom Properties (variables)
+  cssVar(name: string): string;
+  cssVar(name: string, value: string | number | null): this;
+  cssVar(name: string, value?: string | number | null): any {
+    const prop = name.startsWith('--') ? name : `--${name}`;
+    if (value === undefined) {
+      const first = this.elements[0] as Element | undefined;
+      if (!first) return '';
+      return getComputedStyle(first).getPropertyValue(prop).trim();
+    }
+    return this.each(el => {
+      const s = (el as HTMLElement).style;
+      if (value == null) s.removeProperty(prop);
+      else s.setProperty(prop, String(value));
+    });
+  }
+
+  cssVars(map: Record<string, string | number | null | undefined>): this {
+    return this.each(el => {
+      const s = (el as HTMLElement).style;
+      for (const [k, v] of Object.entries(map)) {
+        const prop = k.startsWith('--') ? k : `--${k}`;
         if (v == null) s.removeProperty(prop); else s.setProperty(prop, String(v));
       }
     });
@@ -584,6 +632,26 @@ export class DOMCollection {
       const shouldShow = force ?? h;
       (el as HTMLElement).style.display = shouldShow ? '' : 'none';
     });
+  }
+
+  isVisible(): boolean {
+    const el = this.elements[0] as Element | undefined;
+    if (!el) return false;
+    // Must be connected to the document to be considered visible
+    if (!(el as any).isConnected) return false;
+    // Check computed styles on self and ancestors for display/visibility
+    let cur: Element | null = el;
+    while (cur && cur instanceof Element) {
+      const cs = getComputedStyle(cur);
+      if (cs.display === 'none') return false;
+      if (cs.visibility === 'hidden' || cs.visibility === 'collapse') return false;
+      cur = cur.parentElement;
+    }
+    // Has layout boxes
+    const rects = (el as HTMLElement).getClientRects();
+    if (rects && rects.length > 0) return true;
+    const rect = (el as HTMLElement).getBoundingClientRect();
+    return rect.width > 0 && rect.height > 0;
   }
 
   // Layout & geometry
@@ -647,6 +715,20 @@ export class DOMCollection {
     const bt = parseFloat(cs.borderTopWidth) || 0;
     const bb = parseFloat(cs.borderBottomWidth) || 0;
     return Math.max(0, rect.height - bt - bb);
+  }
+
+  // Batch computed style getter
+  computed(names: string | string[]): Record<string, string> {
+    const first = this.elements[0] as Element | undefined;
+    const list = Array.isArray(names) ? names : String(names).split(/[\s,]+/).filter(Boolean);
+    const out: Record<string, string> = {};
+    if (!first) return out;
+    const cs = getComputedStyle(first);
+    for (const name of list) {
+      const prop = camelToKebab(name);
+      out[name] = cs.getPropertyValue(prop).trim();
+    }
+    return out;
   }
 
   outerWidth(includeMargin: boolean = false): number {

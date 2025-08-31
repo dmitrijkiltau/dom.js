@@ -151,8 +151,9 @@ dom.use(plugin)           // Plugin system (automatically available)
 .text() .html() .append() .appendTo() .prepend() .prependTo()
 .insertBefore() .insertAfter()
 .addClass() .removeClass() .toggleClass() .hasClass()
-.css() .attr() .removeAttr() .val() .prop() .attrs() .data()
+.css() .cssVar() .cssVars() .computed() .attr() .removeAttr() .val() .prop() .attrs() .data()
 .show() .hide() .toggle()
+.isVisible()
 .width() .height() .innerWidth() .innerHeight()
 .outerWidth([includeMargin]) .outerHeight([includeMargin])
 .offset() .position() .offsetParent()
@@ -166,6 +167,10 @@ dom.use(plugin)           // Plugin system (automatically available)
   
 // Notes:
 // - wrap/wrapAll/wrapInner accept HTML strings or selector strings (selectors are cloned)
+// - .toggleClass() accepts space-separated multiple class names
+// - .css() accepts numbers and appends 'px' for unitful properties (unitless properties like opacity/line-height remain unitless)
+// - .cssVar(name[, value]) and .cssVars(map) get/set CSS custom properties (variables)
+// - .computed('prop1 prop2') batch-reads computed style values into an object
 ```
 
 ### HTTP (`@dmitrijkiltau/dom.js/http`)

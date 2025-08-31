@@ -165,8 +165,16 @@ dom('.items').addClass('active')
 dom('.items').removeClass('inactive')
 dom('.items').replaceClass('old-class', 'new-class') // replace specific classes
 dom('.items').toggleClass('visible')
+dom('.items').toggleClass('foo bar') // toggles multiple classes at once
 dom('.items').hasClass('active') // check if has class
+// CSS helpers
 dom('.items').css('color', 'red')
+dom('.items').css('margin', 12) // numbers default to px for unitful props
+dom('.items').css({ paddingTop: 8, opacity: 0.9 }) // mixed object; unitless props stay unitless
+dom('.items').cssVar('--accent', '#09f') // set/get CSS custom properties
+dom('.items').cssVar('radius', '8px') // '--radius'
+dom('.items').cssVars({ gap: '12px', brand: '#f60' }) // set multiple CSS variables
+dom('.items').computed('color font-size') // batch read computed styles -> { color: '...', 'font-size': '...' }
 dom('.items').attr('data-id', '123')
 dom('.items').attrs({id: 'main', class: 'active'}) // bulk attributes
 dom('.items').prop('checked', true) // properties vs attributes
@@ -204,6 +212,7 @@ dom('.items').hide() // hide elements
 dom('.items').toggle() // toggle visibility
 dom('.items').toggle(true) // force show
 dom('.items').toggle(false) // force hide
+dom('.items').isVisible() // true if first element is visible in layout
 
 // Event handling (enhanced)
 // Multi-type, options, namespacing, and unbind handle (top-level on)
