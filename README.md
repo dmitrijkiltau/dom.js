@@ -130,6 +130,14 @@ dom([el1, el2])           // wrap multiple elements
 dom(document)             // wrap document
 dom(window)               // wrap window
 
+// Optional context selection
+dom('.child', rootElement) // search within a root element
+dom('.item', dom('#list')) // context can be a DOMCollection
+
+// Create from HTML strings
+dom('<li class="entry">Hello</li>') // parse HTML into elements
+dom.fromHTML('<div><span>Hi</span></div>') // explicit helper
+
 // Chain operations
 dom('.cards')
   .addClass('animate')
@@ -210,16 +218,29 @@ dom('#list').on('click', 'a.item', (ev, el, idx) => {
 // Traversal and filtering
 dom('.items').filter('.active') // filter by selector or function
 dom('.items').find('.child') // descendants
+dom('.items').children('.child') // immediate children (optionally filtered)
 dom('.items').parent() // immediate parents
 dom('.items').parents('.container') // all ancestors (optionally filtered)
 dom('.items').siblings('.other') // sibling elements
+dom('.items').closest('.container') // closest ancestor that matches
+dom('.items').next('.row') // next element sibling (optionally filtered)
+dom('.items').prev('.row') // previous element sibling (optionally filtered)
 dom('.items').first() // first element
 dom('.items').last() // last element
 dom('.items').eq(0) // element at index
+dom('.items').get(0) // get raw element at index
+dom('.items').slice(1, -1) // sub-collection
+dom('.items').map((el, i) => el.id) // map to array
+dom('.items').index() // index of first element among its siblings
+dom('.items').is('.active') // does any element match selector
+dom('.items').not('.disabled') // exclude matching elements
+dom('.sections').has('.item') // keep elements that contain a descendant
+dom('.a').add('.b') // union with selector/elements/collection
 
 // Utilities
 dom('.items').each((el, idx) => console.log(el))
 dom('.items').el() // get first element
+dom('.items').el(1) // get element by index (convenience)
 dom('.items').serialize() // serialize form data (works on forms or form fields)
 ```
 

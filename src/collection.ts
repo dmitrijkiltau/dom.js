@@ -16,7 +16,7 @@ export class DOMCollection {
 
   // Basic DOM read helpers
   get length(): number { return this.elements.length; }
-  el<T extends Element = Element>(): T | undefined { return this.elements[0] as T | undefined; }
+  el<T extends Element = Element>(i?: number): T | undefined { return this.elements[(i ?? 0)] as T | undefined; }
   first(): DOMCollection { return new DOMCollection(this.elements.length ? [this.elements[0]] : []); }
   last(): DOMCollection { return new DOMCollection(this.elements.length ? [this.elements[this.elements.length - 1]] : []); }
   eq(i: number): DOMCollection { return new DOMCollection(this.elements[i] ? [this.elements[i]] : []); }
@@ -37,6 +37,47 @@ export class DOMCollection {
   }
 
   // Traversal methods
+  children(selector?: string): DOMCollection {
+    const kids: Element[] = [];
+    for (const el of this.elements) {
+      for (const c of toArray(el.children)) {
+        if (!selector || (c as Element).matches(selector)) {
+          if (!kids.includes(c as Element)) kids.push(c as Element);
+        }
+      }
+    }
+    return new DOMCollection(kids);
+  }
+  closest(selector: string): DOMCollection {
+    const matches: Element[] = [];
+    for (const el of this.elements) {
+      const m = el.closest(selector);
+      if (m && !matches.includes(m)) matches.push(m);
+    }
+    return new DOMCollection(matches);
+  }
+  next(selector?: string): DOMCollection {
+    const out: Element[] = [];
+    for (const el of this.elements) {
+      const n = (el as any).nextElementSibling as Element | null;
+      if (!n) continue;
+      if (!selector || n.matches(selector)) {
+        if (!out.includes(n)) out.push(n);
+      }
+    }
+    return new DOMCollection(out);
+  }
+  prev(selector?: string): DOMCollection {
+    const out: Element[] = [];
+    for (const el of this.elements) {
+      const p = (el as any).previousElementSibling as Element | null;
+      if (!p) continue;
+      if (!selector || p.matches(selector)) {
+        if (!out.includes(p)) out.push(p);
+      }
+    }
+    return new DOMCollection(out);
+  }
   parent(): DOMCollection {
     const parents: Element[] = [];
     for (const el of this.elements) {
@@ -75,6 +116,68 @@ export class DOMCollection {
       }
     }
     return new DOMCollection(siblings);
+  }
+
+  // Collection tests and set operations
+  is(selectorOrEl: string | Element | DOMCollection | ((el: Element, idx: number) => boolean)): boolean {
+    if (typeof selectorOrEl === 'function') return this.elements.some((el, i) => selectorOrEl(el, i));
+    if (typeof selectorOrEl === 'string') return this.elements.some(el => el.matches(selectorOrEl));
+    if (selectorOrEl instanceof DOMCollection) {
+      const set = new Set(selectorOrEl.elements);
+      return this.elements.some(el => set.has(el));
+    }
+    if (isElement(selectorOrEl)) return this.elements.some(el => el === selectorOrEl);
+    return false;
+  }
+  not(selectorOrEl: string | Element | DOMCollection | ((el: Element, idx: number) => boolean)): DOMCollection {
+    if (typeof selectorOrEl === 'function') return new DOMCollection(this.elements.filter((el, i) => !selectorOrEl(el, i)));
+    if (typeof selectorOrEl === 'string') return new DOMCollection(this.elements.filter(el => !el.matches(selectorOrEl)));
+    if (selectorOrEl instanceof DOMCollection) {
+      const set = new Set(selectorOrEl.elements);
+      return new DOMCollection(this.elements.filter(el => !set.has(el)));
+    }
+    if (isElement(selectorOrEl)) return new DOMCollection(this.elements.filter(el => el !== selectorOrEl));
+    return new DOMCollection(this.elements.slice());
+  }
+  has(selectorOrEl: string | Element | DOMCollection): DOMCollection {
+    if (typeof selectorOrEl === 'string') return new DOMCollection(this.elements.filter(el => !!el.querySelector(selectorOrEl)));
+    if (selectorOrEl instanceof DOMCollection) {
+      const set = new Set(selectorOrEl.elements);
+      return new DOMCollection(this.elements.filter(el => {
+        for (const c of set) if (el.contains(c)) return true;
+        return false;
+      }));
+    }
+    if (isElement(selectorOrEl)) return new DOMCollection(this.elements.filter(el => el.contains(selectorOrEl)));
+    return new DOMCollection([]);
+  }
+  add(input: string | Element | ArrayLike<Element> | DOMCollection): DOMCollection {
+    let addl: Element[] = [];
+    if (typeof input === 'string') addl = toArray(document.querySelectorAll(input));
+    else if (input instanceof DOMCollection) addl = input.elements;
+    else if (isElement(input)) addl = [input];
+    else addl = toArray(input);
+    const out: Element[] = [];
+    for (const el of this.elements.concat(addl)) if (el && !out.includes(el)) out.push(el);
+    return new DOMCollection(out);
+  }
+  index(): number {
+    const el = this.elements[0];
+    if (!el || !el.parentElement) return -1;
+    const kids = toArray(el.parentElement.children);
+    return kids.indexOf(el);
+  }
+  slice(start?: number, end?: number): DOMCollection {
+    return new DOMCollection(this.elements.slice(start, end));
+  }
+  map<T>(fn: (el: Element, idx: number) => T): T[] {
+    return this.elements.map((el, i) => fn(el, i));
+  }
+  get(): Element[];
+  get(index: number): Element | undefined;
+  get(index?: number): Element | Element[] | undefined {
+    if (index === undefined) return this.elements.slice();
+    return this.elements[index];
   }
 
   // Content

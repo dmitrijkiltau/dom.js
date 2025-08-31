@@ -133,15 +133,20 @@ dom('.elements').fadeIn();
 import dom from '@dmitrijkiltau/dom.js/core';
 
 // Available:
-dom(selector)              // Element selection
+dom(selector, context?)    // Element selection (with optional context)
+dom('<div>…</div>')        // Create elements from HTML
+dom.fromHTML(html)         // Explicit HTML-to-elements
 dom.create(tag, attrs)     // Element creation  
 dom.on/once/off()         // Event handling
 dom.DOMCollection         // Collection class
 dom.use(plugin)           // Plugin system (automatically available)
 
 // DOMCollection methods:
-.each() .length .first() .last() .eq()
-.find() .filter() .parent() .parents() .siblings()
+.each() .length .first() .last() .eq() .get() .get(index)
+.find() .filter() .children() .parent() .parents() .siblings() .closest()
+.next() .prev() .index()
+.is() .not() .has() .add()
+.slice() .map()
 .text() .html() .append() .appendTo() .prepend() .prependTo()
 .addClass() .removeClass() .toggleClass() .hasClass()
 .css() .attr() .removeAttr() .val() .prop() .attrs() .data()

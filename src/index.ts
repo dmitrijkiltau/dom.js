@@ -8,14 +8,33 @@ import { http } from './http';
 import { use, type Plugin } from './plugins';
 
 // ——— Core selector ———
-export function dom(input?: Selector): DOMCollection {
+export function dom(input?: Selector, context?: Element | Document | DOMCollection): DOMCollection {
   if (!input) return new DOMCollection([]);
-  if (isString(input)) return new DOMCollection(document.querySelectorAll(input));
+  if (isString(input)) {
+    const s = input.trim();
+    if (s.startsWith('<') && s.endsWith('>')) return fromHTML(s);
+    // Contextual selection
+    if (!context) return new DOMCollection(document.querySelectorAll(s));
+    if (context instanceof DOMCollection) {
+      const found: Element[] = [] as any;
+      for (const el of context.elements) found.push(...(el.querySelectorAll(s) as any));
+      return new DOMCollection(found);
+    }
+    if (context instanceof Element) return new DOMCollection(context.querySelectorAll(s));
+    return new DOMCollection((context as Document).querySelectorAll(s));
+  }
   if (isElement(input)) return new DOMCollection([input]);
   if (input instanceof NodeList || Array.isArray(input)) return new DOMCollection(input as any);
   if (isDocument(input)) return new DOMCollection([input.documentElement]);
   if (isWindow(input)) return new DOMCollection([input.document.documentElement]);
   return new DOMCollection([]);
+}
+
+// ——— HTML string to elements ———
+export function fromHTML(html: string): DOMCollection {
+  const tpl = document.createElement('template');
+  tpl.innerHTML = html.trim();
+  return new DOMCollection(Array.from(tpl.content.children) as any);
 }
 
 // ——— Element creation ———
@@ -66,8 +85,8 @@ function appendChildren(el: Element, kids: MaybeArray<string | Node | DOMCollect
 }
 
 // ——— API bag (default export) ———
-const api = Object.assign(function core(input?: Selector) { return dom(input); }, {
-  dom, create, on, once, off, http,
+const api = Object.assign(function core(input?: Selector, context?: Element | Document | DOMCollection) { return dom(input, context); }, {
+  dom, fromHTML, create, on, once, off, http,
   renderTemplate, useTemplate, tpl,
   serializeForm, toQueryString, onSubmit,
   animate, animations,
