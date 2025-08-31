@@ -4,30 +4,79 @@ export const sections = [
     id: 'getting-started',
     title: 'Getting Started',
     content: `
-      <p class="text-lg text-gray-700 mb-4">
-        dom.js is a lightweight, modern DOM manipulation library that provides an intuitive chainable API 
-        with ES modules support and no dependencies.
-      </p>
-      <p class="text-gray-700 mb-4">
-        It's designed for modern browsers (ES2020+) and offers a chainable, intuitive API for 
-        DOM manipulation, templating, forms, events, HTTP requests, and animations.
-      </p>
-      <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
-        <div class="flex">
-          <div class="ml-3">
-            <h4 class="text-lg font-medium text-blue-900">Key Features</h4>
-            <ul class="mt-2 text-blue-700">
-              <li>• Lightweight and fast (only a few KB)</li>
-              <li>• Modern ES2020+ syntax</li>
-              <li>• No dependencies</li>
-              <li>• Chainable API</li>
-              <li>• TypeScript support</li>
-              <li>• Template system with data binding</li>
-              <li>• Form utilities</li>
-              <li>• Plugin system</li>
-            </ul>
+      <div class="space-y-6">
+        <p class="text-lg text-gray-800">
+          dom.js is a lightweight, modern DOM utility with a chainable API, zero dependencies, and first-class ES modules.
+        </p>
+
+        <div class="grid gap-6 md:grid-cols-2">
+          <div class="bg-gray-50 rounded-lg p-4 border">
+            <h4 class="text-lg font-semibold mb-2">Install</h4>
+            <pre class="code-block"><code>npm install @dmitrijkiltau/dom.js</code></pre>
+            <p class="text-sm text-gray-600 mt-2">Works with Vite, Next, webpack, and plain ES modules.</p>
+          </div>
+          <div class="bg-gray-50 rounded-lg p-4 border">
+            <h4 class="text-lg font-semibold mb-2">CDN (try it now)</h4>
+            <pre class="code-block"><code>import dom from 'https://unpkg.com/@dmitrijkiltau/dom.js/dist/index.js';</code></pre>
+            <p class="text-sm text-gray-600 mt-2">Pin a version for stability:</p>
+            <pre class="code-block text-xs"><code>import dom from 'https://unpkg.com/@dmitrijkiltau/dom.js@1.5.1/dist/index.js';</code></pre>
           </div>
         </div>
+
+        <div class="bg-blue-50 border-l-4 border-blue-400 p-4">
+          <h4 class="text-lg font-medium text-blue-900">Pick an import</h4>
+          <div class="import-picker">
+            <div class="import-tabs">
+              <button class="import-tab" data-variant="full">Full Bundle</button>
+              <button class="import-tab" data-variant="core">Core Only</button>
+              <button class="import-tab" data-variant="modular">Modular</button>
+            </div>
+            <pre class="code-block"><code class="language-javascript" data-import-code></code></pre>
+
+            <!-- Hidden raw code variants -->
+            <pre class="hidden" data-variant="full"><code data-no-highlight>import dom from '@dmitrijkiltau/dom.js';</code></pre>
+            <pre class="hidden" data-variant="core"><code data-no-highlight>import dom from '@dmitrijkiltau/dom.js/core';</code></pre>
+            <pre class="hidden" data-variant="modular"><code data-no-highlight>import dom from '@dmitrijkiltau/dom.js/core';
+import { http } from '@dmitrijkiltau/dom.js/http';</code></pre>
+          </div>
+          <p class="text-sm text-blue-700 mt-2">See <a class="underline" href="#installation">Installation</a> and <a class="underline" href="#modular-architecture">Modular Architecture</a> for details.</p>
+        </div>
+
+        <div>
+          <h4 class="text-lg font-semibold mb-2">30‑second example</h4>
+          <pre class="code-block"><code>import dom from '@dmitrijkiltau/dom.js';
+
+dom('#app').html('&lt;button class="btn"&gt;Click&lt;/button&gt;');
+
+dom('.btn')
+  .addClass('active')
+  .on('click', (ev, el) => {
+    dom(el).toggleClass('active');
+  });</code></pre>
+        </div>
+
+        <div class="bg-gray-50 rounded-lg p-4 border">
+          <h4 class="text-lg font-semibold mb-2">What you get</h4>
+          <ul class="text-gray-700 space-y-1">
+            <li>• Chainable API for DOM traversal and manipulation</li>
+            <li>• Template system with data binding</li>
+            <li>• Forms, HTTP helpers, and animations</li>
+            <li>• TypeScript types and plugin system</li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="text-lg font-semibold mb-2">Next steps</h4>
+          <ul class="text-gray-700 space-y-1">
+            <li>• <a class="underline" href="#core-api">Core API</a> — selectors, chaining, traversal</li>
+            <li>• <a class="underline" href="#templates">Templates</a> — render and bind HTML</li>
+            <li>• <a class="underline" href="#forms">Forms</a> — submit and serialize</li>
+            <li>• <a class="underline" href="#http">HTTP</a> — fetch helpers and responses</li>
+            <li>• <a class="underline" href="#animation">Animation</a> — presets and Web Animations</li>
+          </ul>
+        </div>
+
+        
       </div>
     `
   },
@@ -52,7 +101,37 @@ export const sections = [
           </div>
         </div>
 
-        <div class="grid gap-6 md:grid-cols-1 lg:grid-cols-3">
+        <div class="bg-blue-50 border-l-4 border-blue-400 p-4">
+          <h4 class="text-lg font-medium text-blue-900">ESM imports</h4>
+          <p class="text-sm text-blue-700 mt-1">Choose a pattern; one code block updates.</p>
+          <div class="import-picker">
+            <div class="import-tabs">
+              <button class="import-tab" data-variant="full-esm">Full</button>
+              <button class="import-tab" data-variant="core-esm">Core</button>
+              <button class="import-tab" data-variant="modular-esm">Modular</button>
+            </div>
+            <pre class="code-block"><code class="language-javascript" data-import-code></code></pre>
+
+            <pre class="hidden" data-variant="full-esm"><code data-no-highlight>import dom from '@dmitrijkiltau/dom.js';
+
+// Everything included
+dom('.elements').fadeIn(200);
+await dom.http.get('/api/data');</code></pre>
+            <pre class="hidden" data-variant="core-esm"><code data-no-highlight>import dom from '@dmitrijkiltau/dom.js/core';
+
+// DOM + events only
+dom('.elements').addClass('active').on('click', handler);</code></pre>
+            <pre class="hidden" data-variant="modular-esm"><code data-no-highlight>import dom from '@dmitrijkiltau/dom.js/core';
+import { http } from '@dmitrijkiltau/dom.js/http';
+import { renderTemplate } from '@dmitrijkiltau/dom.js/template';
+
+// Import only what you need
+const res = await http.get('/api');
+const el = renderTemplate('#template', data);</code></pre>
+          </div>
+        </div>
+
+        <div class="grid gap-6 md:grid-cols-1 lg:grid-cols-3 hidden">
           <div class="bg-gray-50 rounded-lg p-4 border">
             <h5 class="font-semibold text-gray-800 mb-2">📦 Full Bundle (~13KB)</h5>
             <p class="text-sm text-gray-600 mb-3">Best for: Feature-rich applications, comprehensive DOM manipulation</p>
@@ -84,53 +163,41 @@ import { http } from '@dmitrijkiltau/dom.js/http';
           </div>
         </div>
 
-        <div>
-          <h4 class="text-lg font-semibold mb-2">Bundle Size Comparison</h4>
-          <div class="overflow-x-auto">
-            <table class="min-w-full text-sm border border-gray-200 rounded-lg">
-              <thead class="bg-gray-100">
-                <tr>
-                  <th class="px-4 py-2 text-left border-r">Import Pattern</th>
-                  <th class="px-4 py-2 text-left border-r">Size</th>
-                  <th class="px-4 py-2 text-left border-r">Savings</th>
-                  <th class="px-4 py-2 text-left">Use Case</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr class="border-t">
-                  <td class="px-4 py-2 border-r"><code class="bg-gray-200 text-gray-700 px-1 rounded">Full Bundle</code></td>
-                  <td class="px-4 py-2 border-r">~13KB</td>
-                  <td class="px-4 py-2 border-r">-</td>
-                  <td class="px-4 py-2">Comprehensive DOM library</td>
-                </tr>
-                <tr class="border-t bg-green-50 text-green-700">
-                  <td class="px-4 py-2 border-r"><code class="bg-gray-200 text-gray-700 px-1 rounded">Core Only</code></td>
-                  <td class="px-4 py-2 border-r">~7KB</td>
-                  <td class="px-4 py-2 border-r font-semibold text-green-700">43% smaller</td>
-                  <td class="px-4 py-2">Basic websites</td>
-                </tr>
-                <tr class="border-t">
-                  <td class="px-4 py-2 border-r"><code class="bg-gray-200 text-gray-700 px-1 rounded">Core + HTTP</code></td>
-                  <td class="px-4 py-2 border-r">~9KB</td>
-                  <td class="px-4 py-2 border-r text-green-700">30% smaller</td>
-                  <td class="px-4 py-2">Simple SPAs</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+        
 
         <div>
           <h4 class="text-lg font-semibold mb-2">CDN Options</h4>
-          <div class="space-y-3">
-            <div>
-              <h5 class="font-medium mb-1">Full Bundle</h5>
-              <pre class="code-block"><code>import dom from 'https://unpkg.com/@dmitrijkiltau/dom.js/dist/index.js';</code></pre>
+          <div class="import-picker">
+            <div class="import-tabs">
+              <button class="import-tab" data-variant="cdn-full">Full</button>
+              <button class="import-tab" data-variant="cdn-core">Core</button>
+              <button class="import-tab" data-variant="cdn-pinned">Pinned</button>
             </div>
-            <div>
-              <h5 class="font-medium mb-1">Core Only</h5>
-              <pre class="code-block"><code>import dom from 'https://unpkg.com/@dmitrijkiltau/dom.js/dist/core.js';</code></pre>
+            <pre class="code-block"><code class="language-javascript" data-import-code></code></pre>
+
+            <pre class="hidden" data-variant="cdn-full"><code data-no-highlight>import dom from 'https://unpkg.com/@dmitrijkiltau/dom.js/dist/index.js';</code></pre>
+            <pre class="hidden" data-variant="cdn-core"><code data-no-highlight>import dom from 'https://unpkg.com/@dmitrijkiltau/dom.js/dist/core.js';</code></pre>
+            <pre class="hidden" data-variant="cdn-pinned"><code data-no-highlight>import dom from 'https://unpkg.com/@dmitrijkiltau/dom.js@1.5.1/dist/index.js';
+// Core pinned:
+// import dom from 'https://unpkg.com/@dmitrijkiltau/dom.js@1.5.1/dist/core.js';</code></pre>
+          </div>
+          
+        </div>
+
+        <div class="bg-gray-50 border-l-4 border-gray-400 p-4">
+          <h4 class="text-lg font-medium text-gray-900">CommonJS (Node/CJS)</h4>
+          <div class="import-picker">
+            <div class="import-tabs">
+              <button class="import-tab" data-variant="cjs-full">Full</button>
+              <button class="import-tab" data-variant="cjs-modular">Modular</button>
             </div>
+            <pre class="code-block"><code class="language-javascript" data-import-code></code></pre>
+
+            <pre class="hidden" data-variant="cjs-full"><code data-no-highlight>// Full bundle
+const dom = require('@dmitrijkiltau/dom.js');</code></pre>
+            <pre class="hidden" data-variant="cjs-modular"><code data-no-highlight>// Modular subpath imports
+const { http } = require('@dmitrijkiltau/dom.js/http');
+const { renderTemplate } = require('@dmitrijkiltau/dom.js/template');</code></pre>
           </div>
         </div>
       </div>

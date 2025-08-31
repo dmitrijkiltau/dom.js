@@ -19,6 +19,8 @@ function init() {
   setTimeout(() => {
     initSyntaxHighlighting();
     initTabbedExamples(); // Initialize tabs after content is loaded
+    initImportPicker(); // Initialize import tabs in Getting Started
+    initCopyButtons(); // Add copy buttons to code blocks
   }, 100);
   initExampleToggles();
 
@@ -37,7 +39,7 @@ function init() {
 // Initialize syntax highlighting for all code blocks
 function initSyntaxHighlighting() {
   // Highlight all code blocks that don't have the 'highlighted' class
-  const codeBlocks = document.querySelectorAll('pre code:not(.highlighted)');
+  const codeBlocks = document.querySelectorAll('pre code:not(.highlighted):not([data-no-highlight])');
   for (const codeBlock of codeBlocks) {
     // Add language-javascript class if no language class exists
     if (!codeBlock.className.includes('language-')) {
@@ -45,6 +47,67 @@ function initSyntaxHighlighting() {
     }
     Prism.highlightElement(codeBlock);
     codeBlock.classList.add('highlighted');
+  }
+}
+
+// Initialize the simple import picker tabs in Getting Started
+function initImportPicker() {
+  // Delegated click handler for import tabs
+  dom(document).on('click', '.import-tab', (ev, button) => {
+    ev.preventDefault();
+    const container = button.closest('.import-picker');
+    if (!container) return;
+
+    // Set active state on tabs
+    container.querySelectorAll('.import-tab').forEach(btn => btn.classList.remove('active'));
+    button.classList.add('active');
+
+    const variant = button.getAttribute('data-variant');
+    const targetCode = container.querySelector('[data-import-code]');
+    const sourceCode = container.querySelector(`pre[data-variant="${variant}"] code`);
+    if (!targetCode || !sourceCode) return;
+
+    // Update code text and re-highlight
+    targetCode.textContent = sourceCode.textContent;
+    // Re-run Prism highlighting
+    targetCode.classList.remove('highlighted');
+    if (!targetCode.className.includes('language-')) targetCode.classList.add('language-javascript');
+    Prism.highlightElement(targetCode);
+    targetCode.classList.add('highlighted');
+  });
+
+  // Initialize each picker with its first tab
+  document.querySelectorAll('.import-picker').forEach(container => {
+    const firstTab = container.querySelector('.import-tab');
+    if (firstTab) firstTab.click();
+  });
+}
+
+// Add copy buttons to code blocks
+function initCopyButtons() {
+  const pres = document.querySelectorAll('pre.code-block:not([data-copy-enabled])');
+  for (const pre of pres) {
+    pre.setAttribute('data-copy-enabled', 'true');
+    const btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.type = 'button';
+    btn.textContent = 'Copy';
+    btn.addEventListener('click', async () => {
+      const code = pre.querySelector('code');
+      if (!code) return;
+      try {
+        await navigator.clipboard.writeText(code.textContent || '');
+        const original = btn.textContent;
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = original; btn.classList.remove('copied'); }, 1200);
+      } catch (e) {
+        const original = btn.textContent;
+        btn.textContent = 'Failed';
+        setTimeout(() => { btn.textContent = original; }, 1200);
+      }
+    });
+    pre.appendChild(btn);
   }
 }
 

@@ -42,7 +42,7 @@ body {
 
 /* Custom styles for documentation */
 .code-block {
-  @apply font-mono bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto;
+  @apply relative font-mono bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto;
 }
 
 #app {
@@ -195,4 +195,40 @@ body {
 
 .tab-panel .example-demo {
   @apply bg-gray-50;
+}
+
+/* Getting Started import picker */
+.import-picker {
+  @apply mt-3;
+}
+
+.import-tabs {
+  @apply flex flex-wrap gap-2 mb-3;
+}
+
+.import-tab {
+  @apply px-3 py-1.5 text-sm font-medium rounded-md cursor-pointer transition-colors;
+  @apply bg-blue-100 text-blue-800 hover:bg-blue-200 border border-blue-200;
+}
+
+.import-tab.active {
+  @apply bg-blue-600 text-white border-blue-600;
+}
+
+/* Small UI helpers */
+.card { @apply bg-gray-50 rounded-lg p-4 border; }
+
+.pill-links { @apply flex flex-wrap gap-2; }
+.pill-link {
+  @apply inline-flex items-center px-3 py-1.5 text-sm rounded-full border transition-colors;
+  @apply bg-gray-200 text-gray-800 border-gray-300 hover:bg-gray-300;
+}
+
+/* Copy button for code blocks */
+.copy-btn {
+  @apply absolute top-2 right-2 text-xs px-2 py-1 rounded-md border cursor-pointer transition-colors;
+  @apply bg-gray-700 text-gray-100 border-gray-600 hover:bg-gray-600;
+}
+.copy-btn.copied {
+  @apply bg-green-600 border-green-600 text-white;
 }
