@@ -439,6 +439,145 @@ export class DOMCollection {
     });
   }
 
+  // Layout & geometry
+  width(): number;
+  width(value: number | string | null): this;
+  width(value?: number | string | null): any {
+    const first = this.elements[0] as HTMLElement | undefined;
+    if (value === undefined) {
+      if (!first) return 0;
+      const rect = first.getBoundingClientRect();
+      const cs = getComputedStyle(first);
+      const pl = parseFloat(cs.paddingLeft) || 0;
+      const pr = parseFloat(cs.paddingRight) || 0;
+      const bl = parseFloat(cs.borderLeftWidth) || 0;
+      const br = parseFloat(cs.borderRightWidth) || 0;
+      return Math.max(0, rect.width - pl - pr - bl - br);
+    }
+    return this.each(el => {
+      const s = (el as HTMLElement).style;
+      if (value == null) s.removeProperty('width');
+      else s.width = typeof value === 'number' ? `${value}px` : String(value);
+    });
+  }
+
+  height(): number;
+  height(value: number | string | null): this;
+  height(value?: number | string | null): any {
+    const first = this.elements[0] as HTMLElement | undefined;
+    if (value === undefined) {
+      if (!first) return 0;
+      const rect = first.getBoundingClientRect();
+      const cs = getComputedStyle(first);
+      const pt = parseFloat(cs.paddingTop) || 0;
+      const pb = parseFloat(cs.paddingBottom) || 0;
+      const bt = parseFloat(cs.borderTopWidth) || 0;
+      const bb = parseFloat(cs.borderBottomWidth) || 0;
+      return Math.max(0, rect.height - pt - pb - bt - bb);
+    }
+    return this.each(el => {
+      const s = (el as HTMLElement).style;
+      if (value == null) s.removeProperty('height');
+      else s.height = typeof value === 'number' ? `${value}px` : String(value);
+    });
+  }
+
+  innerWidth(): number {
+    const first = this.elements[0] as HTMLElement | undefined;
+    if (!first) return 0;
+    const rect = first.getBoundingClientRect();
+    const cs = getComputedStyle(first);
+    const bl = parseFloat(cs.borderLeftWidth) || 0;
+    const br = parseFloat(cs.borderRightWidth) || 0;
+    return Math.max(0, rect.width - bl - br);
+  }
+
+  innerHeight(): number {
+    const first = this.elements[0] as HTMLElement | undefined;
+    if (!first) return 0;
+    const rect = first.getBoundingClientRect();
+    const cs = getComputedStyle(first);
+    const bt = parseFloat(cs.borderTopWidth) || 0;
+    const bb = parseFloat(cs.borderBottomWidth) || 0;
+    return Math.max(0, rect.height - bt - bb);
+  }
+
+  outerWidth(includeMargin: boolean = false): number {
+    const first = this.elements[0] as HTMLElement | undefined;
+    if (!first) return 0;
+    const rect = first.getBoundingClientRect();
+    if (!includeMargin) return rect.width;
+    const cs = getComputedStyle(first);
+    const ml = parseFloat(cs.marginLeft) || 0;
+    const mr = parseFloat(cs.marginRight) || 0;
+    return rect.width + ml + mr;
+  }
+
+  outerHeight(includeMargin: boolean = false): number {
+    const first = this.elements[0] as HTMLElement | undefined;
+    if (!first) return 0;
+    const rect = first.getBoundingClientRect();
+    if (!includeMargin) return rect.height;
+    const cs = getComputedStyle(first);
+    const mt = parseFloat(cs.marginTop) || 0;
+    const mb = parseFloat(cs.marginBottom) || 0;
+    return rect.height + mt + mb;
+  }
+
+  offset(): { top: number; left: number } {
+    const first = this.elements[0] as HTMLElement | undefined;
+    if (!first) return { top: 0, left: 0 };
+    const rect = first.getBoundingClientRect();
+    const top = rect.top + (window.pageYOffset || document.documentElement.scrollTop || 0);
+    const left = rect.left + (window.pageXOffset || document.documentElement.scrollLeft || 0);
+    return { top, left };
+  }
+
+  position(): { top: number; left: number } {
+    const first = this.elements[0] as HTMLElement | undefined;
+    if (!first) return { top: 0, left: 0 };
+    const parent = (first.offsetParent as Element | null) || document.documentElement;
+    const parentEl = parent as HTMLElement;
+    const rect = first.getBoundingClientRect();
+    const parentRect = parentEl.getBoundingClientRect();
+    const pcs = getComputedStyle(parentEl);
+    const borderTop = parseFloat(pcs.borderTopWidth) || 0;
+    const borderLeft = parseFloat(pcs.borderLeftWidth) || 0;
+    return {
+      top: rect.top - parentRect.top - borderTop,
+      left: rect.left - parentRect.left - borderLeft
+    };
+  }
+
+  offsetParent(): DOMCollection {
+    const first = this.elements[0] as HTMLElement | undefined;
+    const parent = first ? ((first.offsetParent as Element | null) || document.documentElement) : null;
+    return new DOMCollection(parent ? [parent] : []);
+  }
+
+  scrollTop(): number;
+  scrollTop(value: number): this;
+  scrollTop(value?: number): any {
+    const first = this.elements[0] as HTMLElement | undefined;
+    if (value === undefined) return first ? (first as any).scrollTop ?? 0 : 0;
+    return this.each(el => { (el as any).scrollTop = value; });
+  }
+
+  scrollLeft(): number;
+  scrollLeft(value: number): this;
+  scrollLeft(value?: number): any {
+    const first = this.elements[0] as HTMLElement | undefined;
+    if (value === undefined) return first ? (first as any).scrollLeft ?? 0 : 0;
+    return this.each(el => { (el as any).scrollLeft = value; });
+  }
+
+  rect(): { top: number; left: number; right: number; bottom: number; width: number; height: number; x: number; y: number } {
+    const first = this.elements[0] as Element | undefined;
+    if (!first) return { top: 0, left: 0, right: 0, bottom: 0, width: 0, height: 0, x: 0, y: 0 };
+    const r = first.getBoundingClientRect();
+    return { top: r.top, left: r.left, right: r.right, bottom: r.bottom, width: r.width, height: r.height, x: (r as any).x ?? r.left, y: (r as any).y ?? r.top };
+  }
+
   // Events (direct + delegated)
   on(type: string, selectorOrHandler: any, maybeHandler?: any): this {
     if (typeof selectorOrHandler === 'function') {

@@ -237,6 +237,29 @@ dom('.items').not('.disabled') // exclude matching elements
 dom('.sections').has('.item') // keep elements that contain a descendant
 dom('.a').add('.b') // union with selector/elements/collection
 
+// Layout & geometry
+// Sizes
+dom('#panel').width() // content width (excludes padding & border)
+dom('#panel').height() // content height (excludes padding & border)
+dom('#panel').innerWidth() // includes padding
+dom('#panel').innerHeight() // includes padding
+dom('#panel').outerWidth() // includes padding + border
+dom('#panel').outerHeight(true) // includes padding + border + margin
+// Set sizes (number = px)
+dom('#panel').width(320).height('2rem')
+
+// Positioning
+dom('#el').offset() // {top,left} relative to document
+dom('#el').position() // {top,left} relative to offsetParent
+dom('#el').offsetParent() // DOMCollection wrapping the offsetParent element
+
+// Scroll
+dom('#box').scrollTop() // get scrollTop
+dom('#box').scrollLeft(100) // set scrollLeft
+
+// Rect wrapper
+dom('#el').rect() // getBoundingClientRect() snapshot as plain object
+
 // Utilities
 dom('.items').each((el, idx) => console.log(el))
 dom('.items').el() // get first element
