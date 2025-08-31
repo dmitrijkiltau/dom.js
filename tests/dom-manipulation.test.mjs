@@ -155,6 +155,65 @@ test('unwrap removes parent wrapper and keeps children', () => {
   if (parent.firstElementChild?.id !== 'x') throw new Error('Child not preserved after unwrap');
 });
 
+test('wrap supports selector string (clones wrapper prototype)', () => {
+  // Prepare a wrapper prototype in the DOM
+  const proto = document.createElement('div');
+  proto.id = 'wrap-proto';
+  proto.className = 'wrap-proto';
+  proto.innerHTML = '<div class="inner"></div>';
+  document.body.appendChild(proto);
+
+  const parent = document.createElement('div');
+  const child = document.createElement('span'); child.id = 'wx';
+  parent.appendChild(child);
+  $(child).wrap('#wrap-proto');
+  const wrapped = parent.querySelector('.wrap-proto');
+  if (!wrapped) throw new Error('Selector wrapper not applied');
+  if (wrapped.firstElementChild?.className !== 'inner') throw new Error('Deepest descendant not present from prototype');
+  if (wrapped.firstElementChild?.firstElementChild?.id !== 'wx') throw new Error('Child not moved into wrapper');
+  // Ensure original prototype remains in DOM
+  if (!document.getElementById('wrap-proto')) throw new Error('Original wrapper prototype should not be moved');
+  proto.remove();
+});
+
+test('wrapAll supports selector string for wrapper', () => {
+  const proto = document.createElement('section');
+  proto.id = 'wrapall-proto';
+  proto.innerHTML = '<div class="inner"></div>';
+  document.body.appendChild(proto);
+
+  const root = document.createElement('div');
+  const a = document.createElement('div'); a.id = 'wsa';
+  const b = document.createElement('div'); b.id = 'wsb';
+  root.append(a, b);
+  new DOMCollection([a, b]).wrapAll('#wrapall-proto');
+  const wrapper = root.querySelector('section#wrapall-proto');
+  if (!wrapper) throw new Error('wrapAll selector wrapper not applied');
+  const inner = wrapper.querySelector('.inner');
+  const ids = Array.from(inner.children).map(x => x.id).join(',');
+  if (ids !== 'wsa,wsb') throw new Error('wrapAll selector wrapper did not collect all elements');
+  // Prototype remains
+  if (!document.getElementById('wrapall-proto')) throw new Error('Original wrapAll prototype removed unexpectedly');
+  proto.remove();
+});
+
+test('wrapInner supports selector string for wrapper', () => {
+  const proto = document.createElement('div');
+  proto.id = 'wrapinner-proto';
+  proto.className = 'inner-wrap';
+  document.body.appendChild(proto);
+
+  const a = document.createElement('div'); a.id = 'wia'; a.innerHTML = '<em>1</em><em>2</em>';
+  const b = document.createElement('div'); b.id = 'wib'; b.innerHTML = '<em>3</em>';
+  new DOMCollection([a, b]).wrapInner('#wrapinner-proto');
+  if (!a.querySelector('.inner-wrap') || !b.querySelector('.inner-wrap')) throw new Error('wrapInner selector wrapper not applied');
+  if (a.querySelector('.inner-wrap')?.children.length !== 2) throw new Error('wrapInner did not move children for first');
+  if (b.querySelector('.inner-wrap')?.children.length !== 1) throw new Error('wrapInner did not move children for second');
+  // Prototype remains
+  if (!document.getElementById('wrapinner-proto')) throw new Error('Original wrapInner prototype removed unexpectedly');
+  proto.remove();
+});
+
 test('insertAfter inserts collection after each target (clones for all but last)', () => {
   const a = document.createElement('div'); a.id = 'a';
   const b = document.createElement('div'); b.id = 'b';
@@ -177,6 +236,28 @@ test('insertBefore inserts collection before each target (clones for all but las
   new DOMCollection([badge]).insertBefore(new DOMCollection([a, b, c]));
   const badgesBeforeIds = Array.from(root.querySelectorAll('.badge')).map(x => x.nextElementSibling?.id).join(',');
   if (badgesBeforeIds !== 'a,b,c') throw new Error('insertBefore did not place clones before each target');
+});
+
+test('insertAfter accepts selector string and clones for multiple targets', () => {
+  const root = document.createElement('div');
+  root.innerHTML = '<div class="tgt" id="s1"></div><div class="tgt" id="s2"></div>';
+  document.body.appendChild(root);
+  const n = document.createElement('span'); n.className = 'ins';
+  new DOMCollection([n]).insertAfter('.tgt');
+  const order = Array.from(root.children).map(x => x.className || x.id).join(',');
+  if (order !== 'tgt,ins,tgt,ins') throw new Error('insertAfter(selector) did not insert correctly');
+  root.remove();
+});
+
+test('insertBefore accepts selector string and clones for multiple targets', () => {
+  const root = document.createElement('div');
+  root.innerHTML = '<div class="tgt2" id="b1"></div><div class="tgt2" id="b2"></div>';
+  document.body.appendChild(root);
+  const n = document.createElement('span'); n.className = 'ins2';
+  new DOMCollection([n]).insertBefore('.tgt2');
+  const order = Array.from(root.children).map(x => x.className || x.id).join(',');
+  if (order !== 'ins2,tgt2,ins2,tgt2') throw new Error('insertBefore(selector) did not insert correctly');
+  root.remove();
 });
 
 test('replaceAll replaces targets with current collection (clones for all but last)', () => {

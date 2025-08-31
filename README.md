@@ -182,13 +182,16 @@ dom('.items').appendTo('#container') // append to target (selector, Element, or 
 dom('.items').prependTo('#container') // prepend to target
 dom('.items').after('<div>After</div>')
 dom('.items').before('<div>Before</div>')
-dom('<p>New</p>').insertAfter(dom('.ref')) // insert current collection after target(s)
-dom('<p>New</p>').insertBefore(dom('.ref')) // insert current collection before target(s)
+dom('<p>New</p>').insertAfter('.ref') // insert current collection after target(s)
+dom('<p>New</p>').insertBefore('.ref') // insert current collection before target(s)
 dom('.items').replaceWith('<p>Replaced</p>') // replace element(s)
 dom('<b>New</b>').replaceAll('.old') // replace target(s) with current collection
 dom('.items').wrap('<div class="wrap"></div>') // wrap each element
+dom('.items').wrap('#wrap-template') // wrap using a selector (wrapper is cloned)
 dom('.items').wrapAll('<section class="box"><div class="inner"></div></section>') // wrap entire set with one wrapper
+dom('.items').wrapAll('#wrapper-prototype') // can use selector (cloned)
 dom('.items').wrapInner('<span class="inner"></span>') // wrap contents of each element
+dom('.items').wrapInner('#inner-template') // can use selector (cloned)
 dom('.items').unwrap() // remove direct parent wrapper
 dom('.items').empty() // remove all children
 dom('.items').detach() // remove without losing data/events

@@ -159,6 +159,9 @@ dom.use(plugin)           // Plugin system (automatically available)
 .on() .off() .once() .trigger() .click() .focus() .blur() .hover()
 .remove() .detach() .empty() .clone() .after() .before() .serialize()
 .wrap() .wrapAll() .wrapInner() .unwrap() .replaceWith() .replaceAll()
+  
+// Notes:
+// - wrap/wrapAll/wrapInner accept HTML strings or selector strings (selectors are cloned)
 ```
 
 ### HTTP (`@dmitrijkiltau/dom.js/http`)

@@ -263,8 +263,11 @@ export class DOMCollection {
     }
     return this;
   }
-  insertAfter(target: Element | DOMCollection): this {
-    const targets = target instanceof DOMCollection ? target.elements : (isElement(target) ? [target] : []);
+  insertAfter(target: string | Element | DOMCollection): this {
+    let targets: Element[] = [];
+    if (typeof target === 'string') targets = Array.from(document.querySelectorAll(target));
+    else if (target instanceof DOMCollection) targets = target.elements;
+    else if (isElement(target)) targets = [target];
     if (!targets.length) return this;
     const lastIdx = targets.length - 1;
     for (let i = 0; i < targets.length; i++) {
@@ -274,8 +277,11 @@ export class DOMCollection {
     }
     return this;
   }
-  insertBefore(target: Element | DOMCollection): this {
-    const targets = target instanceof DOMCollection ? target.elements : (isElement(target) ? [target] : []);
+  insertBefore(target: string | Element | DOMCollection): this {
+    let targets: Element[] = [];
+    if (typeof target === 'string') targets = Array.from(document.querySelectorAll(target));
+    else if (target instanceof DOMCollection) targets = target.elements;
+    else if (isElement(target)) targets = [target];
     if (!targets.length) return this;
     const lastIdx = targets.length - 1;
     for (let i = 0; i < targets.length; i++) {
@@ -372,9 +378,15 @@ export class DOMCollection {
     for (const el of this.elements) {
       let wrapEl: Element | null = null;
       if (typeof wrapper === 'string') {
-        const tmp = document.createElement('div');
-        tmp.innerHTML = wrapper.trim();
-        wrapEl = tmp.firstElementChild as Element | null;
+        const s = wrapper.trim();
+        if (s.startsWith('<') && s.includes('>')) {
+          const tmp = document.createElement('div');
+          tmp.innerHTML = s;
+          wrapEl = tmp.firstElementChild as Element | null;
+        } else {
+          const found = document.querySelector(s) as Element | null;
+          wrapEl = found ? (found.cloneNode(true) as Element) : null;
+        }
       } else if (wrapper instanceof DOMCollection) {
         wrapEl = (wrapper.elements[0]?.cloneNode(true) as Element) || null;
       } else if (wrapper instanceof Element) {
@@ -384,7 +396,9 @@ export class DOMCollection {
       const parent = el.parentNode;
       if (!parent) continue;
       parent.insertBefore(wrapEl, el);
-      wrapEl.appendChild(el);
+      let target: Element = wrapEl;
+      while (target.firstElementChild) target = target.firstElementChild as Element;
+      target.appendChild(el);
     }
     return this;
   }
@@ -394,9 +408,15 @@ export class DOMCollection {
     // Resolve wrapper element (use first element of wrapper if multiple)
     let wrapEl: Element | null = null;
     if (typeof wrapper === 'string') {
-      const tmp = document.createElement('div');
-      tmp.innerHTML = wrapper.trim();
-      wrapEl = tmp.firstElementChild as Element | null;
+      const s = wrapper.trim();
+      if (s.startsWith('<') && s.includes('>')) {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = s;
+        wrapEl = tmp.firstElementChild as Element | null;
+      } else {
+        const found = document.querySelector(s) as Element | null;
+        wrapEl = found ? (found.cloneNode(true) as Element) : null;
+      }
     } else if (wrapper instanceof DOMCollection) {
       wrapEl = (wrapper.elements[0]?.cloneNode(true) as Element) || null;
     } else if (wrapper instanceof Element) {
@@ -419,9 +439,15 @@ export class DOMCollection {
     for (const el of this.elements) {
       let wrapEl: Element | null = null;
       if (typeof wrapper === 'string') {
-        const tmp = document.createElement('div');
-        tmp.innerHTML = wrapper.trim();
-        wrapEl = tmp.firstElementChild as Element | null;
+        const s = wrapper.trim();
+        if (s.startsWith('<') && s.includes('>')) {
+          const tmp = document.createElement('div');
+          tmp.innerHTML = s;
+          wrapEl = tmp.firstElementChild as Element | null;
+        } else {
+          const found = document.querySelector(s) as Element | null;
+          wrapEl = found ? (found.cloneNode(true) as Element) : null;
+        }
       } else if (wrapper instanceof DOMCollection) {
         wrapEl = (wrapper.elements[0]?.cloneNode(true) as Element) || null;
       } else if (wrapper instanceof Element) {
