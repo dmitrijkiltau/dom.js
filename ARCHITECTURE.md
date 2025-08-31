@@ -137,7 +137,8 @@ dom(selector, context?)    // Element selection (with optional context)
 dom('<div>…</div>')        // Create elements from HTML
 dom.fromHTML(html)         // Explicit HTML-to-elements
 dom.create(tag, attrs)     // Element creation  
-dom.on/once/off()         // Event handling
+dom.on/once/off()         // Event handling (multi-type, namespaces, options; on() returns unbind)
+dom.ready(fn)             // DOMContentLoaded shortcut
 dom.DOMCollection         // Collection class
 dom.use(plugin)           // Plugin system (automatically available)
 
@@ -156,7 +157,10 @@ dom.use(plugin)           // Plugin system (automatically available)
 .outerWidth([includeMargin]) .outerHeight([includeMargin])
 .offset() .position() .offsetParent()
 .scrollTop([value]) .scrollLeft([value]) .rect()
-.on() .off() .once() .trigger() .click() .focus() .blur() .hover()
+.on() .off() .once() .trigger()
+.click() .focus() .blur() .hover()
+.pointerdown() .pointerup() .pointermove() .pointerenter() .pointerleave() .pointercancel()
+.touchstart() .touchend() .touchmove() .touchcancel()
 .remove() .detach() .empty() .clone() .after() .before() .serialize()
 .wrap() .wrapAll() .wrapInner() .unwrap() .replaceWith() .replaceAll()
   

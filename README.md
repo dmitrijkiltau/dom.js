@@ -205,10 +205,17 @@ dom('.items').toggle() // toggle visibility
 dom('.items').toggle(true) // force show
 dom('.items').toggle(false) // force hide
 
-// Event handling
-dom('.btn').on('click', handler)
-dom('.btn').once('click', handler) // one-time event
-dom('.btn').off('click', handler)
+// Event handling (enhanced)
+// Multi-type, options, namespacing, and unbind handle (top-level on)
+const unbind = dom.on(window, 'scroll resize.ns', handler, { passive: true });
+unbind(); // remove both handlers
+
+// DOMCollection binding (chainable) with multi-type + options
+dom('.btn').on('click focus', (e, el) => { /* ... */ }, { passive: true });
+dom('.btn').once('click', (e, el) => { /* fires once */ });
+dom('.btn').off('click'); // remove all click handlers
+dom('.btn').off('click.ns'); // remove namespaced click handlers
+dom('.btn').off('.ns'); // remove all handlers in namespace
 dom('.btn').trigger('custom-event', {data: 'value'}) // dispatch events
 
 // Event shortcuts
@@ -217,12 +224,23 @@ dom('.btn').click(handler) // bind click handler
 dom('.btn').focus() // focus element
 dom('.btn').blur() // blur element
 dom('.btn').hover(enterHandler, leaveHandler) // mouse enter/leave
+// Pointer and touch shortcuts
+dom('.drag').pointerdown(handler)
+dom('.drag').pointermove(handler)
+dom('.drag').pointerup(handler)
+dom('.drag').touchstart(handler)
+dom('.drag').touchmove(handler)
+dom('.drag').touchend(handler)
 
-// Event delegation
+// Event delegation + delegated off by selector
 dom('#list').on('click', 'a.item', (ev, el, idx) => {
   // el is the matched descendant (the anchor)
   // idx is the index of the bound element within the original collection (#list in this case)
 });
+// Remove delegated handlers by selector
+dom('#list').off('click', 'a.item');
+// Or remove a specific delegated handler function
+dom('#list').off('click', 'a.item', handler);
 
 // Traversal and filtering
 dom('.items').filter('.active') // filter by selector or function
@@ -387,17 +405,30 @@ const queryString = toQueryString(formData); // converts to URL query string
 Event handling with support for delegation and various target types.
 
 ```js
-import { on, once, off } from '@dmitrijkiltau/dom.js';
+import dom, { on, once, off, ready } from '@dmitrijkiltau/dom.js';
 
 // Event binding - target can be window, document, Element, or DOMCollection
-on(window, 'scroll', handler);
-once(document, 'DOMContentLoaded', handler); // one-time event
+// on() returns an unbind function
+const stop = on(window, 'scroll resize.ns', handler, { passive: true });
+// Namespacing supported: use .ns in type string; multi-types allowed
+stop(); // unbind all created handlers
+
+// once() sugar for { once: true }
+once(document, 'DOMContentLoaded', handler);
+once(document, 'mousemove.ns', handler, { passive: true });
+
+// Bind via selector or DOMCollection too
 on(document, 'click', handler);
-on('.buttons', 'click', handler);
 on(dom('.items'), 'mouseenter', handler);
 
 // Event removal
-off(window, 'scroll', handler);
+off(window, 'scroll');
+off(window, 'resize.ns'); // remove namespaced only
+
+// DOM ready
+ready(() => {
+  dom('#app').addClass('ready');
+});
 ```
 
 ## HTTP

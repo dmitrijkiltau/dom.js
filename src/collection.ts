@@ -1,4 +1,5 @@
 import { CSSInput, CSSValue, Handler } from './types';
+import { addManaged, removeManaged, removeAllManaged } from './events';
 import { camelToKebab, toArray, isElement } from './utils';
 
 export class DOMCollection {
@@ -724,49 +725,46 @@ export class DOMCollection {
     return { top: r.top, left: r.left, right: r.right, bottom: r.bottom, width: r.width, height: r.height, x: (r as any).x ?? r.left, y: (r as any).y ?? r.top };
   }
 
-  // Events (direct + delegated)
-  on(type: string, selectorOrHandler: any, maybeHandler?: any): this {
+  // Events (direct + delegated), supports: options object, multi-types, namespacing
+  on(types: string, selectorOrHandler: any, maybeHandler?: any, options?: boolean | AddEventListenerOptions): this {
     if (typeof selectorOrHandler === 'function') {
       const handler = selectorOrHandler as Handler;
-      return this.each((el, i) => el.addEventListener(type, (ev) => handler(ev, el, i)));
-    }
-    const selector = String(selectorOrHandler);
-    const handler = maybeHandler as Handler;
-    return this.each((el, i) => el.addEventListener(type, (ev) => {
-      const target = ev.target as Element | null;
-      if (!target) return;
-      const match = target.closest(selector);
-      if (match && el.contains(match)) handler(ev, match, i);
-    }));
-  }
-  once(type: string, selectorOrHandler: any, maybeHandler?: any): this {
-    if (typeof selectorOrHandler === 'function') {
-      const handler = selectorOrHandler as Handler;
+      const opts = (maybeHandler as any) as boolean | AddEventListenerOptions | undefined;
       return this.each((el, i) => {
-        const onceHandler = (ev: Event) => {
-          handler(ev, el, i);
-          el.removeEventListener(type, onceHandler);
-        };
-        el.addEventListener(type, onceHandler);
+        addManaged(el, types, () => (ev: Event) => handler(ev, el, i), handler as any, opts);
       });
     }
     const selector = String(selectorOrHandler);
     const handler = maybeHandler as Handler;
+    const opts = options as boolean | AddEventListenerOptions | undefined;
     return this.each((el, i) => {
-      const onceHandler = (ev: Event) => {
+      addManaged(el, types, () => (ev: Event) => {
         const target = ev.target as Element | null;
         if (!target) return;
         const match = target.closest(selector);
-        if (match && el.contains(match)) {
-          handler(ev, match, i);
-          el.removeEventListener(type, onceHandler);
-        }
-      };
-      el.addEventListener(type, onceHandler);
+        if (match && (el as any).contains(match)) handler(ev, match, i);
+      }, handler as any, opts, selector);
     });
   }
-  off(type: string, handler: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): this {
-    return this.each(el => el.removeEventListener(type, handler, options));
+  once(types: string, selectorOrHandler: any, maybeHandler?: any, options?: boolean | AddEventListenerOptions): this {
+    const baseOpts: AddEventListenerOptions = Object.assign({ once: true }, typeof options === 'object' ? options : {});
+    if (typeof selectorOrHandler === 'function') {
+      const handler = selectorOrHandler as Handler;
+      return this.on(types, handler, baseOpts);
+    }
+    const selector = String(selectorOrHandler);
+    const handler = maybeHandler as Handler;
+    return this.on(types, selector, handler, baseOpts);
+  }
+  off(types?: string, selectorOrHandler?: any, maybeHandler?: any): this {
+    if (types === undefined) return this.each(el => removeAllManaged(el));
+    if (typeof selectorOrHandler === 'function' || selectorOrHandler === undefined) {
+      const handler = selectorOrHandler as Function | undefined;
+      return this.each(el => removeManaged(el, types, handler));
+    }
+    const selector = String(selectorOrHandler);
+    const handler = maybeHandler as Function | undefined;
+    return this.each(el => removeManaged(el, types, selector, handler));
   }
   trigger(type: string, detail?: any): this {
     return this.each(el => {
@@ -792,6 +790,18 @@ export class DOMCollection {
     if (leaveHandler) this.on('mouseleave', leaveHandler);
     return this;
   }
+
+  // Pointer/touch shortcuts
+  pointerdown(handler?: Handler): this { return handler ? this.on('pointerdown', handler) : this.trigger('pointerdown'); }
+  pointerup(handler?: Handler): this { return handler ? this.on('pointerup', handler) : this.trigger('pointerup'); }
+  pointermove(handler?: Handler): this { return handler ? this.on('pointermove', handler) : this.trigger('pointermove'); }
+  pointerenter(handler?: Handler): this { return handler ? this.on('pointerenter', handler) : this.trigger('pointerenter'); }
+  pointerleave(handler?: Handler): this { return handler ? this.on('pointerleave', handler) : this.trigger('pointerleave'); }
+  pointercancel(handler?: Handler): this { return handler ? this.on('pointercancel', handler) : this.trigger('pointercancel'); }
+  touchstart(handler?: Handler): this { return handler ? this.on('touchstart', handler) : this.trigger('touchstart'); }
+  touchend(handler?: Handler): this { return handler ? this.on('touchend', handler) : this.trigger('touchend'); }
+  touchmove(handler?: Handler): this { return handler ? this.on('touchmove', handler) : this.trigger('touchmove'); }
+  touchcancel(handler?: Handler): this { return handler ? this.on('touchcancel', handler) : this.trigger('touchcancel'); }
 
   data(name: string, value?: string | number | null): any {
     const key = name.startsWith('data-') ? name : `data-${name}`;

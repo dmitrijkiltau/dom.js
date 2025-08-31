@@ -2,6 +2,7 @@ import { MaybeArray, Selector, EventTargetish } from './types';
 import { isString, isElement, isDocument, isWindow } from './utils';
 import { DOMCollection } from './collection';
 import { use, type Plugin } from './plugins';
+import { onDirect, removeManaged, addManaged, removeAllManaged, ready as domReady } from './events';
 
 // ——— Core selector ———
 export function dom(input?: Selector, context?: Element | Document | DOMCollection): DOMCollection {
@@ -41,26 +42,27 @@ export function create(tag: string, attrs?: Record<string, any> | null, children
 }
 
 // ——— Event helpers ———
-export function on(target: EventTargetish | DOMCollection, type: string, handler: (ev: Event) => void): void {
+export function on(target: EventTargetish | DOMCollection, types: string, handler: (ev: Event) => void, options?: boolean | AddEventListenerOptions): () => void {
   const list = target instanceof DOMCollection ? target.elements : [target as any];
-  list.forEach(t => (t as any).addEventListener(type, handler));
+  const unbinders = list.map(t => onDirect(t as any, types, handler, options));
+  return () => { for (const u of unbinders) u(); };
 }
 
-export function once(target: EventTargetish | DOMCollection, type: string, handler: (ev: Event) => void): void {
-  const list = target instanceof DOMCollection ? target.elements : [target as any];
-  list.forEach(t => {
-    const onceHandler = (ev: Event) => {
-      handler(ev);
-      (t as any).removeEventListener(type, onceHandler);
-    };
-    (t as any).addEventListener(type, onceHandler);
-  });
+export function once(target: EventTargetish | DOMCollection, types: string, handler: (ev: Event) => void, options?: boolean | AddEventListenerOptions): () => void {
+  const opts: AddEventListenerOptions = Object.assign({ once: true }, typeof options === 'object' ? options : {});
+  return on(target, types, handler, opts);
 }
 
-export function off(target: EventTargetish | DOMCollection, type: string, handler: (ev: Event) => void, options?: boolean | EventListenerOptions): void {
+export function off(target: EventTargetish | DOMCollection, types?: string, handler?: (ev: Event) => void): void {
   const list = target instanceof DOMCollection ? target.elements : [target as any];
-  list.forEach(t => (t as any).removeEventListener(type, handler, options));
+  if (!types) {
+    list.forEach(t => removeAllManaged(t as any));
+    return;
+    }
+  list.forEach(t => removeManaged(t as any, types, handler as any));
 }
+
+export function ready(fn: () => void): void { domReady(fn); }
 
 // ——— Helper functions ———
 function setAttr(el: Element, key: string, value: any) {
@@ -81,7 +83,7 @@ function appendChildren(el: Element, kids: MaybeArray<string | Node | DOMCollect
 
 // ——— Core API (default export) ———
 const api = Object.assign(function core(input?: Selector, context?: Element | Document | DOMCollection) { return dom(input, context); }, {
-  dom, fromHTML, create, on, once, off,
+  dom, fromHTML, create, on, once, off, ready,
   DOMCollection,
   use: (plugin: Plugin) => use(plugin, api)
 });
