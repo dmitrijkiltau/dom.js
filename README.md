@@ -17,6 +17,7 @@ A lightweight, modular DOM manipulation library with chainable API, zero depende
 - 🎬 **Animation Support** - Web Animations API integration (awaitable, queued, reduced-motion aware)
 - 🔧 **Plugin System** - Extend functionality with custom plugins
 - 🆔 **Zero Dependencies** - No external dependencies
+- 🧰 **Utilities & Observers** - Debounce/throttle, nextTick/raf, Intersection/Resize/Mutation observers, scrollIntoView helpers
 
 ## Installation
 
@@ -32,7 +33,7 @@ npm install @dmitrijkiltau/dom.js
 import dom from "@dmitrijkiltau/dom.js";
 
 // Or import specific functions
-import dom, { renderTemplate, onSubmit, http } from "@dmitrijkiltau/dom.js";
+import dom, { renderTemplate, onSubmit, http, debounce, onIntersect, scrollIntoView } from "@dmitrijkiltau/dom.js";
 ```
 
 ### CDN (ES Module)
@@ -102,6 +103,9 @@ import {
   onSubmit,
 } from "@dmitrijkiltau/dom.js/forms";
 import { animate, animations } from "@dmitrijkiltau/dom.js/motion";
+import { debounce, throttle, nextTick, raf, rafThrottle } from "@dmitrijkiltau/dom.js/utils";
+import { onIntersect, onResize, onMutation } from "@dmitrijkiltau/dom.js/observers";
+import { scrollIntoView, scrollIntoViewIfNeeded } from "@dmitrijkiltau/dom.js/scroll";
 
 // Use only what you import
 const response = await http.get("/api");
@@ -110,6 +114,24 @@ const data = serializeForm("#form");
 const fd = toFormData(data);
 const [keyframes, options] = animations.fadeIn(300);
 animate(dom(".items").el(), keyframes, options);
+
+// Utilities
+const debounced = debounce(() => console.log('typed'), 150);
+dom("input").on("input", debounced as any);
+await nextTick();
+await raf();
+
+// Observers
+const stop = onIntersect(".lazy", (entry, el) => {
+  if (entry.isIntersecting) {
+    // load as it appears
+    stop();
+  }
+}, { threshold: 0.1 });
+
+// Scroll helpers
+scrollIntoView("#details", { behavior: 'smooth', block: 'start' });
+dom("#item").scrollIntoViewIfNeeded({ behavior: 'smooth', block: 'center' });
 ```
 
 **[📖 Complete Architecture Guide →](ARCHITECTURE.md)**
@@ -795,6 +817,47 @@ await dom(".panel").slideToggle(200);
 ### Reduced Motion
 
 The animation helpers respect `prefers-reduced-motion: reduce` and reduce durations to zero (no motion), while still updating visibility. You can still use the low-level `animate()` directly if you need explicit control.
+```
+
+## Utilities & Observers
+
+Handy utilities and DOM observer wrappers for ergonomic UI code.
+
+```js
+import dom, { debounce, throttle, nextTick, raf, rafThrottle, onIntersect, onResize, onMutation, scrollIntoView } from "@dmitrijkiltau/dom.js";
+
+// Debounce/throttle
+const onType = debounce((e) => console.log('typed'), 200);
+const onScroll = throttle((e) => console.log('scroll'), 100);
+dom(window).on('scroll', onScroll as any);
+dom('input').on('input', onType as any);
+
+// nextTick / raf scheduling
+await nextTick(); // microtask queue
+await raf();      // next animation frame
+const draw = rafThrottle(() => {/* expensive layout work once per frame */});
+dom(window).on('resize', draw as any);
+
+// Observers
+const stopIntersect = onIntersect('.watch', (entry, el) => {
+  if (entry.isIntersecting) {
+    el.classList.add('in-view');
+    stopIntersect(); // unobserve all watched elements
+  }
+}, { threshold: 0.2 });
+
+const stopResize = onResize('.box', (entry, el) => {
+  const size = entry.contentRect;
+  console.log('resized', el, size.width, size.height);
+});
+
+const stopMutation = onMutation('#list', (mutations, el) => {
+  console.log('changed children of', el, mutations);
+}, { childList: true, subtree: true });
+
+// Scroll helpers
+scrollIntoView('#details', { behavior: 'smooth', block: 'start' });
+dom('#item').scrollIntoViewIfNeeded({ behavior: 'smooth', block: 'center' });
 ```
 
 ## Plugin System

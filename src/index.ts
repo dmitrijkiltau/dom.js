@@ -1,5 +1,5 @@
 import { MaybeArray, Selector, EventTargetish } from './types';
-import { isString, isElement, isDocument, isWindow } from './utils';
+import { isString, isElement, isDocument, isWindow, debounce, throttle, nextTick, raf, rafThrottle } from './utils';
 import { DOMCollection } from './collection';
 import { renderTemplate, useTemplate, tpl, mountTemplate, escapeHTML, unsafeHTML } from './template';
 import { serializeForm, toQueryString, onSubmit, toFormData, setForm, resetForm, validateForm, isValid } from './forms';
@@ -7,6 +7,8 @@ import { animate, animations, installAnimationMethods } from './motion';
 import { http } from './http';
 import { use, type Plugin } from './plugins';
 import { onDirect, removeManaged, removeAllManaged, ready as domReady } from './events';
+import { onIntersect, onResize, onMutation } from './observers';
+import { scrollIntoView, scrollIntoViewIfNeeded } from './scroll';
 
 // ——— Core selector ———
 export function dom(input?: Selector, context?: Element | Document | DOMCollection): DOMCollection {
@@ -92,6 +94,12 @@ const api = Object.assign(function core(input?: Selector, context?: Element | Do
   renderTemplate, useTemplate, tpl, mountTemplate, escapeHTML, unsafeHTML,
   serializeForm, toQueryString, onSubmit, toFormData, setForm, resetForm, validateForm, isValid,
   animate, animations,
+  // Utilities
+  debounce, throttle, nextTick, raf, rafThrottle,
+  // Observers
+  onIntersect, onResize, onMutation,
+  // Scroll helpers
+  scrollIntoView, scrollIntoViewIfNeeded,
   DOMCollection,
   use: (plugin: Plugin) => use(plugin, api)
 });
@@ -100,6 +108,6 @@ const api = Object.assign(function core(input?: Selector, context?: Element | Do
 installAnimationMethods();
 
 // ——— Exports ———
-export { DOMCollection, renderTemplate, useTemplate, tpl, mountTemplate, escapeHTML, unsafeHTML, serializeForm, toQueryString, onSubmit, toFormData, setForm, resetForm, validateForm, isValid, animate, animations, http, use };
+export { DOMCollection, renderTemplate, useTemplate, tpl, mountTemplate, escapeHTML, unsafeHTML, serializeForm, toQueryString, onSubmit, toFormData, setForm, resetForm, validateForm, isValid, animate, animations, http, use, debounce, throttle, nextTick, raf, rafThrottle, onIntersect, onResize, onMutation, scrollIntoView, scrollIntoViewIfNeeded };
 export type { Plugin };
 export default api as typeof dom & typeof api;
