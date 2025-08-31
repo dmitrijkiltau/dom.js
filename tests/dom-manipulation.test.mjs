@@ -127,5 +127,79 @@ test('unwrap removes parent wrapper and keeps children', () => {
   if (parent.firstElementChild?.id !== 'x') throw new Error('Child not preserved after unwrap');
 });
 
+test('insertAfter inserts collection after each target (clones for all but last)', () => {
+  const a = document.createElement('div'); a.id = 'a';
+  const b = document.createElement('div'); b.id = 'b';
+  const c = document.createElement('div'); c.id = 'c';
+  const root = document.createElement('div');
+  root.append(a, b, c);
+  const badge = document.createElement('span'); badge.className = 'badge';
+  new DOMCollection([badge]).insertAfter(new DOMCollection([a, b, c]));
+  const badgesAfterIds = Array.from(root.querySelectorAll('.badge')).map(x => x.previousElementSibling?.id).join(',');
+  if (badgesAfterIds !== 'a,b,c') throw new Error('insertAfter did not place clones after each target');
+});
+
+test('insertBefore inserts collection before each target (clones for all but last)', () => {
+  const a = document.createElement('div'); a.id = 'a';
+  const b = document.createElement('div'); b.id = 'b';
+  const c = document.createElement('div'); c.id = 'c';
+  const root = document.createElement('div');
+  root.append(a, b, c);
+  const badge = document.createElement('span'); badge.className = 'badge';
+  new DOMCollection([badge]).insertBefore(new DOMCollection([a, b, c]));
+  const badgesBeforeIds = Array.from(root.querySelectorAll('.badge')).map(x => x.nextElementSibling?.id).join(',');
+  if (badgesBeforeIds !== 'a,b,c') throw new Error('insertBefore did not place clones before each target');
+});
+
+test('replaceAll replaces targets with current collection (clones for all but last)', () => {
+  const root = document.createElement('div');
+  const t1 = document.createElement('i'); t1.id = 't1';
+  const t2 = document.createElement('i'); t2.id = 't2';
+  root.append(t1, t2);
+  const a = document.createElement('span'); a.id = 'n1';
+  const b = document.createElement('span'); b.id = 'n2';
+  new DOMCollection([a, b]).replaceAll(new DOMCollection([t1, t2]));
+  const ids = Array.from(root.children).map(x => x.id).join(',');
+  if (ids !== 'n1,n2,n1,n2') throw new Error('replaceAll did not replace each target with clones of collection');
+});
+
+test('wrapAll wraps entire set with a single wrapper, appending to deepest descendant', () => {
+  const root = document.createElement('div');
+  const a = document.createElement('div'); a.id = 'wa1';
+  const b = document.createElement('div'); b.id = 'wa2';
+  root.append(a, b);
+  new DOMCollection([a, b]).wrapAll('<section class="wrap-all"><div class="inner"></div></section>');
+  const wrapper = root.querySelector('section.wrap-all');
+  if (!wrapper) throw new Error('wrapAll wrapper not found');
+  const inner = wrapper.querySelector('.inner');
+  if (!inner) throw new Error('wrapAll inner not found');
+  const ids = Array.from(inner.children).map(x => x.id).join(',');
+  if (ids !== 'wa1,wa2') throw new Error('wrapAll did not move elements into deepest descendant in order');
+});
+
+test('wrapInner wraps the contents of each element', () => {
+  const a = document.createElement('div'); a.id = 'wi1'; a.innerHTML = '<span>A</span><em>B</em>';
+  const b = document.createElement('div'); b.id = 'wi2'; b.innerHTML = '<i>C</i>';
+  new DOMCollection([a, b]).wrapInner('<div class="inner"></div>');
+  const ai = a.querySelector('.inner');
+  const bi = b.querySelector('.inner');
+  if (!ai || !bi) throw new Error('wrapInner did not insert wrapper');
+  if (ai.children.length !== 2 || bi.children.length !== 1) throw new Error('wrapInner did not move children');
+});
+
+test('detach removes nodes but preserves event listeners on the nodes', () => {
+  const el = document.createElement('button');
+  const parent = document.createElement('div');
+  parent.appendChild(el);
+  let count = 0;
+  el.addEventListener('click', () => count++);
+  $(el).detach();
+  // Not in DOM
+  if (parent.contains(el)) throw new Error('Element still in DOM after detach');
+  // Dispatch event directly to node to verify listener still attached
+  el.dispatchEvent(new dom.window.Event('click'));
+  if (count !== 1) throw new Error('Event listener lost after detach');
+});
+
 console.log(`\n📊 DOM Manipulation Test Results: ${passed} passed, ${failed} failed`);
 if (failed > 0) process.exit(1);

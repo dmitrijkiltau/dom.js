@@ -253,6 +253,30 @@ export class DOMCollection {
     else if (isElement(target)) (target as any).prepend(...this.elements);
     return this;
   }
+  insertAfter(target: Element | DOMCollection): this {
+    const targets = target instanceof DOMCollection ? target.elements : (isElement(target) ? [target] : []);
+    if (!targets.length) return this;
+    const lastIdx = targets.length - 1;
+    for (let i = 0; i < targets.length; i++) {
+      const t = targets[i];
+      const nodes = i === lastIdx ? this.elements : this.elements.map(n => n.cloneNode(true) as Element);
+      (t as any).after(...nodes);
+    }
+    return this;
+  }
+  insertBefore(target: Element | DOMCollection): this {
+    const targets = target instanceof DOMCollection ? target.elements : (isElement(target) ? [target] : []);
+    if (!targets.length) return this;
+    const lastIdx = targets.length - 1;
+    for (let i = 0; i < targets.length; i++) {
+      const t = targets[i];
+      const parent = t.parentNode;
+      if (!parent) continue;
+      const nodes = i === lastIdx ? this.elements : this.elements.map(n => n.cloneNode(true) as Element);
+      for (const n of nodes) parent.insertBefore(n, t);
+    }
+    return this;
+  }
 
   // DOM manipulation
   remove(): this {
@@ -312,6 +336,28 @@ export class DOMCollection {
     return this;
   }
 
+  replaceAll(target: Element | DOMCollection | string): this {
+    let targets: Element[] = [];
+    if (typeof target === 'string') targets = Array.from(document.querySelectorAll(target));
+    else if (target instanceof DOMCollection) targets = target.elements;
+    else if (isElement(target)) targets = [target];
+    if (!targets.length) return this;
+    const lastIdx = targets.length - 1;
+    for (let i = 0; i < targets.length; i++) {
+      const t = targets[i];
+      const parent = t.parentNode;
+      if (!parent) continue;
+      if (this.elements.length === 0) {
+        // If nothing to insert, just remove targets
+        t.remove();
+        continue;
+      }
+      const nodes = i === lastIdx ? this.elements : this.elements.map(n => n.cloneNode(true) as Element);
+      (t as any).replaceWith(...nodes);
+    }
+    return this;
+  }
+
   wrap(wrapper: string | Element | DOMCollection): this {
     for (const el of this.elements) {
       let wrapEl: Element | null = null;
@@ -333,6 +379,64 @@ export class DOMCollection {
     return this;
   }
 
+  wrapAll(wrapper: string | Element | DOMCollection): this {
+    if (this.elements.length === 0) return this;
+    // Resolve wrapper element (use first element of wrapper if multiple)
+    let wrapEl: Element | null = null;
+    if (typeof wrapper === 'string') {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = wrapper.trim();
+      wrapEl = tmp.firstElementChild as Element | null;
+    } else if (wrapper instanceof DOMCollection) {
+      wrapEl = (wrapper.elements[0]?.cloneNode(true) as Element) || null;
+    } else if (wrapper instanceof Element) {
+      wrapEl = wrapper.cloneNode(true) as Element;
+    }
+    if (!wrapEl) return this;
+    // Find insertion parent/before for the first element
+    const firstEl = this.elements[0];
+    const parent = firstEl.parentNode;
+    if (!parent) return this;
+    parent.insertBefore(wrapEl, firstEl);
+    // Find deepest descendant to append into
+    let target: Element = wrapEl;
+    while (target.firstElementChild) target = target.firstElementChild as Element;
+    for (const el of this.elements) target.appendChild(el);
+    return this;
+  }
+
+  wrapInner(wrapper: string | Element | DOMCollection): this {
+    for (const el of this.elements) {
+      let wrapEl: Element | null = null;
+      if (typeof wrapper === 'string') {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = wrapper.trim();
+        wrapEl = tmp.firstElementChild as Element | null;
+      } else if (wrapper instanceof DOMCollection) {
+        wrapEl = (wrapper.elements[0]?.cloneNode(true) as Element) || null;
+      } else if (wrapper instanceof Element) {
+        wrapEl = wrapper.cloneNode(true) as Element;
+      }
+      if (!wrapEl) continue;
+      // Insert wrapper as the first child
+      el.insertBefore(wrapEl, el.firstChild);
+      // Find deepest descendant within wrapper
+      let target: Element = wrapEl;
+      while (target.firstElementChild) target = target.firstElementChild as Element;
+      // Move all existing child nodes into the wrapper target
+      while (wrapEl.previousSibling) {
+        const n = wrapEl.previousSibling;
+        target.insertBefore(n, target.firstChild);
+      }
+      // Move any remaining nodes after wrapper (if insertion wasn't at start)
+      while (wrapEl.nextSibling) {
+        const n = wrapEl.nextSibling;
+        target.appendChild(n);
+      }
+    }
+    return this;
+  }
+
   unwrap(): this {
     const parents: Element[] = [];
     for (const el of this.elements) {
@@ -346,6 +450,12 @@ export class DOMCollection {
       p.remove();
     }
     return this;
+  }
+
+  detach(): this {
+    // In this library, event listeners and data attributes are retained on nodes
+    // when they are removed from the DOM. detach() mirrors jQuery semantics.
+    return this.each(el => el.remove());
   }
 
   // Attributes

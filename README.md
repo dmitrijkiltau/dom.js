@@ -178,14 +178,20 @@ dom('.items').append('<div>Child</div>')
 // If inserting a Node/DOMCollection into multiple targets, nodes are cloned so each target gets a copy
 dom('.items').append(dom.create('span', null, 'X'))
 dom('.items').prepend('<div>First</div>')
-dom('.items').appendTo('#container') // append to target
-dom('.items').prependTo('#container') // prepend to target
+dom('.items').appendTo(dom('#container')) // append to target (Element or DOMCollection)
+dom('.items').prependTo(dom('#container')) // prepend to target
 dom('.items').after('<div>After</div>')
 dom('.items').before('<div>Before</div>')
+dom('<p>New</p>').insertAfter(dom('.ref')) // insert current collection after target(s)
+dom('<p>New</p>').insertBefore(dom('.ref')) // insert current collection before target(s)
 dom('.items').replaceWith('<p>Replaced</p>') // replace element(s)
+dom('<b>New</b>').replaceAll('.old') // replace target(s) with current collection
 dom('.items').wrap('<div class="wrap"></div>') // wrap each element
+dom('.items').wrapAll('<section class="box"><div class="inner"></div></section>') // wrap entire set with one wrapper
+dom('.items').wrapInner('<span class="inner"></span>') // wrap contents of each element
 dom('.items').unwrap() // remove direct parent wrapper
 dom('.items').empty() // remove all children
+dom('.items').detach() // remove without losing data/events
 dom('.items').remove() // remove elements
 dom('.items').clone() // clone elements
 
