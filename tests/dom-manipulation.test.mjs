@@ -84,6 +84,34 @@ test('prependTo inserts collection at the beginning of target', () => {
   if (ul.firstElementChild?.id !== 'new') throw new Error('Expected collection to be prepended to target');
 });
 
+test('appendTo accepts selector string and clones for multiple targets', () => {
+  const root = document.createElement('div');
+  const c1 = document.createElement('div'); c1.className = 'multi';
+  const c2 = document.createElement('div'); c2.className = 'multi';
+  root.append(c1, c2);
+  document.body.appendChild(root);
+  const a = document.createElement('span');
+  const b = document.createElement('span');
+  new DOMCollection([a, b]).appendTo('.multi');
+  if (c1.children.length !== 2 || c2.children.length !== 2) throw new Error('appendTo did not append to all matched selectors with cloning');
+  root.remove();
+});
+
+test('prependTo accepts selector string and clones for multiple targets', () => {
+  const root = document.createElement('div');
+  const c1 = document.createElement('div'); c1.className = 'multi2';
+  const c2 = document.createElement('div'); c2.className = 'multi2';
+  c1.innerHTML = '<i>old</i>';
+  c2.innerHTML = '<i>old</i>';
+  root.append(c1, c2);
+  document.body.appendChild(root);
+  const a = document.createElement('b'); a.id = 'p1';
+  const b = document.createElement('b'); b.id = 'p2';
+  new DOMCollection([a, b]).prependTo('.multi2');
+  if (c1.firstElementChild?.tagName !== 'B' || c2.firstElementChild?.tagName !== 'B') throw new Error('prependTo did not prepend to all matched selectors with cloning');
+  root.remove();
+});
+
 test('replaceWith replaces element with string', () => {
   const parent = document.createElement('div');
   const child = document.createElement('i');

@@ -243,14 +243,24 @@ export class DOMCollection {
     }
     return this;
   }
-  appendTo(target: Element | DOMCollection): this {
-    if (target instanceof DOMCollection) target.append(this);
-    else if (isElement(target)) target.append(...this.elements);
+  appendTo(target: string | Element | DOMCollection): this {
+    if (typeof target === 'string') {
+      new DOMCollection(document.querySelectorAll(target)).append(this);
+    } else if (target instanceof DOMCollection) {
+      target.append(this);
+    } else if (isElement(target)) {
+      target.append(...this.elements);
+    }
     return this;
   }
-  prependTo(target: Element | DOMCollection): this {
-    if (target instanceof DOMCollection) target.prepend(this);
-    else if (isElement(target)) (target as any).prepend(...this.elements);
+  prependTo(target: string | Element | DOMCollection): this {
+    if (typeof target === 'string') {
+      new DOMCollection(document.querySelectorAll(target)).prepend(this);
+    } else if (target instanceof DOMCollection) {
+      target.prepend(this);
+    } else if (isElement(target)) {
+      (target as any).prepend(...this.elements);
+    }
     return this;
   }
   insertAfter(target: Element | DOMCollection): this {
