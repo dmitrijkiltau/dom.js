@@ -96,19 +96,22 @@ dom('.class-demo-element')
         code: `// Get DOMCollection
 const elements = dom('.access-examples span');
 
-// Get first element
+// Get first element (two ways)
 const first = elements.el(); // HTMLElement
+const alsoFirst = elements.get(0); // HTMLElement
 
 // Get element by index
-const second = elements.el(1);
+const second = elements.el(1); // or: elements.get(1)
 
 // Get all elements as array
-const all = elements.elements; // HTMLElement[]
+const all = elements.get(); // HTMLElement[]
 
 // Get collection length
 const count = elements.length;
 
 console.log('First element:', first.textContent);
+console.log('Second element:', second.textContent);
+console.log('All:', all.map(el => el.textContent).join(', '));
 console.log('Total count:', count);`
       },
       {
@@ -169,10 +172,14 @@ dom('.demo-item').remove();`
         title: 'DOM Traversal',
         demo: `
           <div class="space-y-4">
-            <div class="flex space-x-2">
+            <div class="flex flex-wrap gap-2">
               <button id="parent-demo" class="btn btn-primary text-sm">Get Parents</button>
               <button id="parents-demo" class="btn btn-primary text-sm">Get All Ancestors</button>
+              <button id="children-demo" class="btn btn-secondary text-sm">Get Children</button>
               <button id="siblings-demo" class="btn btn-secondary text-sm">Get Siblings</button>
+              <button id="closest-demo" class="btn btn-secondary text-sm">Closest .section</button>
+              <button id="next-demo" class="btn btn-outline text-sm">Next Sibling</button>
+              <button id="prev-demo" class="btn btn-outline text-sm">Previous Sibling</button>
               <button id="clear-traversal" class="btn btn-outline text-sm">Clear Highlights</button>
             </div>
             <div class="container p-4 border-2 border-gray-400 rounded">
@@ -198,9 +205,19 @@ parentElements.addClass('highlighted');
 const allAncestors = dom('.target').parents();
 const containerAncestors = dom('.target').parents('.container');
 
+// Get children of a container (optionally filtered)
+const subsections = dom('.section').children('.subsection');
+
 // Get sibling elements (optionally filtered)
 const allSiblings = dom('.target').siblings();
-const specificSiblings = dom('.target').siblings('.sibling');`
+const specificSiblings = dom('.target').siblings('.sibling');
+
+// Find closest matching ancestor
+const closestSection = dom('.target').closest('.section');
+
+// Navigate adjacent siblings
+const nextSibling = dom('.target').next();
+const prevOfFirstSibling = dom('.sibling').first().prev(); // -> .target`
       },
       {
         id: 'forms-properties',
@@ -336,13 +353,16 @@ dom('#target-element')
   // Event handlers for Element Access tab
   dom('#access-demo').on('click', () => {
     const elements = dom('.access-examples span');
-    const first = elements.el();
+    const first = elements.get(0);
+    const second = elements.el(1);
+    const all = elements.get();
     const count = elements.length;
-    
+
     dom('#access-output').html(`
-      <div>First element: <strong>${first.textContent}</strong></div>
+      <div>First element: <strong>${first?.textContent}</strong></div>
+      <div>Second element: <strong>${second?.textContent}</strong></div>
+      <div>All elements: <strong>${all.map(el => el.textContent).join(', ')}</strong></div>
       <div>Total count: <strong>${count}</strong></div>
-      <div>All elements: <strong>${elements.elements.map(el => el.textContent).join(', ')}</strong></div>
     `);
   });
 
@@ -420,11 +440,39 @@ dom('#target-element')
     dom('#traversal-output').html(`<strong>${parents.length} ancestors highlighted!</strong> The .parents() method selects all ancestor elements.`);
   });
 
+  dom('#children-demo').on('click', () => {
+    dom('.container *').removeClass('ring-2 ring-blue-500 ring-red-500 ring-green-500');
+    const kids = dom('.section').children('.subsection');
+    kids.addClass('ring-2 ring-green-500');
+    dom('#traversal-output').html(`<strong>${kids.length} children highlighted!</strong> The .children() method selects immediate children (optionally filtered).`);
+  });
+
   dom('#siblings-demo').on('click', () => {
     dom('.container *').removeClass('ring-2 ring-blue-500 ring-red-500 ring-green-500');
     const siblings = dom('.target').siblings();
     siblings.addClass('ring-2 ring-green-500');
     dom('#traversal-output').html(`<strong>${siblings.length} siblings highlighted!</strong> The .siblings() method selects all sibling elements.`);
+  });
+
+  dom('#closest-demo').on('click', () => {
+    dom('.container *').removeClass('ring-2 ring-blue-500 ring-red-500 ring-green-500');
+    const closest = dom('.target').closest('.section');
+    closest.addClass('ring-2 ring-blue-500');
+    dom('#traversal-output').html('<strong>Closest .section highlighted!</strong> The .closest() method finds the nearest matching ancestor.');
+  });
+
+  dom('#next-demo').on('click', () => {
+    dom('.container *').removeClass('ring-2 ring-blue-500 ring-red-500 ring-green-500');
+    const next = dom('.target').next();
+    next.addClass('ring-2 ring-red-500');
+    dom('#traversal-output').html('<strong>Next sibling highlighted!</strong> The .next() method selects the immediate next sibling (optionally filtered).');
+  });
+
+  dom('#prev-demo').on('click', () => {
+    dom('.container *').removeClass('ring-2 ring-blue-500 ring-red-500 ring-green-500');
+    const prev = dom('.sibling').first().prev();
+    prev.addClass('ring-2 ring-blue-500');
+    dom('#traversal-output').html('<strong>Previous sibling highlighted!</strong> Demonstrating .prev() using the first sibling (previous is the target).');
   });
 
   dom('#clear-traversal').on('click', () => {
