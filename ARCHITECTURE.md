@@ -228,11 +228,20 @@ const templateEl = tpl('#template');
 **Form handling utilities**
 
 ```js
-import { serializeForm, toQueryString, onSubmit } from '@dmitrijkiltau/dom.js/forms';
+import { serializeForm, toFormData, toQueryString, setForm, resetForm, validateForm, onSubmit } from '@dmitrijkiltau/dom.js/forms';
 
-// Serialize form data
+// Serialize form data (nested names → objects)
 const data = serializeForm(form);
-const query = toQueryString(data);
+const fd = toFormData(data); // FormData with bracket encoding for nested/arrays
+const query = toQueryString(data); // URL query string with bracket encoding
+
+// Populate and reset
+setForm(form, { user: { name: 'Alice' }, tags: ['js','css'] });
+resetForm(form);
+
+// Validate with the Constraint Validation API
+const { valid, errors } = validateForm(form);
+if (!valid) console.warn(errors);
 
 // Handle form submission
 onSubmit(form, (data, event) => {

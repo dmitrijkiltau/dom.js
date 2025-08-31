@@ -1,4 +1,5 @@
 import { CSSInput, CSSValue, Handler } from './types';
+import { serializeForm as serializeFormEl, toFormData as toFD, setForm as setFormValues, resetForm as resetFormEl } from './forms';
 import { addManaged, removeManaged, removeAllManaged } from './events';
 import { camelToKebab, toArray, isElement } from './utils';
 
@@ -896,29 +897,142 @@ export class DOMCollection {
     if (this.elements.length === 0) return {};
     const firstEl = this.elements[0];
     if (firstEl instanceof HTMLFormElement) {
-      const fd = new FormData(firstEl);
-      const out: Record<string, any> = {};
-      for (const [k, v] of (fd as any).entries()) {
-        if (k in out) out[k] = ([] as any[]).concat(out[k], v as any);
-        else out[k] = v;
-      }
-      return out;
+      return serializeFormEl(firstEl);
     }
-    // If not a form, try to serialize form fields within the collection
-    const out: Record<string, any> = {};
-    for (const el of this.elements) {
-      if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement) {
-        const name = el.name;
-        if (name) {
-          const value = el instanceof HTMLSelectElement 
-            ? Array.from(el.selectedOptions).map(o => o.value)
-            : el.value;
-          if (name in out) out[name] = ([] as any[]).concat(out[name], value as any);
-          else out[name] = value;
+    // If not a form, serialize only successful controls from the collection
+    type Entry = [string, any];
+    const entries: Entry[] = [];
+    const isSuccessfulControl = (el: Element): el is HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement => {
+      if (!(el instanceof HTMLInputElement || el instanceof HTMLSelectElement || el instanceof HTMLTextAreaElement)) return false as any;
+      if (!el.name) return false;
+      if (el.disabled) return false;
+      if (el instanceof HTMLInputElement) {
+        const type = (el.type || '').toLowerCase();
+        if (type === 'submit' || type === 'button' || type === 'image' || type === 'reset') return false;
+        if ((type === 'checkbox' || type === 'radio') && !el.checked) return false;
+      }
+      let p: Element | null = el;
+      while ((p = p.parentElement)) {
+        if (p instanceof HTMLFieldSetElement && (p as HTMLFieldSetElement).disabled) return false;
+      }
+      return true;
+    };
+    const pushEntries = (el: Element) => {
+      if (!isSuccessfulControl(el)) return;
+      const name = (el as any).name as string;
+      if (el instanceof HTMLSelectElement) {
+        if (el.multiple) Array.from(el.selectedOptions).forEach(opt => entries.push([name, opt.value]));
+        else entries.push([name, el.value]);
+        return;
+      }
+      if (el instanceof HTMLInputElement && el.type === 'file') {
+        const files = el.files ? Array.from(el.files) : [];
+        if (files.length === 0) entries.push([name, new File([], '')]);
+        else files.forEach(f => entries.push([name, f]));
+        return;
+      }
+      entries.push([name, (el as HTMLInputElement | HTMLTextAreaElement).value]);
+    };
+    for (const el of this.elements) pushEntries(el);
+
+    // Build nested object from entries (supports user[name] and arr[])
+    const parseName = (name: string): Array<{ key?: string; index?: number; push?: boolean }> => {
+      const out: Array<{ key?: string; index?: number; push?: boolean }> = [];
+      const re = /\[([^\]]*)\]/g;
+      const firstBracket = name.indexOf('[');
+      if (firstBracket === -1) return [{ key: name }];
+      const root = name.slice(0, firstBracket);
+      if (root) out.push({ key: root });
+      let m: RegExpExecArray | null;
+      while ((m = re.exec(name))) {
+        const seg = m[1];
+        if (seg === '') out.push({ push: true });
+        else if (/^\d+$/.test(seg)) out.push({ index: parseInt(seg, 10) });
+        else out.push({ key: seg });
+      }
+      return out.length ? out : [{ key: name }];
+    };
+    const setNested = (target: any, name: string, value: any) => {
+      const tokens = parseName(name);
+      let obj = target;
+      for (let i = 0; i < tokens.length; i++) {
+        const t = tokens[i];
+        const last = i === tokens.length - 1;
+        if (t.key != null) {
+          if (last) {
+            if (obj[t.key] === undefined) obj[t.key] = value;
+            else if (Array.isArray(obj[t.key])) obj[t.key].push(value);
+            else obj[t.key] = [obj[t.key], value];
+          } else {
+            const nxt = tokens[i + 1];
+            if (nxt?.push || typeof nxt?.index === 'number') {
+              if (!Array.isArray(obj[t.key])) obj[t.key] = [];
+            } else {
+              if (obj[t.key] == null || typeof obj[t.key] !== 'object' || Array.isArray(obj[t.key])) obj[t.key] = {};
+            }
+            obj = obj[t.key];
+          }
+          continue;
+        }
+        if (t.push) {
+          if (!Array.isArray(obj)) {
+            const tmp: any[] = [];
+            if (obj != null && typeof obj === 'object' && Object.keys(obj).length) tmp.push(obj);
+            obj = tmp;
+          }
+          if (last) { obj.push(value); return; }
+          const nxt = tokens[i + 1];
+          const placeholder = (nxt && (nxt.key != null)) ? {} : (nxt && typeof nxt.index === 'number') ? [] : {};
+          obj.push(placeholder);
+          obj = obj[obj.length - 1];
+          continue;
+        }
+        if (typeof t.index === 'number') {
+          if (!Array.isArray(obj)) obj = (obj[tokens[i - 1] as any] = []);
+          if (last) { obj[t.index] = value; return; }
+          if (obj[t.index] == null) obj[t.index] = {};
+          obj = obj[t.index];
         }
       }
-    }
+    };
+    const out: Record<string, any> = {};
+    for (const [k, v] of entries) setNested(out, k, v);
     return out;
+  }
+
+  // Convert current collection's serialized data to FormData
+  toFormData(): FormData {
+    const obj = this.serialize();
+    return toFD(obj);
+  }
+
+  // Populate form fields for the first form in collection
+  setForm(values: Record<string, any>): this {
+    const firstEl = this.elements[0];
+    if (firstEl instanceof HTMLFormElement) setFormValues(firstEl, values);
+    return this;
+  }
+
+  reset(): this {
+    if (this.elements.length === 0) return this;
+    const firstEl = this.elements[0];
+    if (firstEl instanceof HTMLFormElement) {
+      resetFormEl(firstEl);
+      return this;
+    }
+    // Reset individual controls in the collection
+    for (const el of this.elements) {
+      if (el instanceof HTMLInputElement) {
+        const type = (el.type || '').toLowerCase();
+        if (type === 'checkbox' || type === 'radio') el.checked = el.defaultChecked;
+        else el.value = el.defaultValue;
+      } else if (el instanceof HTMLTextAreaElement) {
+        el.value = el.defaultValue;
+      } else if (el instanceof HTMLSelectElement) {
+        for (const opt of Array.from(el.options)) opt.selected = opt.defaultSelected;
+      }
+    }
+    return this;
   }
 }
 

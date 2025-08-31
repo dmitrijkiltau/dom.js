@@ -2,7 +2,7 @@ import { MaybeArray, Selector, EventTargetish } from './types';
 import { isString, isElement, isDocument, isWindow } from './utils';
 import { DOMCollection } from './collection';
 import { renderTemplate, useTemplate, tpl } from './template';
-import { serializeForm, toQueryString, onSubmit } from './forms';
+import { serializeForm, toQueryString, onSubmit, toFormData, setForm, resetForm, validateForm, isValid } from './forms';
 import { animate, animations, installAnimationMethods } from './motion';
 import { http } from './http';
 import { use, type Plugin } from './plugins';
@@ -90,7 +90,7 @@ function appendChildren(el: Element, kids: MaybeArray<string | Node | DOMCollect
 const api = Object.assign(function core(input?: Selector, context?: Element | Document | DOMCollection) { return dom(input, context); }, {
   dom, fromHTML, create, on, once, off, ready, http,
   renderTemplate, useTemplate, tpl,
-  serializeForm, toQueryString, onSubmit,
+  serializeForm, toQueryString, onSubmit, toFormData, setForm, resetForm, validateForm, isValid,
   animate, animations,
   DOMCollection,
   use: (plugin: Plugin) => use(plugin, api)
@@ -100,6 +100,6 @@ const api = Object.assign(function core(input?: Selector, context?: Element | Do
 installAnimationMethods();
 
 // ——— Exports ———
-export { DOMCollection, renderTemplate, useTemplate, tpl, serializeForm, toQueryString, onSubmit, animate, animations, http, use };
+export { DOMCollection, renderTemplate, useTemplate, tpl, serializeForm, toQueryString, onSubmit, toFormData, setForm, resetForm, validateForm, isValid, animate, animations, http, use };
 export type { Plugin };
 export default api as typeof dom & typeof api;

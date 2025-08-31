@@ -89,13 +89,14 @@ Best for: Maximum tree-shaking, library authors
 import dom from '@dmitrijkiltau/dom.js/core';
 import { http } from '@dmitrijkiltau/dom.js/http';
 import { renderTemplate } from '@dmitrijkiltau/dom.js/template';
-import { serializeForm, onSubmit } from '@dmitrijkiltau/dom.js/forms';
+import { serializeForm, toFormData, setForm, resetForm, validateForm, onSubmit } from '@dmitrijkiltau/dom.js/forms';
 import { animate, animations } from '@dmitrijkiltau/dom.js/motion';
 
 // Use only what you import
 const response = await http.get('/api');
 const element = renderTemplate('#template', data);
-const formData = serializeForm('#form');
+const data = serializeForm('#form');
+const fd = toFormData(data);
 dom('.items').fadeIn(300);
 ```
 
@@ -300,7 +301,10 @@ dom('#el').rect() // getBoundingClientRect() snapshot as plain object
 dom('.items').each((el, idx) => console.log(el))
 dom('.items').el() // get first element
 dom('.items').el(1) // get element by index (convenience)
-dom('.items').serialize() // serialize form data (works on forms or form fields)
+dom('.items').serialize() // serialize form/controls (nested, FormData parity)
+dom('form').toFormData() // FormData from first form
+dom('form').setForm({ name: 'Alice' }) // populate first form
+dom('form').reset() // reset forms/controls in collection
 ```
 
 ## Templates
@@ -388,7 +392,7 @@ Comprehensive form handling with serialization and submission utilities.
 ### Form Handling
 
 ```js
-import { onSubmit, serializeForm, toQueryString } from '@dmitrijkiltau/dom.js';
+import { onSubmit, serializeForm, toQueryString, toFormData, setForm, resetForm, validateForm } from '@dmitrijkiltau/dom.js';
 
 // Handle form submission
 onSubmit('#contact', async (data, ev) => {
@@ -396,9 +400,18 @@ onSubmit('#contact', async (data, ev) => {
   const response = await http.post('/api/contact', data);
 });
 
-// Serialize form manually
-const formData = serializeForm('#my-form'); // returns plain object
-const queryString = toQueryString(formData); // converts to URL query string
+// Serialize (supports nested names like user[name])
+const data = serializeForm('#my-form'); // nested object
+const fd = toFormData(data); // FormData
+const queryString = toQueryString(data); // URL query
+
+// Populate and reset
+setForm('#my-form', { user: { name: 'Alice' }, tags: ['js','css'] });
+resetForm('#my-form');
+
+// Validate
+const { valid, errors } = validateForm('#my-form');
+if (!valid) console.warn(errors);
 ```
 
 ### Supported Form Elements
@@ -408,6 +421,7 @@ const queryString = toQueryString(formData); // converts to URL query string
 - Checkboxes and radio buttons
 - File inputs
 - Arrays (elements with same name)
+- Nested field names (user[name], address[street], items[])
 
 ## Events
 
