@@ -11,6 +11,7 @@ dom.js features a **modular architecture** that allows you to import only the fu
 - **Tree-shakable**: Import only what you use for optimal bundle sizes
 - **Backward compatible**: Existing code continues to work unchanged
 - **Plugin system**: Extensible architecture for custom functionality
+- **TypeScript DX**: Generic DOMCollection<T>, `dom<T>()` typing, strict event types, and module augmentation for plugins
 
 ## Module Structure
 
@@ -30,6 +31,29 @@ src/
 ├── observers.ts      # Intersection/Resize/Mutation observer wrappers
 ├── scroll.ts         # Scroll helpers (scrollIntoView)
 └── types.ts          # TypeScript definitions
+```
+
+## Type System & DX
+
+- Generic collections: `DOMCollection<T extends Element>` improves chaining with typed elements.
+- Typed selection: `dom<T>(selector)` returns `DOMCollection<T>` for manual narrowing (e.g. `dom<HTMLButtonElement>('#save')`).
+- Strict events: event names map to DOM event types both for the top-level `on/once` and collection `.on/.once`.
+- Plugin typing: consumers can augment the `Dom` interface via module augmentation to add plugin methods with full typings.
+
+Example augmentation:
+
+```ts
+import dom, { type DOMCollection } from '@dmitrijkiltau/dom.js';
+
+declare module '@dmitrijkiltau/dom.js' {
+  interface Dom {
+    flash(selector: string): Promise<DOMCollection>;
+  }
+}
+
+dom.use(api => {
+  api.flash = (sel) => api(sel).fadeIn(150);
+});
 ```
 
 ### Bundle Sizes (ESM, minified + gzip, v1.5.1)
