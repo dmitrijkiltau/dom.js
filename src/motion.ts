@@ -1,4 +1,5 @@
 import { DOMCollection } from './collection';
+import { hasDOM } from './utils';
 
 // ——— Low-level: direct animate (returns Animation) ———
 export function animate(el: HTMLElement, keyframes: Keyframe[] | PropertyIndexedKeyframes, options?: KeyframeAnimationOptions) {
@@ -40,6 +41,7 @@ function motionDisabled(): boolean {
 }
 
 function showEl(el: HTMLElement) {
+  if (!hasDOM()) return;
   const cs = getComputedStyle(el);
   const cur = cs.display;
   if (cur === 'none') {
@@ -49,6 +51,7 @@ function showEl(el: HTMLElement) {
 }
 
 function hideEl(el: HTMLElement) {
+  if (!hasDOM()) return;
   const cs = getComputedStyle(el);
   if (cs.display !== 'none') prevDisplay.set(el, cs.display);
   el.style.display = 'none';
@@ -112,6 +115,7 @@ function durationWithPrefs(opts?: KeyframeAnimationOptions): KeyframeAnimationOp
 export function installAnimationMethods() {
   // General animate method (queued, returns Promise<DOMCollection>)
   (DOMCollection as any).prototype.animate = function (keyframes: Keyframe[] | PropertyIndexedKeyframes, options?: KeyframeAnimationOptions) {
+    if (!hasDOM()) return Promise.resolve(this);
     const promises: Promise<void>[] = [];
     for (const el of this.elements) {
       promises.push(playQueued(el as HTMLElement, keyframes as any, durationWithPrefs(options)));
@@ -121,14 +125,17 @@ export function installAnimationMethods() {
 
   // Control helpers (pause/resume/cancel/stop)
   (DOMCollection as any).prototype.pause = function () {
+    if (!hasDOM()) return this;
     for (const el of this.elements) for (const a of getActiveSet(el)) a.pause();
     return this;
   };
   (DOMCollection as any).prototype.resume = function () {
+    if (!hasDOM()) return this;
     for (const el of this.elements) for (const a of getActiveSet(el)) a.play();
     return this;
   };
   (DOMCollection as any).prototype.cancel = function () {
+    if (!hasDOM()) return this;
     for (const el of this.elements) {
       const set = getActiveSet(el);
       for (const a of Array.from(set)) a.cancel();
@@ -137,6 +144,7 @@ export function installAnimationMethods() {
     return this;
   };
   (DOMCollection as any).prototype.stop = function (jumpToEnd?: boolean) {
+    if (!hasDOM()) return this;
     for (const el of this.elements) {
       const set = getActiveSet(el);
       for (const a of Array.from(set)) jumpToEnd ? a.finish() : a.cancel();
@@ -147,6 +155,7 @@ export function installAnimationMethods() {
 
   // Animation shortcuts (integrate visibility + toggle variants)
   (DOMCollection as any).prototype.fadeIn = function (duration?: number) {
+    if (!hasDOM()) return Promise.resolve(this);
     const [keyframes, base] = animations.fadeIn(duration);
     const opts = durationWithPrefs(base);
     const proms: Promise<void>[] = [];
@@ -163,6 +172,7 @@ export function installAnimationMethods() {
   };
   
   (DOMCollection as any).prototype.fadeOut = function (duration?: number) {
+    if (!hasDOM()) return Promise.resolve(this);
     const [keyframes, base] = animations.fadeOut(duration);
     const opts = durationWithPrefs(base);
     const proms: Promise<void>[] = [];
@@ -179,6 +189,7 @@ export function installAnimationMethods() {
   };
   
   (DOMCollection as any).prototype.fadeToggle = function (duration?: number) {
+    if (!hasDOM()) return Promise.resolve(this);
     const proms: Promise<any>[] = [];
     for (const el of this.elements) {
       const h = el as HTMLElement;
@@ -190,6 +201,7 @@ export function installAnimationMethods() {
   };
   
   (DOMCollection as any).prototype.slideUp = function (duration?: number) {
+    if (!hasDOM()) return Promise.resolve(this);
     const [keyframes, base] = animations.slideUp(duration);
     const opts = durationWithPrefs(base);
     const proms: Promise<void>[] = [];
@@ -206,6 +218,7 @@ export function installAnimationMethods() {
   };
   
   (DOMCollection as any).prototype.slideDown = function (duration?: number) {
+    if (!hasDOM()) return Promise.resolve(this);
     const [keyframes, base] = animations.slideDown(duration);
     const opts = durationWithPrefs(base);
     const proms: Promise<void>[] = [];
@@ -222,6 +235,7 @@ export function installAnimationMethods() {
   };
   
   (DOMCollection as any).prototype.slideToggle = function (duration?: number) {
+    if (!hasDOM()) return Promise.resolve(this);
     const proms: Promise<any>[] = [];
     for (const el of this.elements) {
       const h = el as HTMLElement;
@@ -233,6 +247,7 @@ export function installAnimationMethods() {
   };
   
   (DOMCollection as any).prototype.pulse = function (duration?: number) {
+    if (!hasDOM()) return Promise.resolve(this);
     const [keyframes, base] = animations.pulse(duration);
     const opts = durationWithPrefs(base);
     const proms: Promise<void>[] = [];
@@ -244,6 +259,7 @@ export function installAnimationMethods() {
   };
   
   (DOMCollection as any).prototype.shake = function (duration?: number) {
+    if (!hasDOM()) return Promise.resolve(this);
     const [keyframes, base] = animations.shake(duration);
     const opts = durationWithPrefs(base);
     const proms: Promise<void>[] = [];

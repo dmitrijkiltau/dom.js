@@ -1,5 +1,5 @@
 import { MaybeArray, Selector, EventTargetish } from './types';
-import { isString, isElement, isDocument, isWindow } from './utils';
+import { isString, isElement, isDocument, isWindow, hasDOM } from './utils';
 import { DOMCollection } from './collection';
 import { use } from './plugins';
 import { onDirect, removeManaged, addManaged, removeAllManaged, ready as domReady } from './events';
@@ -10,14 +10,14 @@ export function dom<T extends Element = Element>(input?: Selector<T>, context?: 
   if (isString(input)) {
     const s = input.trim();
     if (s.startsWith('<') && s.endsWith('>')) return fromHTML(s) as unknown as DOMCollection<T>;
-    if (!context) return new DOMCollection(document.querySelectorAll(s) as any);
+    if (!context) return hasDOM() ? new DOMCollection(document.querySelectorAll(s) as any) : new DOMCollection([] as any);
     if (context instanceof DOMCollection) {
       const found: Element[] = [] as any;
-      for (const el of context.elements) found.push(...(el.querySelectorAll(s) as any));
+      for (const el of context.elements) found.push(...(hasDOM() ? (el.querySelectorAll(s) as any) : []));
       return new DOMCollection(found) as unknown as DOMCollection<T>;
     }
-    if (context instanceof Element) return new DOMCollection(context.querySelectorAll(s) as any) as unknown as DOMCollection<T>;
-    return new DOMCollection((context as Document).querySelectorAll(s) as any) as unknown as DOMCollection<T>;
+    if (context instanceof Element) return hasDOM() ? new DOMCollection(context.querySelectorAll(s) as any) as unknown as DOMCollection<T> : new DOMCollection([] as any);
+    return hasDOM() ? new DOMCollection((context as Document).querySelectorAll(s) as any) as unknown as DOMCollection<T> : new DOMCollection([] as any);
   }
   if (isElement(input)) return new DOMCollection([input as T]);
   if (input instanceof NodeList || Array.isArray(input)) return new DOMCollection(input as any);
@@ -28,6 +28,7 @@ export function dom<T extends Element = Element>(input?: Selector<T>, context?: 
 
 // ——— HTML string to elements ———
 export function fromHTML(html: string): DOMCollection {
+  if (!hasDOM()) return new DOMCollection([]);
   const tpl = document.createElement('template');
   tpl.innerHTML = html.trim();
   return new DOMCollection(Array.from(tpl.content.children) as any);
@@ -35,6 +36,7 @@ export function fromHTML(html: string): DOMCollection {
 
 // ——— Element creation ———
 export function create(tag: string, attrs?: Record<string, any> | null, children?: MaybeArray<string | Node | DOMCollection>): Element {
+  if (!hasDOM()) throw new Error('create(tag) requires a DOM environment');
   const el = document.createElement(tag);
   if (attrs) for (const [k, v] of Object.entries(attrs)) setAttr(el, k, v);
   if (children) appendChildren(el, children);

@@ -167,10 +167,10 @@ export function onDelegated(
 }
 
 export function ready(fn: () => void): void {
+  if (typeof document === 'undefined') { try { fn(); } catch {} return; }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', fn, { once: true });
   } else {
     fn();
   }
 }
-

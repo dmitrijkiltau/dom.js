@@ -21,8 +21,12 @@ export function nextTick(cb?: () => void): Promise<void> | void {
 }
 
 export function raf(cb?: FrameRequestCallback): number | Promise<number> {
-  if (cb) return requestAnimationFrame(cb);
-  return new Promise<number>(resolve => requestAnimationFrame(resolve));
+  const hasRaf = typeof requestAnimationFrame === 'function';
+  if (cb) return hasRaf ? requestAnimationFrame(cb) : (setTimeout(() => cb(performanceNow()), 16) as unknown as number);
+  return new Promise<number>(resolve => {
+    if (hasRaf) requestAnimationFrame(resolve);
+    else setTimeout(() => resolve(performanceNow()), 16);
+  });
 }
 
 // Debounce/throttle
@@ -108,12 +112,29 @@ export function rafThrottle<F extends (...args: any[]) => any>(fn: F): ((...args
   const wrapper: any = (...args: any[]) => {
     lastArgs = args;
     if (rafId != null) return;
-    rafId = requestAnimationFrame(() => {
+    const hasRaf = typeof requestAnimationFrame === 'function';
+    const schedule = (cb: () => void) => hasRaf ? requestAnimationFrame(cb) : (setTimeout(cb, 16) as unknown as number);
+    rafId = schedule(() => {
       rafId = null;
       if (lastArgs) (fn as any)(...lastArgs);
       lastArgs = null;
     });
   };
-  wrapper.cancel = () => { if (rafId != null) cancelAnimationFrame(rafId); rafId = null; lastArgs = null; };
+  wrapper.cancel = () => {
+    if (rafId != null) {
+      if (typeof cancelAnimationFrame === 'function') cancelAnimationFrame(rafId);
+      // Best effort for setTimeout fallback: cannot cancel without handle; ignore
+    }
+    rafId = null; lastArgs = null;
+  };
   return wrapper;
+}
+
+// ——— Environment helpers ———
+export const hasDOM = (): boolean => typeof window !== 'undefined' && typeof document !== 'undefined' && typeof (document as any).createElement === 'function';
+
+function performanceNow(): number {
+  try {
+    return (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+  } catch { return Date.now(); }
 }

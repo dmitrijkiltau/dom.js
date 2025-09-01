@@ -134,6 +134,30 @@ scrollIntoView("#details", { behavior: 'smooth', block: 'start' });
 dom("#item").scrollIntoViewIfNeeded({ behavior: 'smooth', block: 'center' });
 ```
 
+### Server-Safe (SSR)
+
+If you need to import dom.js in a non-DOM environment (Node.js/SSR) without touching the real DOM, use the server-safe entry:
+
+```js
+// SSR-safe default: DOM methods are no-ops, http/utils available
+import dom from "@dmitrijkiltau/dom.js/server";
+
+// Returns an empty collection on server
+const $ = dom('.anything'); // DOM no-ops on server
+
+// Utilities and http are still available
+await dom.http.get('/api');
+await dom.nextTick();
+await dom.raf(); // falls back to setTimeout on server
+```
+
+Notes:
+- No window/document usage at import time across all entries.
+- `dom.ready(fn)` on server invokes `fn()` immediately.
+- `dom.fromHTML()` returns an empty collection on server.
+- `dom.create()` throws a helpful error on server to avoid silent misuse.
+- Scroll and animation helpers are guarded and no-op when no DOM is present.
+
 **[📖 Complete Architecture Guide →](ARCHITECTURE.md)**
 
 ## Quick Start

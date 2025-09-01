@@ -21,6 +21,7 @@ dom.js features a **modular architecture** that allows you to import only the fu
 src/
 ├── index.ts          # Main entry point (full functionality)
 ├── core.ts           # Core DOM manipulation only (~6.8 KB gzip)
+├── server.ts         # Server-safe entry (no DOM usage)
 ├── collection.ts     # DOMCollection class with all methods
 ├── http.ts           # HTTP utilities (~0.7 KB gzip)
 ├── template.ts       # Template system (~2.8 KB gzip)
@@ -124,6 +125,31 @@ const response = await http.get("/api/data");
 // Use templates separately
 const element = renderTemplate("#template", data);
 ```
+
+### 4. SSR / Non-DOM Environments
+
+To safely import dom.js on the server (Node.js/SSR), use the server-safe entry. It exposes the same callable `dom()` plus http and utilities, while DOM operations are guarded as no-ops or explicit errors.
+
+```js
+import dom from '@dmitrijkiltau/dom.js/server';
+
+dom('.x');              // -> empty collection on server
+dom.on(window, 'x');    // -> no-op unbinder on server
+dom.ready(() => {});    // -> runs immediately on server
+
+// Still usable on server
+await dom.http.get('/api');
+await dom.nextTick();
+await dom.raf(); // setTimeout fallback
+```
+
+Environment safeguards:
+- No `window`/`document` access at import time in any module.
+- `events.ready()` safely handles missing `document` (calls immediately).
+- `utils.raf()`/`rafThrottle()` fall back to `setTimeout` if RAF is unavailable.
+- `scroll` and `motion` helpers early-return when no DOM is present.
+- `dom.fromHTML()` returns an empty collection if no DOM is available.
+- `dom.create()` throws a clear error on server to surface accidental DOM use.
 
 ### 4. Mixed Approach
 

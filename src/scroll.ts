@@ -1,5 +1,5 @@
 import { Selector } from './types';
-import { isElement } from './utils';
+import { isElement, hasDOM } from './utils';
 import { DOMCollection } from './collection';
 
 export type ScrollOptions = {
@@ -12,6 +12,7 @@ export type ScrollOptions = {
 };
 
 function resolveElement(input: Selector | DOMCollection): Element | null {
+  if (!hasDOM()) return null;
   if (input instanceof DOMCollection) return input.el() ?? null;
   if (typeof input === 'string') return document.querySelector(input);
   if (isElement(input)) return input;
@@ -55,6 +56,7 @@ function applyOffset(targetTop: number, targetLeft: number, offset?: number | { 
 }
 
 export function scrollIntoView(target: Selector | Element | DOMCollection, opts: ScrollOptions = {}): void {
+  if (!hasDOM()) return;
   const el = resolveElement(target as any);
   if (!el) return;
   const behavior = opts.behavior || 'smooth';
@@ -95,6 +97,7 @@ export function scrollIntoView(target: Selector | Element | DOMCollection, opts:
 }
 
 export function scrollIntoViewIfNeeded(target: Selector | Element | DOMCollection, opts: Omit<ScrollOptions, 'ifNeeded'> = {}): void {
+  if (!hasDOM()) return;
   scrollIntoView(target as any, { ...opts, ifNeeded: true });
 }
 
@@ -117,4 +120,3 @@ DOMCollection.prototype.scrollIntoViewIfNeeded = function (this: DOMCollection, 
   if (el) scrollIntoViewIfNeeded(el, options);
   return this;
 };
-
