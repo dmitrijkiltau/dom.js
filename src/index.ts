@@ -1,36 +1,48 @@
-import { MaybeArray, Selector, EventTargetish } from './types';
+import { MaybeArray, Selector, EventTargetish, Handler } from './types';
 import { isString, isElement, isDocument, isWindow, debounce, throttle, nextTick, raf, rafThrottle } from './utils';
 import { DOMCollection } from './collection';
 import { renderTemplate, useTemplate, tpl, mountTemplate, escapeHTML, unsafeHTML } from './template';
 import { serializeForm, toQueryString, onSubmit, toFormData, setForm, resetForm, validateForm, isValid } from './forms';
 import { animate, animations, installAnimationMethods } from './motion';
 import { http } from './http';
-import { use, type Plugin } from './plugins';
+import { use } from './plugins';
 import { onDirect, removeManaged, removeAllManaged, ready as domReady } from './events';
 import { onIntersect, onResize, onMutation } from './observers';
 import { scrollIntoView, scrollIntoViewIfNeeded } from './scroll';
 
 // ——— Core selector ———
-export function dom(input?: Selector, context?: Element | Document | DOMCollection): DOMCollection {
+/**
+ * Select DOM elements or create from HTML.
+ *
+ * - Accepts CSS selectors, Elements, NodeLists/arrays, Document or Window
+ * - Optional `context` limits CSS selection scope
+ * - Supports manual generic to type the resulting collection
+ *
+ * Examples:
+ *  dom<HTMLButtonElement>('#save');
+ *  dom('button');
+ *  dom('<div class="x"></div>');
+ */
+export function dom<T extends Element = Element>(input?: Selector<T>, context?: Element | Document | DOMCollection): DOMCollection<T> {
   if (!input) return new DOMCollection([]);
   if (isString(input)) {
     const s = input.trim();
-    if (s.startsWith('<') && s.endsWith('>')) return fromHTML(s);
+    if (s.startsWith('<') && s.endsWith('>')) return fromHTML(s) as unknown as DOMCollection<T>;
     // Contextual selection
-    if (!context) return new DOMCollection(document.querySelectorAll(s));
+    if (!context) return new DOMCollection(document.querySelectorAll(s) as any);
     if (context instanceof DOMCollection) {
       const found: Element[] = [] as any;
       for (const el of context.elements) found.push(...(el.querySelectorAll(s) as any));
-      return new DOMCollection(found);
+      return new DOMCollection(found) as unknown as DOMCollection<T>;
     }
-    if (context instanceof Element) return new DOMCollection(context.querySelectorAll(s));
-    return new DOMCollection((context as Document).querySelectorAll(s));
+    if (context instanceof Element) return new DOMCollection(context.querySelectorAll(s) as any) as unknown as DOMCollection<T>;
+    return new DOMCollection((context as Document).querySelectorAll(s) as any) as unknown as DOMCollection<T>;
   }
-  if (isElement(input)) return new DOMCollection([input]);
+  if (isElement(input)) return new DOMCollection([input as T]);
   if (input instanceof NodeList || Array.isArray(input)) return new DOMCollection(input as any);
-  if (isDocument(input)) return new DOMCollection([input.documentElement]);
-  if (isWindow(input)) return new DOMCollection([input.document.documentElement]);
-  return new DOMCollection([]);
+  if (isDocument(input)) return new DOMCollection([input.documentElement as any]);
+  if (isWindow(input)) return new DOMCollection([input.document.documentElement as any]);
+  return new DOMCollection([]) as DOMCollection<T>;
 }
 
 // ——— HTML string to elements ———
@@ -49,12 +61,27 @@ export function create(tag: string, attrs?: Record<string, any> | null, children
 }
 
 // ——— Event helpers ———
+/**
+ * Bind event listener(s) to an Element/Document/Window or a DOMCollection.
+ *
+ * - Supports multiple space-separated event types and namespaces (e.g. 'click.ns')
+ * - Returns an unbind function
+ * - Event type maps to proper DOM event type for strong typing
+ */
+export function on<K extends keyof GlobalEventHandlersEventMap>(target: Element | DOMCollection, types: K, handler: (ev: GlobalEventHandlersEventMap[K]) => void, options?: boolean | AddEventListenerOptions): () => void;
+export function on<K extends keyof DocumentEventMap>(target: Document, types: K, handler: (ev: DocumentEventMap[K]) => void, options?: boolean | AddEventListenerOptions): () => void;
+export function on<K extends keyof WindowEventMap>(target: Window, types: K, handler: (ev: WindowEventMap[K]) => void, options?: boolean | AddEventListenerOptions): () => void;
+export function on(target: EventTargetish | DOMCollection, types: string, handler: (ev: Event) => void, options?: boolean | AddEventListenerOptions): () => void;
 export function on(target: EventTargetish | DOMCollection, types: string, handler: (ev: Event) => void, options?: boolean | AddEventListenerOptions): () => void {
   const list = target instanceof DOMCollection ? target.elements : [target as any];
   const unbinders = list.map(t => onDirect(t as any, types, handler, options));
   return () => { for (const u of unbinders) u(); };
 }
 
+export function once<K extends keyof GlobalEventHandlersEventMap>(target: Element | DOMCollection, types: K, handler: (ev: GlobalEventHandlersEventMap[K]) => void, options?: boolean | AddEventListenerOptions): () => void;
+export function once<K extends keyof DocumentEventMap>(target: Document, types: K, handler: (ev: DocumentEventMap[K]) => void, options?: boolean | AddEventListenerOptions): () => void;
+export function once<K extends keyof WindowEventMap>(target: Window, types: K, handler: (ev: WindowEventMap[K]) => void, options?: boolean | AddEventListenerOptions): () => void;
+export function once(target: EventTargetish | DOMCollection, types: string, handler: (ev: Event) => void, options?: boolean | AddEventListenerOptions): () => void;
 export function once(target: EventTargetish | DOMCollection, types: string, handler: (ev: Event) => void, options?: boolean | AddEventListenerOptions): () => void {
   const opts: AddEventListenerOptions = Object.assign({ once: true }, typeof options === 'object' ? options : {});
   return on(target, types, handler, opts);
@@ -89,7 +116,47 @@ function appendChildren(el: Element, kids: MaybeArray<string | Node | DOMCollect
 }
 
 // ——— API bag (default export) ———
-const api = Object.assign(function core(input?: Selector, context?: Element | Document | DOMCollection) { return dom(input, context); }, {
+export interface Dom {
+  <T extends Element = Element>(input?: Selector<T>, context?: Element | Document | DOMCollection): DOMCollection<T>;
+  dom: typeof dom;
+  fromHTML: typeof fromHTML;
+  create: typeof create;
+  on: typeof on;
+  once: typeof once;
+  off: typeof off;
+  ready: typeof ready;
+  http: typeof http;
+  renderTemplate: typeof renderTemplate;
+  useTemplate: typeof useTemplate;
+  tpl: typeof tpl;
+  mountTemplate: typeof mountTemplate;
+  escapeHTML: typeof escapeHTML;
+  unsafeHTML: typeof unsafeHTML;
+  serializeForm: typeof serializeForm;
+  toQueryString: typeof toQueryString;
+  onSubmit: typeof onSubmit;
+  toFormData: typeof toFormData;
+  setForm: typeof setForm;
+  resetForm: typeof resetForm;
+  validateForm: typeof validateForm;
+  isValid: typeof isValid;
+  animate: typeof animate;
+  animations: typeof animations;
+  debounce: typeof debounce;
+  throttle: typeof throttle;
+  nextTick: typeof nextTick;
+  raf: typeof raf;
+  rafThrottle: typeof rafThrottle;
+  onIntersect: typeof onIntersect;
+  onResize: typeof onResize;
+  onMutation: typeof onMutation;
+  scrollIntoView: typeof scrollIntoView;
+  scrollIntoViewIfNeeded: typeof scrollIntoViewIfNeeded;
+  DOMCollection: typeof DOMCollection;
+  use: (plugin: Plugin) => void;
+}
+
+const api = Object.assign(function core<T extends Element = Element>(input?: Selector<T>, context?: Element | Document | DOMCollection) { return dom<T>(input, context); }, {
   dom, fromHTML, create, on, once, off, ready, http,
   renderTemplate, useTemplate, tpl, mountTemplate, escapeHTML, unsafeHTML,
   serializeForm, toQueryString, onSubmit, toFormData, setForm, resetForm, validateForm, isValid,
@@ -101,13 +168,13 @@ const api = Object.assign(function core(input?: Selector, context?: Element | Do
   // Scroll helpers
   scrollIntoView, scrollIntoViewIfNeeded,
   DOMCollection,
-  use: (plugin: Plugin) => use(plugin, api)
-});
+  use: (plugin: Plugin) => use(plugin, api as any)
+}) as Dom;
 
 // ——— Initialize animation methods ———
 installAnimationMethods();
 
 // ——— Exports ———
 export { DOMCollection, renderTemplate, useTemplate, tpl, mountTemplate, escapeHTML, unsafeHTML, serializeForm, toQueryString, onSubmit, toFormData, setForm, resetForm, validateForm, isValid, animate, animations, http, use, debounce, throttle, nextTick, raf, rafThrottle, onIntersect, onResize, onMutation, scrollIntoView, scrollIntoViewIfNeeded };
-export type { Plugin };
-export default api as typeof dom & typeof api;
+export type Plugin = (api: Dom) => void;
+export default api;

@@ -17,37 +17,41 @@ function formatCssValue(propKebab: string, value: string | number): string {
   return UNITLESS_CSS_PROPS.has(propKebab) ? String(value) : `${value}px`;
 }
 
-export class DOMCollection {
-  elements: Element[];
+/**
+ * Chainable collection of DOM elements. Generic parameter `T` narrows the
+ * contained element type for better DX (e.g. DOMCollection<HTMLButtonElement>).
+ */
+export class DOMCollection<T extends Element = Element> {
+  elements: T[];
 
-  constructor(input: ArrayLike<Element> | Element[] | null | undefined) {
-    this.elements = toArray(input);
+  constructor(input: ArrayLike<T> | T[] | null | undefined) {
+    this.elements = toArray(input) as T[];
   }
 
   // Core iterator
-  each(fn: (el: Element, idx: number) => void): this {
+  each(fn: (el: T, idx: number) => void): this {
     for (let i = 0; i < this.elements.length; i++) fn(this.elements[i], i);
     return this;
   }
 
   // Basic DOM read helpers
   get length(): number { return this.elements.length; }
-  el<T extends Element = Element>(i?: number): T | undefined { return this.elements[(i ?? 0)] as T | undefined; }
-  first(): DOMCollection { return new DOMCollection(this.elements.length ? [this.elements[0]] : []); }
-  last(): DOMCollection { return new DOMCollection(this.elements.length ? [this.elements[this.elements.length - 1]] : []); }
-  eq(i: number): DOMCollection { return new DOMCollection(this.elements[i] ? [this.elements[i]] : []); }
+  el<U extends T = T>(i?: number): U | undefined { return this.elements[(i ?? 0)] as U | undefined; }
+  first(): DOMCollection<T> { return new DOMCollection<T>(this.elements.length ? [this.elements[0]] : []); }
+  last(): DOMCollection<T> { return new DOMCollection<T>(this.elements.length ? [this.elements[this.elements.length - 1]] : []); }
+  eq(i: number): DOMCollection<T> { return new DOMCollection<T>(this.elements[i] ? [this.elements[i]] : []); }
   find(selector: string): DOMCollection {
     const found: Element[] = [];
     for (const el of this.elements) found.push(...toArray(el.querySelectorAll(selector)));
     return new DOMCollection(found);
   }
-  filter(selector: string | ((el: Element, idx: number) => boolean)): DOMCollection {
+  filter(selector: string | ((el: T, idx: number) => boolean)): DOMCollection<T> | DOMCollection {
     if (typeof selector === 'function') {
-      const filtered: Element[] = [];
+      const filtered: T[] = [];
       for (let i = 0; i < this.elements.length; i++) {
         if (selector(this.elements[i], i)) filtered.push(this.elements[i]);
       }
-      return new DOMCollection(filtered);
+      return new DOMCollection<T>(filtered);
     }
     return new DOMCollection(this.elements.filter(el => el.matches(selector)));
   }
@@ -135,7 +139,7 @@ export class DOMCollection {
   }
 
   // Collection tests and set operations
-  is(selectorOrEl: string | Element | DOMCollection | ((el: Element, idx: number) => boolean)): boolean {
+  is(selectorOrEl: string | Element | DOMCollection | ((el: T, idx: number) => boolean)): boolean {
     if (typeof selectorOrEl === 'function') return this.elements.some((el, i) => selectorOrEl(el, i));
     if (typeof selectorOrEl === 'string') return this.elements.some(el => el.matches(selectorOrEl));
     if (selectorOrEl instanceof DOMCollection) {
@@ -145,7 +149,7 @@ export class DOMCollection {
     if (isElement(selectorOrEl)) return this.elements.some(el => el === selectorOrEl);
     return false;
   }
-  not(selectorOrEl: string | Element | DOMCollection | ((el: Element, idx: number) => boolean)): DOMCollection {
+  not(selectorOrEl: string | Element | DOMCollection | ((el: T, idx: number) => boolean)): DOMCollection<T> | DOMCollection {
     if (typeof selectorOrEl === 'function') return new DOMCollection(this.elements.filter((el, i) => !selectorOrEl(el, i)));
     if (typeof selectorOrEl === 'string') return new DOMCollection(this.elements.filter(el => !el.matches(selectorOrEl)));
     if (selectorOrEl instanceof DOMCollection) {
@@ -174,7 +178,8 @@ export class DOMCollection {
     else if (isElement(input)) addl = [input];
     else addl = toArray(input);
     const out: Element[] = [];
-    for (const el of this.elements.concat(addl)) if (el && !out.includes(el)) out.push(el);
+    const base = this.elements as unknown as Element[];
+    for (const el of base.concat(addl)) if (el && !out.includes(el)) out.push(el);
     return new DOMCollection(out);
   }
   index(): number {
@@ -183,39 +188,39 @@ export class DOMCollection {
     const kids = toArray(el.parentElement.children);
     return kids.indexOf(el);
   }
-  slice(start?: number, end?: number): DOMCollection {
-    return new DOMCollection(this.elements.slice(start, end));
+  slice(start?: number, end?: number): DOMCollection<T> {
+    return new DOMCollection<T>(this.elements.slice(start, end));
   }
-  map<T>(fn: (el: Element, idx: number) => T): T[] {
+  map<U>(fn: (el: T, idx: number) => U): U[] {
     return this.elements.map((el, i) => fn(el, i));
   }
-  get(): Element[];
-  get(index: number): Element | undefined;
-  get(index?: number): Element | Element[] | undefined {
+  get(): T[];
+  get(index: number): T | undefined;
+  get(index?: number): T | T[] | undefined {
     if (index === undefined) return this.elements.slice();
     return this.elements[index];
   }
 
   // Content
   text(value?: string | number | null): any {
-    if (value === undefined) return (this.elements[0] as HTMLElement | undefined)?.textContent ?? '';
-    return this.each(el => (el as HTMLElement).textContent = value == null ? '' : String(value));
+    if (value === undefined) return (this.elements[0] as unknown as HTMLElement | undefined)?.textContent ?? '';
+    return this.each(el => (el as unknown as HTMLElement).textContent = value == null ? '' : String(value));
   }
   html(value?: string | number | null | Node | DOMCollection): any {
-    if (value === undefined) return (this.elements[0] as HTMLElement | undefined)?.innerHTML ?? '';
+    if (value === undefined) return (this.elements[0] as unknown as HTMLElement | undefined)?.innerHTML ?? '';
     if (typeof value === 'string' || typeof value === 'number' || value === null) {
-      return this.each(el => (el as HTMLElement).innerHTML = value == null ? '' : String(value));
+      return this.each(el => (el as unknown as HTMLElement).innerHTML = value == null ? '' : String(value));
     }
     // Replace content with provided node(s)
     if (value instanceof DOMCollection) {
       return this.each(el => {
-        (el as HTMLElement).innerHTML = '';
+        (el as unknown as HTMLElement).innerHTML = '';
         for (const n of value.elements) el.appendChild(n);
       });
     }
     // Single Node
     return this.each(el => {
-      (el as HTMLElement).innerHTML = '';
+      (el as unknown as HTMLElement).innerHTML = '';
       el.appendChild(value as Node);
     });
   }
@@ -227,7 +232,7 @@ export class DOMCollection {
     for (let i = 0; i < recipients.length; i++) {
       const el = recipients[i];
       if (typeof child === 'string') {
-        (el as HTMLElement).insertAdjacentHTML('beforeend', child);
+        (el as unknown as HTMLElement).insertAdjacentHTML('beforeend', child);
       } else if (child instanceof DOMCollection) {
         for (const n of child.elements) {
           el.appendChild(i === lastIdx ? n : n.cloneNode(true));
@@ -245,7 +250,7 @@ export class DOMCollection {
     for (let i = 0; i < recipients.length; i++) {
       const el = recipients[i];
       if (typeof child === 'string') {
-        (el as HTMLElement).insertAdjacentHTML('afterbegin', child);
+        (el as unknown as HTMLElement).insertAdjacentHTML('afterbegin', child);
       } else if (child instanceof DOMCollection) {
         // Insert in order so final order matches input
         const first = el.firstChild;
@@ -357,7 +362,7 @@ export class DOMCollection {
   replaceWith(content: string | Node | DOMCollection): this {
     for (const el of this.elements) {
       if (typeof content === 'string') {
-        (el as HTMLElement).outerHTML = content;
+        (el as unknown as HTMLElement).outerHTML = content;
       } else if (content instanceof DOMCollection) {
         const clones = content.elements.map(node => node.cloneNode(true));
         (el as any).replaceWith(...clones);
@@ -581,7 +586,7 @@ export class DOMCollection {
         return getComputedStyle(first).getPropertyValue(camelToKebab(nameOrInput)).trim();
       }
       return this.each(el => {
-        const s = (el as HTMLElement).style;
+        const s = (el as unknown as HTMLElement).style;
         const prop = camelToKebab(nameOrInput);
         if (value === null) s.removeProperty(prop);
         else s.setProperty(prop, formatCssValue(prop, value as any));
@@ -589,7 +594,7 @@ export class DOMCollection {
     }
     const map = nameOrInput;
     return this.each(el => {
-      const s = (el as HTMLElement).style;
+      const s = (el as unknown as HTMLElement).style;
       for (const [k, v] of Object.entries(map)) {
         const prop = camelToKebab(k);
         if (v == null) s.removeProperty(prop);
@@ -609,7 +614,7 @@ export class DOMCollection {
       return getComputedStyle(first).getPropertyValue(prop).trim();
     }
     return this.each(el => {
-      const s = (el as HTMLElement).style;
+      const s = (el as unknown as HTMLElement).style;
       if (value == null) s.removeProperty(prop);
       else s.setProperty(prop, String(value));
     });
@@ -617,7 +622,7 @@ export class DOMCollection {
 
   cssVars(map: Record<string, string | number | null | undefined>): this {
     return this.each(el => {
-      const s = (el as HTMLElement).style;
+      const s = (el as unknown as HTMLElement).style;
       for (const [k, v] of Object.entries(map)) {
         const prop = k.startsWith('--') ? k : `--${k}`;
         if (v == null) s.removeProperty(prop); else s.setProperty(prop, String(v));
@@ -625,13 +630,13 @@ export class DOMCollection {
     });
   }
 
-  show(display: string = ''): this { return this.each(el => (el as HTMLElement).style.display = display); }
-  hide(): this { return this.each(el => (el as HTMLElement).style.display = 'none'); }
+  show(display: string = ''): this { return this.each(el => (el as unknown as HTMLElement).style.display = display); }
+  hide(): this { return this.each(el => (el as unknown as HTMLElement).style.display = 'none'); }
   toggle(force?: boolean): this {
     return this.each(el => {
-      const h = (el as HTMLElement).style.display === 'none' || getComputedStyle(el).display === 'none';
+      const h = (el as unknown as HTMLElement).style.display === 'none' || getComputedStyle(el).display === 'none';
       const shouldShow = force ?? h;
-      (el as HTMLElement).style.display = shouldShow ? '' : 'none';
+      (el as unknown as HTMLElement).style.display = shouldShow ? '' : 'none';
     });
   }
 
@@ -649,9 +654,9 @@ export class DOMCollection {
       cur = cur.parentElement;
     }
     // Has layout boxes
-    const rects = (el as HTMLElement).getClientRects();
+    const rects = (el as unknown as HTMLElement).getClientRects();
     if (rects && rects.length > 0) return true;
-    const rect = (el as HTMLElement).getBoundingClientRect();
+    const rect = (el as unknown as HTMLElement).getBoundingClientRect();
     return rect.width > 0 && rect.height > 0;
   }
 
@@ -659,7 +664,7 @@ export class DOMCollection {
   width(): number;
   width(value: number | string | null): this;
   width(value?: number | string | null): any {
-    const first = this.elements[0] as HTMLElement | undefined;
+    const first = this.elements[0] as unknown as HTMLElement | undefined;
     if (value === undefined) {
       if (!first) return 0;
       const rect = first.getBoundingClientRect();
@@ -671,7 +676,7 @@ export class DOMCollection {
       return Math.max(0, rect.width - pl - pr - bl - br);
     }
     return this.each(el => {
-      const s = (el as HTMLElement).style;
+      const s = (el as unknown as HTMLElement).style;
       if (value == null) s.removeProperty('width');
       else s.width = typeof value === 'number' ? `${value}px` : String(value);
     });
@@ -680,7 +685,7 @@ export class DOMCollection {
   height(): number;
   height(value: number | string | null): this;
   height(value?: number | string | null): any {
-    const first = this.elements[0] as HTMLElement | undefined;
+    const first = this.elements[0] as unknown as HTMLElement | undefined;
     if (value === undefined) {
       if (!first) return 0;
       const rect = first.getBoundingClientRect();
@@ -692,14 +697,14 @@ export class DOMCollection {
       return Math.max(0, rect.height - pt - pb - bt - bb);
     }
     return this.each(el => {
-      const s = (el as HTMLElement).style;
+      const s = (el as unknown as HTMLElement).style;
       if (value == null) s.removeProperty('height');
       else s.height = typeof value === 'number' ? `${value}px` : String(value);
     });
   }
 
   innerWidth(): number {
-    const first = this.elements[0] as HTMLElement | undefined;
+    const first = this.elements[0] as unknown as HTMLElement | undefined;
     if (!first) return 0;
     const rect = first.getBoundingClientRect();
     const cs = getComputedStyle(first);
@@ -709,7 +714,7 @@ export class DOMCollection {
   }
 
   innerHeight(): number {
-    const first = this.elements[0] as HTMLElement | undefined;
+    const first = this.elements[0] as unknown as HTMLElement | undefined;
     if (!first) return 0;
     const rect = first.getBoundingClientRect();
     const cs = getComputedStyle(first);
@@ -733,7 +738,7 @@ export class DOMCollection {
   }
 
   outerWidth(includeMargin: boolean = false): number {
-    const first = this.elements[0] as HTMLElement | undefined;
+    const first = this.elements[0] as unknown as HTMLElement | undefined;
     if (!first) return 0;
     const rect = first.getBoundingClientRect();
     if (!includeMargin) return rect.width;
@@ -744,7 +749,7 @@ export class DOMCollection {
   }
 
   outerHeight(includeMargin: boolean = false): number {
-    const first = this.elements[0] as HTMLElement | undefined;
+    const first = this.elements[0] as unknown as HTMLElement | undefined;
     if (!first) return 0;
     const rect = first.getBoundingClientRect();
     if (!includeMargin) return rect.height;
@@ -755,7 +760,7 @@ export class DOMCollection {
   }
 
   offset(): { top: number; left: number } {
-    const first = this.elements[0] as HTMLElement | undefined;
+    const first = this.elements[0] as unknown as HTMLElement | undefined;
     if (!first) return { top: 0, left: 0 };
     const rect = first.getBoundingClientRect();
     const top = rect.top + (window.pageYOffset || document.documentElement.scrollTop || 0);
@@ -764,10 +769,10 @@ export class DOMCollection {
   }
 
   position(): { top: number; left: number } {
-    const first = this.elements[0] as HTMLElement | undefined;
+    const first = this.elements[0] as unknown as HTMLElement | undefined;
     if (!first) return { top: 0, left: 0 };
     const parent = (first.offsetParent as Element | null) || document.documentElement;
-    const parentEl = parent as HTMLElement;
+    const parentEl = parent as unknown as HTMLElement;
     const rect = first.getBoundingClientRect();
     const parentRect = parentEl.getBoundingClientRect();
     const pcs = getComputedStyle(parentEl);
@@ -780,7 +785,7 @@ export class DOMCollection {
   }
 
   offsetParent(): DOMCollection {
-    const first = this.elements[0] as HTMLElement | undefined;
+    const first = this.elements[0] as unknown as HTMLElement | undefined;
     const parent = first ? ((first.offsetParent as Element | null) || document.documentElement) : null;
     return new DOMCollection(parent ? [parent] : []);
   }
@@ -788,7 +793,7 @@ export class DOMCollection {
   scrollTop(): number;
   scrollTop(value: number): this;
   scrollTop(value?: number): any {
-    const first = this.elements[0] as HTMLElement | undefined;
+    const first = this.elements[0] as unknown as HTMLElement | undefined;
     if (value === undefined) return first ? (first as any).scrollTop ?? 0 : 0;
     return this.each(el => { (el as any).scrollTop = value; });
   }
@@ -796,7 +801,7 @@ export class DOMCollection {
   scrollLeft(): number;
   scrollLeft(value: number): this;
   scrollLeft(value?: number): any {
-    const first = this.elements[0] as HTMLElement | undefined;
+    const first = this.elements[0] as unknown as HTMLElement | undefined;
     if (value === undefined) return first ? (first as any).scrollLeft ?? 0 : 0;
     return this.each(el => { (el as any).scrollLeft = value; });
   }
@@ -809,6 +814,37 @@ export class DOMCollection {
   }
 
   // Events (direct + delegated), supports: options object, multi-types, namespacing
+  /**
+   * Bind event handlers to each element in the collection.
+   *
+   * - Direct: `on('click', (e, el) => ...)`
+   * - Delegated: `on('click', 'a.item', (e, link) => ...)`
+   * - Supports multiple space-separated types and namespaces (e.g. `"click ns1"` or `"click.ns"`)
+   * - Overloads provide strong typing for common DOM events by name
+   */
+  // Overloads for stricter typing by event name for direct and delegated usage
+  on<K extends keyof GlobalEventHandlersEventMap>(
+    types: K,
+    handler: Handler<GlobalEventHandlersEventMap[K], T>,
+    options?: boolean | AddEventListenerOptions
+  ): this;
+  on<K extends keyof GlobalEventHandlersEventMap, U extends Element = Element>(
+    types: K,
+    selector: string,
+    handler: Handler<GlobalEventHandlersEventMap[K], U>,
+    options?: boolean | AddEventListenerOptions
+  ): this;
+  on(
+    types: string,
+    handler: Handler,
+    options?: boolean | AddEventListenerOptions
+  ): this;
+  on(
+    types: string,
+    selector: string,
+    handler: Handler,
+    options?: boolean | AddEventListenerOptions
+  ): this;
   on(types: string, selectorOrHandler: any, maybeHandler?: any, options?: boolean | AddEventListenerOptions): this {
     if (typeof selectorOrHandler === 'function') {
       const handler = selectorOrHandler as Handler;
@@ -829,6 +865,17 @@ export class DOMCollection {
       }, handler as any, opts, selector);
     });
   }
+  once<K extends keyof GlobalEventHandlersEventMap>(
+    types: K,
+    handler: Handler<GlobalEventHandlersEventMap[K], T>,
+    options?: boolean | AddEventListenerOptions
+  ): this;
+  once<K extends keyof GlobalEventHandlersEventMap, U extends Element = Element>(
+    types: K,
+    selector: string,
+    handler: Handler<GlobalEventHandlersEventMap[K], U>,
+    options?: boolean | AddEventListenerOptions
+  ): this;
   once(types: string, selectorOrHandler: any, maybeHandler?: any, options?: boolean | AddEventListenerOptions): this {
     const baseOpts: AddEventListenerOptions = Object.assign({ once: true }, typeof options === 'object' ? options : {});
     if (typeof selectorOrHandler === 'function') {
@@ -859,32 +906,32 @@ export class DOMCollection {
   }
 
   // Common event shortcuts
-  click(handler?: Handler): this {
+  click(handler?: Handler<MouseEvent, T>): this {
     return handler ? this.on('click', handler) : this.trigger('click');
   }
-  focus(handler?: Handler): this {
-    return handler ? this.on('focus', handler) : this.each(el => (el as HTMLElement).focus());
+  focus(handler?: Handler<FocusEvent, T>): this {
+    return handler ? this.on('focus', handler) : this.each(el => (el as unknown as HTMLElement).focus());
   }
-  blur(handler?: Handler): this {
-    return handler ? this.on('blur', handler) : this.each(el => (el as HTMLElement).blur());
+  blur(handler?: Handler<FocusEvent, T>): this {
+    return handler ? this.on('blur', handler) : this.each(el => (el as unknown as HTMLElement).blur());
   }
-  hover(enterHandler: Handler, leaveHandler?: Handler): this {
+  hover(enterHandler: Handler<MouseEvent, T>, leaveHandler?: Handler<MouseEvent, T>): this {
     this.on('mouseenter', enterHandler);
     if (leaveHandler) this.on('mouseleave', leaveHandler);
     return this;
   }
 
   // Pointer/touch shortcuts
-  pointerdown(handler?: Handler): this { return handler ? this.on('pointerdown', handler) : this.trigger('pointerdown'); }
-  pointerup(handler?: Handler): this { return handler ? this.on('pointerup', handler) : this.trigger('pointerup'); }
-  pointermove(handler?: Handler): this { return handler ? this.on('pointermove', handler) : this.trigger('pointermove'); }
-  pointerenter(handler?: Handler): this { return handler ? this.on('pointerenter', handler) : this.trigger('pointerenter'); }
-  pointerleave(handler?: Handler): this { return handler ? this.on('pointerleave', handler) : this.trigger('pointerleave'); }
-  pointercancel(handler?: Handler): this { return handler ? this.on('pointercancel', handler) : this.trigger('pointercancel'); }
-  touchstart(handler?: Handler): this { return handler ? this.on('touchstart', handler) : this.trigger('touchstart'); }
-  touchend(handler?: Handler): this { return handler ? this.on('touchend', handler) : this.trigger('touchend'); }
-  touchmove(handler?: Handler): this { return handler ? this.on('touchmove', handler) : this.trigger('touchmove'); }
-  touchcancel(handler?: Handler): this { return handler ? this.on('touchcancel', handler) : this.trigger('touchcancel'); }
+  pointerdown(handler?: Handler<PointerEvent, T>): this { return handler ? this.on('pointerdown', handler) : this.trigger('pointerdown'); }
+  pointerup(handler?: Handler<PointerEvent, T>): this { return handler ? this.on('pointerup', handler) : this.trigger('pointerup'); }
+  pointermove(handler?: Handler<PointerEvent, T>): this { return handler ? this.on('pointermove', handler) : this.trigger('pointermove'); }
+  pointerenter(handler?: Handler<PointerEvent, T>): this { return handler ? this.on('pointerenter', handler) : this.trigger('pointerenter'); }
+  pointerleave(handler?: Handler<PointerEvent, T>): this { return handler ? this.on('pointerleave', handler) : this.trigger('pointerleave'); }
+  pointercancel(handler?: Handler<PointerEvent, T>): this { return handler ? this.on('pointercancel', handler) : this.trigger('pointercancel'); }
+  touchstart(handler?: Handler<TouchEvent, T>): this { return handler ? this.on('touchstart', handler) : this.trigger('touchstart'); }
+  touchend(handler?: Handler<TouchEvent, T>): this { return handler ? this.on('touchend', handler) : this.trigger('touchend'); }
+  touchmove(handler?: Handler<TouchEvent, T>): this { return handler ? this.on('touchmove', handler) : this.trigger('touchmove'); }
+  touchcancel(handler?: Handler<TouchEvent, T>): this { return handler ? this.on('touchcancel', handler) : this.trigger('touchcancel'); }
 
   data(name: string, value?: string | number | null): any {
     const key = name.startsWith('data-') ? name : `data-${name}`;

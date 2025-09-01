@@ -889,19 +889,59 @@ dom(".items").highlight();
 
 ## TypeScript Tips
 
-- Use `dom(sel).el<HTMLButtonElement>()` for type-safe element access
-- Event handler signature: `(ev: Event, el: Element, idx: number)`
-- For delegated events, `idx` refers to the index of the element you bound the listener on (the collection item), not the matched child.
-- You can wrap elements locally: `const $ = dom(el)`
+- Typed selection: `dom<HTMLButtonElement>("#save")` returns `DOMCollection<HTMLButtonElement>`
+- Access element: `dom("button").el<HTMLButtonElement>()`
+- Strongly-typed events: event name maps to event type
+  - Top-level: `dom.on(window, 'resize', (e) => e.target)`
+  - Collection: `dom('.btn').on('click', (e, el) => el.disabled = true)`
+- Handler signature: `(ev: TypedEvent, el: Element, idx: number)`
+- Delegation keeps typed event, `el` is the matched descendant
+- You can wrap arbitrary elements locally: `const $ = dom(el)`
 
-Example:
+Examples:
 
 ```ts
-dom(".buttons").on("click", (ev, el, idx) => {
-  const button = el as HTMLButtonElement;
-  const $ = dom(el); // wrap for chaining
-  $.addClass("clicked");
+// Typed selection via generic
+const $save = dom<HTMLButtonElement>("#save");
+$save.on('click', (ev, btn) => {
+  btn.disabled = true; // btn: HTMLButtonElement
 });
+
+// Event typing by name
+dom(window).on('scroll', (e) => {
+  const y: number = window.scrollY;
+});
+
+// Delegated handler with typed event
+dom('#list').on('click', 'a.item', (e, link) => {
+  e.preventDefault();
+  console.log(link.href);
+});
+```
+
+### Plugin Augmentation (Declaration Merging)
+
+You can extend the default `dom` API with plugins and get full type support via module augmentation.
+
+```ts
+// plugin.ts
+import dom, { type DOMCollection } from '@dmitrijkiltau/dom.js';
+
+// 1) Declare augmentation for the Dom interface
+declare module '@dmitrijkiltau/dom.js' {
+  interface Dom {
+    flash(selector: string): Promise<DOMCollection>;
+  }
+}
+
+// 2) Register plugin at runtime
+dom.use((api) => {
+  api.flash = (selector: string) =>
+    api(selector).animate([{ opacity: 0 }, { opacity: 1 }], { duration: 150 });
+});
+
+// 3) Enjoy typed plugin method
+await dom.flash('.message');
 ```
 
 ## Browser Support & Size
