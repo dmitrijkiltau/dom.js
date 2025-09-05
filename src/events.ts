@@ -148,7 +148,8 @@ export function onDelegated(
         const tgt = ev.target as Element | null;
         if (!tgt) return;
         const match = tgt.closest(selector);
-        if (match && (el as any).contains ? (el as any).contains(match) : true) {
+        // Ensure `match` is non-null and, if available, contained within `el` before invoking handler
+        if (match && ((el as any).contains ? (el as any).contains(match) : true)) {
           handler(ev, match, idx ?? 0);
         }
       };
@@ -159,7 +160,8 @@ export function onDelegated(
       const tgt = ev.target as Element | null;
       if (!tgt) return;
       const match = tgt.closest(selector);
-      if (match && (el as any).contains ? (el as any).contains(match) : true) {
+      // Ensure `match` is non-null and, if available, contained within `el` before invoking handler
+      if (match && ((el as any).contains ? (el as any).contains(match) : true)) {
         handler(ev, match, idx ?? 0);
       }
     };
