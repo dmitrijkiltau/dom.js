@@ -179,6 +179,11 @@ Bindings overview:
 - `data-each="items as item, i [by key]"` (keyed loops supported)
 - `data-include="#tplId"` or renderer ref + optional `data-with`
 
+Performance notes:
+- `useTemplate(ref)` caches a compiled plan per `HTMLTemplateElement` so repeated renders/mounts skip re‑parsing.
+- Structural directives (`data-if`/`elseif`/`else`, `data-each`, `data-include`) are precompiled; includes reuse cached plans.
+- Event handler specs (`data-on-*`) are parsed once; arguments support literals, paths, and `$event`.
+
 ## Forms
 
 ```js

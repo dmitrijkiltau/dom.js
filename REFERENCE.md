@@ -110,6 +110,11 @@ Bindings (overview):
 - Includes: `data-include="#tplId"` or renderer ref, optional `data-with` for context
 - Conditionals: `data-if` / `data-elseif` / `data-else` sibling chains
 
+Performance:
+- Per‑template compile caching: `useTemplate(ref)` caches a compiled plan per `HTMLTemplateElement` (also used by `renderTemplate`).
+- Structural plans: `if/elseif/else`, `each`, and `include` are precompiled and instantiated quickly.
+- Includes consult the same cache for nested templates; event handler specs are parsed once.
+
 ## Forms (forms module)
 
 - `serializeForm(form)`, `toFormData(obj)`, `toQueryString(obj)`

@@ -97,6 +97,23 @@ These entry points are designed for good tree‑shaking in modern bundlers. See 
 
 Actual sizes depend on your bundler and configuration.
 
+## Template Engine (Plan/Program)
+
+The template system compiles HTML templates to a reusable Plan (parse once) and instantiates Programs (per mount/update):
+
+- Plan: result of a single DOM walk that normalizes a template node, collects binding factories, and compiles structural directives (`if/elseif/else`, `each`, `include`). Plans are pure and reusable.
+- Program: per‑instance object `{ node, update(data), destroy() }` created from a Plan. It clones the normalized blueprint, attaches listeners, and wires updaters.
+
+Caching:
+- A `WeakMap<HTMLTemplateElement, Plan>` caches compiled plans per template element. `useTemplate(ref)` and `renderTemplate(ref)` both use this cache.
+- `data-include` reuses the same cache for nested templates. Static `#id` includes are resolved during planning when possible.
+
+Parsing:
+- Non‑structural bindings (`data-text/html/safe-html`, `data-attr-*`, `data-show/hide`) use compiled accessors instead of repeated string path parsing.
+- Event handlers (`data-on-*`) are pre‑parsed once into a function accessor and argument evaluators (literals, paths, `$event`).
+
+This two‑phase design removes repeated parsing/traversal across mounts while keeping the public API unchanged.
+
 ## Contribution Guidelines (Architecture)
 
 - Prefer adding features as modules or plugins over growing core
