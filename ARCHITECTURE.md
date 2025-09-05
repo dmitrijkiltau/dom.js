@@ -74,6 +74,19 @@ Environment safeguards:
 
 See `README.md` for SSR usage examples.
 
+### Template Hydration
+
+The template engine supports client‑side hydration that binds event listeners and data bindings to server‑rendered HTML, instead of re‑creating nodes.
+
+- Structural directives (`data-if/elseif/else`, `data-each`, `data-include`) are compiled to plans that render with paired anchor comments: `if:start/if:end`, `each:start/each:end`, `include:start/include:end`.
+- During hydration, the same Plans use these anchors to locate the existing DOM subtree and wire up bindings:
+  - Element plans: attach non‑structural bindings (`data-text`, `data-html`, `data-attr-*`, `data-on-*`, `data-show/hide`) directly to the live element, then hydrate child plans in order.
+  - If plans: detect the active branch between `if` anchors, hydrate the branch, and on updates switch branches (removing/re‑inserting between anchors) while preserving the anchors.
+  - Each plans: on first update, hydrate existing children between `each` anchors into row programs; subsequent updates perform keyed/non‑keyed diffing as usual.
+  - Include plans: attempt to hydrate static includes if the precompiled partial matches the existing node; otherwise instantiate on first update.
+
+API: `hydrateTemplate(ref, root, data)` returns `{ el, update, destroy }` similar to `mountTemplate`. It expects that `root` corresponds to the first element inside the template `ref` as rendered on the server and that structural anchors are present in the HTML.
+
 ## Bundling & Imports
 
 dom.js ships pure ESM with subpath exports to support three common patterns:
