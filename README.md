@@ -124,9 +124,12 @@ dom(".items")
 Highlights by category:
 - Traversal: `find`, `children`, `parent`, `parents`, `siblings`, `closest`, `first`, `last`, `eq`, `get`, `slice`, `map`, `index`
 - Content & attrs: `text`, `html`, `append`, `prepend`, `before`, `after`, `replaceWith`, `wrap*`, `empty`, `clone`, `attr/attrs`, `prop`, `val`, `data`
+  - `.dataset(map)` to set multiple `data-*` attrs; `.aria(name[, value])` and `.aria(map)` helpers
 - Classes & CSS: `addClass/removeClass/toggleClass/hasClass`, `css`, `cssVar/cssVars`, `computed`
 - Visibility & layout: `show/hide/toggle/isVisible`, `width/height/inner*/outer*`, `offset/position/offsetParent`, `scrollTop/scrollLeft`, `rect`
 - Events: `on/once/off/trigger`, shortcuts like `click`, `focus`, `blur`, `hover`, pointer/touch helpers
+  - `.trigger(type[, init])` accepts `EventInit | CustomEventInit` and defaults to `{ bubbles: true }`; non‑object becomes `{ detail }`.
+  - Delegation supported at collection and top‑level: `on(el|document|window, 'click', 'a.item', handler)`.
 - Forms: `serialize`, `toFormData`, `setForm`, `reset`
 
 ## Templates

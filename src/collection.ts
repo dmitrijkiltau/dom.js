@@ -896,11 +896,31 @@ export class DOMCollection<T extends Element = Element> {
     const handler = maybeHandler as Function | undefined;
     return this.each(el => removeManaged(el, types, selector, handler));
   }
-  trigger(type: string, detail?: any): this {
+  trigger(type: string, init?: EventInit | CustomEventInit | any): this {
     return this.each(el => {
-      const event = detail !== undefined 
-        ? new CustomEvent(type, { detail, bubbles: true })
-        : new Event(type, { bubbles: true });
+      const view = (el as any).ownerDocument?.defaultView as (Window | undefined);
+      const EvCtor = (view && (view as any).Event) || (typeof Event !== 'undefined' ? Event : undefined);
+      const CevCtor = (view && (view as any).CustomEvent) || (typeof CustomEvent !== 'undefined' ? CustomEvent : undefined);
+
+      let event: Event;
+      if (init && typeof init === 'object' && (view && (init instanceof (view as any).Event))) {
+        event = init as Event;
+      } else if (init instanceof (globalThis as any).Event) {
+        event = init as Event;
+      } else {
+        const isInitLike = (v: any) => v && typeof v === 'object' && ('detail' in v || 'bubbles' in v || 'cancelable' in v || 'composed' in v);
+        const opts: any = (init !== undefined)
+          ? (isInitLike(init) ? { ...(init as any) } : { detail: init })
+          : {};
+        if (opts.bubbles == null) opts.bubbles = true;
+        if ('detail' in opts) {
+          const Ctor = CevCtor as any;
+          event = Ctor ? new Ctor(type, opts) : new (EvCtor as any)(type, opts);
+        } else {
+          const Ctor = EvCtor as any;
+          event = new Ctor(type, opts);
+        }
+      }
       el.dispatchEvent(event);
     });
   }
@@ -938,6 +958,55 @@ export class DOMCollection<T extends Element = Element> {
     if (value === undefined) return this.attr(key);
     return this.attr(key, value as any);
   }
+
+  // Dataset helpers
+  dataset(): Record<string, string>;
+  dataset(map: Record<string, string | number | null | undefined>): this;
+  dataset(map?: Record<string, string | number | null | undefined>): any {
+    if (map === undefined) {
+      const first = this.elements[0] as unknown as HTMLElement | undefined;
+      const out: Record<string, string> = {};
+      if (!first) return out;
+      const ds = (first as any).dataset as DOMStringMap;
+      for (const k in ds) { if (Object.prototype.hasOwnProperty.call(ds, k)) out[k] = ds[k] as string; }
+      return out;
+    }
+    return this.each(el => {
+      const h = el as unknown as HTMLElement;
+      for (const [k, v] of Object.entries(map)) {
+        const attr = k.startsWith('data-') ? k : `data-${camelToKebab(k)}`;
+        if (v == null) h.removeAttribute(attr);
+        else h.setAttribute(attr, String(v));
+      }
+    });
+  }
+
+  // ARIA attribute helper
+  aria(name: string): string | null;
+  aria(name: string, value: string | number | boolean | null | undefined): this;
+  aria(map: Record<string, string | number | boolean | null | undefined>): this;
+  aria(nameOrMap: any, value?: any): any {
+    if (typeof nameOrMap === 'string') {
+      const attr = nameOrMap.startsWith('aria-') ? nameOrMap : `aria-${nameOrMap}`;
+      if (value === undefined) return this.attr(attr);
+      const v = typeof value === 'boolean' ? (value ? 'true' : 'false') : value;
+      return this.attr(attr, v == null ? null : String(v));
+    }
+    const map = nameOrMap as Record<string, any>;
+    return this.each(el => {
+      const h = el as unknown as HTMLElement;
+      for (const [k, v] of Object.entries(map)) {
+        const attr = k.startsWith('aria-') ? k : `aria-${k}`;
+        const val = typeof v === 'boolean' ? (v ? 'true' : 'false') : v;
+        if (val == null) h.removeAttribute(attr);
+        else h.setAttribute(attr, String(val));
+      }
+    });
+  }
+
+  // Iterator helpers for symmetry/readability
+  beforeEach(fn: (el: T, idx: number) => void): this { return this.each(fn); }
+  afterEach(fn: (el: T, idx: number) => void): this { return this.each(fn); }
 
   // Form serialization
   serialize(): Record<string, any> {

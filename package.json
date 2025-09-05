@@ -1,6 +1,6 @@
 {
   "name": "@dmitrijkiltau/dom.js",
-  "version": "1.6.3",
+  "version": "1.6.6",
   "description": "A lightweight, modular DOM manipulation library with chainable API, zero dependencies, and modern ES modules.",
   "type": "module",
   "main": "dist/index.cjs",
@@ -77,7 +77,9 @@
   },
   "sideEffects": false,
   "files": [
-    "dist"
+    "dist",
+    "ARCHITECTURE.md",
+    "REFERENCE.md"
   ],
   "scripts": {
     "build": "tsup src/index.ts src/core.ts src/http.ts src/template.ts src/forms.ts src/motion.ts src/utils.ts src/observers.ts src/scroll.ts src/server.ts --format esm,cjs --dts --minify --splitting false --clean",
@@ -85,7 +87,7 @@
     "build:core": "tsup src/core.ts --format esm,cjs --dts --minify",
     "analyze": "node scripts/analyze-bundles.mjs",
     "dev": "tsup src/index.ts --format esm --dts --watch",
-    "test": "node ./tests/sanity.mjs && node ./tests/modular.mjs && node ./tests/template-each.test.mjs && node ./tests/dom-manipulation.test.mjs",
+    "test": "node ./tests/sanity.mjs && node ./tests/modular.mjs && node ./tests/template-each.test.mjs && node ./tests/dom-manipulation.test.mjs && node ./tests/events-delegated.test.mjs && node ./tests/trigger-init.test.mjs && node ./tests/qol-helpers.test.mjs",
     "test:types": "tsc -p tests/tsconfig.types.json",
     "test:core": "node ./tests/sanity.mjs",
     "test:modular": "node ./tests/modular.mjs",
