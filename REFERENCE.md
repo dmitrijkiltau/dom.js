@@ -65,6 +65,8 @@ Content & structure:
 Attributes, properties, values:
 - `.attr(name[, value])`, `.attrs(map)`
 - `.prop(name[, value])`, `.val([value])`, `.data(name[, value])`
+- `.dataset([map])` → get all dataset of first element or set multiple `data-*` attrs
+- `.aria(name[, value])` or `.aria(map)` → convenience for `aria-*` attributes
 
 Classes & styles:
 - `.addClass(...names)`, `.removeClass(...names)`, `.toggleClass(names[, force])`, `.hasClass(name)`, `.replaceClass(oldClasses, newClasses)`
@@ -83,6 +85,10 @@ Events (collection):
 - `.on(types[, selector], handler, [options])`, `.once(...)`, `.off([types[, selector[, handler]]])`, `.trigger(type[, init])`
   - `init` accepts `EventInit | CustomEventInit | any` (non‑object becomes `{ detail }`)
   - Defaults to `{ bubbles: true }` if unspecified
+
+Iteration helpers:
+- `.each(fn)` → iterate elements
+- `.beforeEach(fn)`, `.afterEach(fn)` → aliases to `.each(fn)` for chain readability
 - Shortcuts: `.click([handler])`, `.focus()`, `.blur()`, `.hover(enter, leave)`
 - Pointer/touch: `.pointerdown/move/up/enter/leave/cancel()`, `.touchstart/move/end/cancel()`
 
