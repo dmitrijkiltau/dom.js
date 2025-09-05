@@ -173,10 +173,36 @@ function compilePlanNode(node: Element): Plan {
     } });
   }
 
-  // Children plans
+  // Children plans with structural lookahead (if/elseif/else chains)
   const childPlans: Plan[] = [];
   const kids = Array.from(node.children) as Element[];
-  for (const ch of kids) childPlans.push(compilePlanNode(ch));
+  for (let i = 0; i < kids.length; ) {
+    const ch = kids[i] as Element;
+    if (ch.hasAttribute('data-if')) {
+      const chainNodes: Element[] = [ch];
+      let j = i + 1;
+      while (j < kids.length) {
+        const nx = kids[j] as Element;
+        if (nx.hasAttribute('data-elseif') || nx.hasAttribute('data-else')) { chainNodes.push(nx); j++; }
+        else break;
+      }
+      childPlans.push(makeIfPlanFromChain(chainNodes));
+      i = j;
+      continue;
+    }
+    if (ch.hasAttribute('data-each')) {
+      childPlans.push(makeEachPlan(ch));
+      i++;
+      continue;
+    }
+    if (ch.hasAttribute('data-include')) {
+      childPlans.push(makeIncludePlan(ch));
+      i++;
+      continue;
+    }
+    childPlans.push(compilePlanNode(ch));
+    i++;
+  }
 
   return {
     instantiate(): Program {
@@ -218,6 +244,210 @@ function makeLegacyStructuralPlan(node: Element): Plan {
     instantiate(): Program {
       const root = blueprint.cloneNode(true) as Element;
       return compile(root);
+    }
+  };
+}
+
+// ——— Structural Plans ———
+function makeIfPlanFromChain(nodes: Element[]): Plan {
+  // Build chain descriptors with subplans
+  type ChainItem = { type: 'if' | 'elseif' | 'else'; expr?: string; plan: Plan };
+  const chain: ChainItem[] = [];
+  for (let idx = 0; idx < nodes.length; idx++) {
+    const el = nodes[idx];
+    if (idx === 0 && el.hasAttribute('data-if')) {
+      const expr = el.getAttribute('data-if')!; el.removeAttribute('data-if');
+      chain.push({ type: 'if', expr, plan: compilePlanNode(el) });
+    } else if (el.hasAttribute('data-elseif')) {
+      const expr = el.getAttribute('data-elseif')!; el.removeAttribute('data-elseif');
+      chain.push({ type: 'elseif', expr, plan: compilePlanNode(el) });
+    } else if (el.hasAttribute('data-else')) {
+      el.removeAttribute('data-else');
+      chain.push({ type: 'else', plan: compilePlanNode(el) });
+    }
+  }
+
+  return {
+    instantiate(): Program {
+      const start = document.createComment('if:start');
+      const end = document.createComment('if:end');
+      const frag = document.createDocumentFragment();
+      frag.append(start, end);
+
+      let activeIndex = -1;
+      let active: Program | null = null;
+      const update = (data: TemplateData) => {
+        const scope: Scope = Object.assign(Object.create(null), data);
+        let idx = -1;
+        for (let i = 0; i < chain.length; i++) {
+          const c = chain[i];
+          if (c.type === 'else') { idx = i; break; }
+          const cond = truthy(get(scope, c.expr!));
+          if (cond) { idx = i; break; }
+        }
+        if (idx !== activeIndex) {
+          // Remove old
+          if (active) { try { active.destroy(); } catch {} }
+          removeBetween(start, end);
+          active = null;
+          if (idx !== -1) {
+            const p = chain[idx].plan.instantiate();
+            end.before(p.node);
+            active = p;
+          }
+          activeIndex = idx;
+        }
+        if (active) active.update(scope);
+      };
+      const destroy = () => { if (active) { try { active.destroy(); } catch {} } removeBetween(start, end); };
+      return { node: frag, update, destroy };
+    }
+  };
+}
+
+function makeEachPlan(node: Element): Plan {
+  const expr = node.getAttribute('data-each')!; node.removeAttribute('data-each');
+  const { listKey, itemAlias, indexAlias, keyExpr } = parseEach(expr);
+  const keyAttr = node.getAttribute('data-key') || undefined; if (keyAttr) node.removeAttribute('data-key');
+  const itemPlan = compilePlanNode(node);
+
+  type Row = { key: any; program: Program; scope: Scope };
+
+  return {
+    instantiate(): Program {
+      const start = document.createComment('each:start');
+      const end = document.createComment('each:end');
+      const frag = document.createDocumentFragment();
+      frag.append(start, end);
+
+      let rows: Row[] = [];
+
+      function makeKey(itemScope: Scope): any {
+        const exprToUse = keyAttr || keyExpr;
+        if (!exprToUse) return undefined;
+        try { return get(itemScope, exprToUse); } catch { return undefined; }
+      }
+
+      const update = (data: TemplateData) => {
+        const scope: Scope = Object.assign(Object.create(null), data);
+        const list = get(scope, listKey);
+        const arr = Array.isArray(list) ? list : [];
+        const nextRows: Row[] = new Array(arr.length);
+
+        const keyed = (keyAttr || keyExpr) != null;
+        const oldByKey = new Map<any, Row>();
+        if (keyed) for (const r of rows) oldByKey.set(r.key, r);
+
+        let prevSibling: Node = start;
+        for (let i = 0; i < arr.length; i++) {
+          const item = arr[i];
+          const childScope: Scope = Object.assign(Object.create(scope), {
+            [itemAlias]: item,
+            [indexAlias]: i,
+            $item: item,
+            $index: i,
+            $parent: scope
+          });
+          const key = makeKey(childScope);
+
+          let row: Row | undefined;
+          if (keyed && oldByKey.has(key)) {
+            row = oldByKey.get(key)!;
+            // Move node to correct position if needed
+            if (row.program.node.nextSibling !== end) {
+              if (prevSibling.nextSibling !== row.program.node) {
+                end.parentNode!.insertBefore(row.program.node, prevSibling.nextSibling);
+              }
+            }
+            row.scope = childScope;
+            row.program.update(childScope);
+            oldByKey.delete(key);
+          } else if (!keyed && rows[i]) {
+            row = rows[i];
+            row.scope = childScope;
+            row.program.update(childScope);
+          } else {
+            const p = itemPlan.instantiate();
+            end.parentNode!.insertBefore(p.node, prevSibling.nextSibling);
+            row = { key, program: p, scope: childScope };
+            row.program.update(childScope);
+          }
+          nextRows[i] = row!;
+          prevSibling = row!.program.node;
+        }
+
+        // Remove leftovers
+        if (keyed) {
+          for (const r of oldByKey.values()) {
+            try { r.program.destroy(); } catch {}
+            if (r.program.node.parentNode) r.program.node.parentNode.removeChild(r.program.node);
+          }
+        } else {
+          for (let i = arr.length; i < rows.length; i++) {
+            const r = rows[i];
+            try { r.program.destroy(); } catch {}
+            if (r.program.node.parentNode) r.program.node.parentNode.removeChild(r.program.node);
+          }
+        }
+
+        rows = nextRows;
+      };
+
+      const destroy = () => { rows.forEach(r => { try { r.program.destroy(); } catch {} }); removeBetween(start, end); };
+      return { node: frag, update, destroy };
+    }
+  };
+}
+
+function makeIncludePlan(node: Element): Plan {
+  const includeExpr = node.getAttribute('data-include')!; node.removeAttribute('data-include');
+  const withExpr = node.getAttribute('data-with') || undefined; if (withExpr) node.removeAttribute('data-with');
+
+  return {
+    instantiate(): Program {
+      const start = document.createComment('include:start');
+      const end = document.createComment('include:end');
+      const frag = document.createDocumentFragment();
+      frag.append(start, end);
+
+      let child: Program | null = null;
+
+      const update = (data: TemplateData) => {
+        const scope: Scope = Object.assign(Object.create(null), data);
+        const ctx = withExpr ? get(scope, withExpr) : scope;
+        let templateEl: HTMLTemplateElement | null = null;
+        let partialNode: Node | null = null;
+
+        const ref = get(scope, includeExpr);
+        if (ref instanceof HTMLTemplateElement) templateEl = ref;
+        else if (typeof ref === 'string' && ref.startsWith('#')) templateEl = tpl(ref);
+        else if (typeof ref === 'function') {
+          partialNode = ref(ctx);
+        } else if (typeof includeExpr === 'string' && includeExpr.startsWith('#')) {
+          templateEl = tpl(includeExpr);
+        }
+
+        if (partialNode) {
+          if (child) { try { child.destroy(); } catch {} child = null; }
+          removeBetween(start, end);
+          end.before(partialNode);
+          return;
+        }
+
+        if (templateEl) {
+          if (child) { child.update(ctx as any); return; }
+          let plan = PLAN_CACHE.get(templateEl);
+          if (!plan) { const first = templateEl.content.firstElementChild as Element | null; if (first) { plan = compilePlan(first); PLAN_CACHE.set(templateEl, plan); } }
+          if (!plan) return;
+          const p = plan.instantiate();
+          p.update(ctx as any);
+          end.before(p.node);
+          child = p;
+          return;
+        }
+      };
+      const destroy = () => { if (child) { try { child.destroy(); } catch {} } removeBetween(start, end); };
+      return { node: frag, update, destroy };
     }
   };
 }
