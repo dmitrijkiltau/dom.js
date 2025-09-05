@@ -37,7 +37,9 @@ Note: “Import‑safe on server” means modules do not access `window`/`docume
 
 - Call `dom(selector, [context])` → `DOMCollection`
 - Utilities: `dom.fromHTML(html)`, `dom.create(tag, attrs?, children?)`
-- Events: `dom.on/once/off(target, types, handler, options)`, `dom.ready(fn)`
+- Events: `dom.on/once/off(target, types[, selector], handler, options)`, `dom.ready(fn)`
+  - Supports direct and delegated forms for `Element`, `Document`, and `Window`
+  - Multiple event types and namespaces (e.g. `"click resize.ns"`) supported
 - Plugins: `dom.use(plugin)`
 - Class: `dom.DOMCollection`
 

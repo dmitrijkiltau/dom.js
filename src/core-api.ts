@@ -1,7 +1,7 @@
-import { MaybeArray, Selector, EventTargetish } from './types';
+import { MaybeArray, Selector, EventTargetish, Handler } from './types';
 import { isString, isElement, isDocument, isWindow, hasDOM } from './utils';
 import { DOMCollection } from './collection';
-import { onDirect, removeManaged, removeAllManaged, ready as domReady } from './events';
+import { onDirect, onDelegated, removeManaged, removeAllManaged, ready as domReady } from './events';
 
 // ——— Core selector ———
 export function dom<T extends Element = Element>(input?: Selector<T>, context?: Element | Document | DOMCollection): DOMCollection<T> {
@@ -44,22 +44,48 @@ export function create(tag: string, attrs?: Record<string, any> | null, children
 
 // ——— Event helpers ———
 export function on<K extends keyof GlobalEventHandlersEventMap>(target: Element | DOMCollection, types: K, handler: (ev: GlobalEventHandlersEventMap[K]) => void, options?: boolean | AddEventListenerOptions): () => void;
+export function on<K extends keyof GlobalEventHandlersEventMap, U extends Element = Element>(target: Element | DOMCollection, types: K, selector: string, handler: Handler<GlobalEventHandlersEventMap[K], U>, options?: boolean | AddEventListenerOptions): () => void;
 export function on<K extends keyof DocumentEventMap>(target: Document, types: K, handler: (ev: DocumentEventMap[K]) => void, options?: boolean | AddEventListenerOptions): () => void;
+export function on<K extends keyof DocumentEventMap, U extends Element = Element>(target: Document, types: K, selector: string, handler: Handler<DocumentEventMap[K], U>, options?: boolean | AddEventListenerOptions): () => void;
 export function on<K extends keyof WindowEventMap>(target: Window, types: K, handler: (ev: WindowEventMap[K]) => void, options?: boolean | AddEventListenerOptions): () => void;
+export function on<K extends keyof WindowEventMap, U extends Element = Element>(target: Window, types: K, selector: string, handler: Handler<WindowEventMap[K], U>, options?: boolean | AddEventListenerOptions): () => void;
+// Fallback overloads when the target is union-typed at the call site
 export function on(target: EventTargetish | DOMCollection, types: string, handler: (ev: Event) => void, options?: boolean | AddEventListenerOptions): () => void;
-export function on(target: EventTargetish | DOMCollection, types: string, handler: (ev: Event) => void, options?: boolean | AddEventListenerOptions): () => void {
+export function on(target: EventTargetish | DOMCollection, types: string, selector: string, handler: Handler, options?: boolean | AddEventListenerOptions): () => void;
+export function on(target: EventTargetish | DOMCollection, types: string, selectorOrHandler: any, maybeHandler?: any, maybeOptions?: boolean | AddEventListenerOptions): () => void {
+  if (typeof selectorOrHandler === 'string') {
+    const selector = selectorOrHandler as string;
+    const handler = maybeHandler as Handler;
+    const options = maybeOptions as boolean | AddEventListenerOptions | undefined;
+    const list = target instanceof DOMCollection ? target.elements : [target as any];
+    const unbinders = list.map((t, i) => onDelegated(t as any, types, selector, handler as any, options, i));
+    return () => { for (const u of unbinders) u(); };
+  }
+  const handler = selectorOrHandler as (ev: Event) => void;
+  const options = maybeHandler as boolean | AddEventListenerOptions | undefined;
   const list = target instanceof DOMCollection ? target.elements : [target as any];
   const unbinders = list.map(t => onDirect(t as any, types, handler, options));
   return () => { for (const u of unbinders) u(); };
 }
 
 export function once<K extends keyof GlobalEventHandlersEventMap>(target: Element | DOMCollection, types: K, handler: (ev: GlobalEventHandlersEventMap[K]) => void, options?: boolean | AddEventListenerOptions): () => void;
+export function once<K extends keyof GlobalEventHandlersEventMap, U extends Element = Element>(target: Element | DOMCollection, types: K, selector: string, handler: Handler<GlobalEventHandlersEventMap[K], U>, options?: boolean | AddEventListenerOptions): () => void;
 export function once<K extends keyof DocumentEventMap>(target: Document, types: K, handler: (ev: DocumentEventMap[K]) => void, options?: boolean | AddEventListenerOptions): () => void;
+export function once<K extends keyof DocumentEventMap, U extends Element = Element>(target: Document, types: K, selector: string, handler: Handler<DocumentEventMap[K], U>, options?: boolean | AddEventListenerOptions): () => void;
 export function once<K extends keyof WindowEventMap>(target: Window, types: K, handler: (ev: WindowEventMap[K]) => void, options?: boolean | AddEventListenerOptions): () => void;
+export function once<K extends keyof WindowEventMap, U extends Element = Element>(target: Window, types: K, selector: string, handler: Handler<WindowEventMap[K], U>, options?: boolean | AddEventListenerOptions): () => void;
+// Fallback overloads when the target is union-typed at the call site
 export function once(target: EventTargetish | DOMCollection, types: string, handler: (ev: Event) => void, options?: boolean | AddEventListenerOptions): () => void;
-export function once(target: EventTargetish | DOMCollection, types: string, handler: (ev: Event) => void, options?: boolean | AddEventListenerOptions): () => void {
-  const opts: AddEventListenerOptions = Object.assign({ once: true }, typeof options === 'object' ? options : {});
-  return on(target, types, handler, opts);
+export function once(target: EventTargetish | DOMCollection, types: string, selector: string, handler: Handler, options?: boolean | AddEventListenerOptions): () => void;
+export function once(target: EventTargetish | DOMCollection, types: string, selectorOrHandler: any, maybeHandler?: any, options?: boolean | AddEventListenerOptions): () => void {
+  const baseOpts: AddEventListenerOptions = Object.assign({ once: true }, typeof options === 'object' ? options : {});
+  if (typeof selectorOrHandler === 'string') {
+    const selector = selectorOrHandler as string;
+    const handler = maybeHandler as Handler;
+    return on(target, types, selector, handler, baseOpts);
+  }
+  const handler = selectorOrHandler as (ev: Event) => void;
+  return on(target, types, handler, baseOpts);
 }
 
 export function off(target: EventTargetish | DOMCollection, types?: string, handler?: (ev: Event) => void): void {
@@ -89,4 +115,3 @@ function appendChildren(el: Element, kids: MaybeArray<string | Node | DOMCollect
     else el.appendChild(child);
   }
 }
-
