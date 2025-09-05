@@ -102,7 +102,7 @@ Functions:
 - `tpl(ref)`, `renderTemplate(ref, data)`, `useTemplate(ref)` → `(data) => Node` with `.mount(data)`
 - `mountTemplate(ref, data)` → `{ el, update(data), destroy() }`
 - `hydrateTemplate(ref, root, data)` → binds to server-rendered `root` without re-creating DOM; returns `{ el, update, destroy }`
-- Safety: `escapeHTML(str)`, `unsafeHTML(str)`
+- Safety: `escapeHTML(str)`, `unsafeHTML(str)`, `isUnsafeHTML(str)` (alias)
 
 Bindings (overview):
 - `data-text`, `data-html`, `data-safe-html`, `data-attr-*`, `data-show`, `data-hide`
@@ -155,3 +155,6 @@ Utilities:
 - Generics: `dom<T>(selector)` → `DOMCollection<T>` for typed chains
 - Events: names map to DOM event types (top‑level and collection)
 - Augmentation: `declare module '@dmitrijkiltau/dom.js' { interface Dom { … } }` then `dom.use(api => { /* add methods */ })`
+Notes:
+- For explicit raw HTML intent, templates may use `data-html="unsafe(expr)"`.
+- Alternatively, return a wrapper from data using `unsafeHTML(x)` / `isUnsafeHTML(x)` and bind with `data-html="path"`.

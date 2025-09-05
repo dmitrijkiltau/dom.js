@@ -147,7 +147,7 @@ HTML templates with data binding, conditionals, loops, includes, safe escaping, 
 ``` 
 
 ```js
-import { renderTemplate, useTemplate, tpl, escapeHTML, unsafeHTML } from "@dmitrijkiltau/dom.js/template";
+import { renderTemplate, useTemplate, tpl, escapeHTML, unsafeHTML, isUnsafeHTML } from "@dmitrijkiltau/dom.js/template";
 
 const data = {
   title: "Docs",
@@ -168,9 +168,10 @@ const instance = render.mount(data);
 dom("#list").append(instance.el);
 instance.update({ ...data, active: true });
 
-// Safe HTML
-escapeHTML("<b>x</b>");
-unsafeHTML("<b>trusted</b>");
+// Safe HTML helpers
+escapeHTML("<b>x</b>"); // escape to text
+unsafeHTML("<b>trusted</b>"); // wrap as explicitly unsafe
+isUnsafeHTML("<i>also trusted</i>"); // alias for readability
 ```
 
 Bindings overview:
@@ -360,7 +361,10 @@ dom(".items").highlight();
 ## Security
 
 - Prefer `data-text` and `data-safe-html` for untrusted data
-- Raw HTML setters (`data-html`, `dom().html()`) only with trusted/sanitized content (or via `unsafeHTML()`)
+- Raw HTML setters (`data-html`, `dom().html()`) only with trusted/sanitized content.
+  To make intent explicit, use one of:
+  - `data-html="unsafe(expr)"` in templates
+  - `data-html="pathReturningWrapper"` where code uses `unsafeHTML(x)` / `isUnsafeHTML(x)`
 
 ## Contributing
 

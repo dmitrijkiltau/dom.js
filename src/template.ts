@@ -78,6 +78,8 @@ export function escapeHTML(input: any): string {
 }
 
 export function unsafeHTML(html: string): { __html: string } { return { __html: String(html ?? '') }; }
+// Alias to make intent explicit at call sites
+export const isUnsafeHTML = unsafeHTML;
 
 // ——— Internal engine ———
 type Updater = (scope: Scope) => void;
@@ -143,13 +145,20 @@ function compilePlanNode(node: Element): Plan {
     bindings.push({ attach(el) { return { update(scope) { (el as HTMLElement).textContent = toString(acc(scope)); } }; } });
   }
   if (node.hasAttribute('data-html')) {
-    const expr = node.getAttribute('data-html')!; node.removeAttribute('data-html');
-    const acc = compileAccessor(expr);
-    bindings.push({ attach(el) { return { update(scope) {
-      const val = acc(scope);
-      if (val && typeof val === 'object' && '__html' in val) (el as HTMLElement).innerHTML = String(val.__html);
-      else (el as HTMLElement).innerHTML = toString(val);
-    } }; } });
+    const raw = node.getAttribute('data-html')!; node.removeAttribute('data-html');
+    const unsafeMatch = raw.match(/^\s*unsafe\s*\((.*)\)\s*$/);
+    if (unsafeMatch) {
+      const inner = unsafeMatch[1]?.trim() || '';
+      const acc = compileAccessor(inner);
+      bindings.push({ attach(el) { return { update(scope) { (el as HTMLElement).innerHTML = toString(acc(scope)); } }; } });
+    } else {
+      const acc = compileAccessor(raw);
+      bindings.push({ attach(el) { return { update(scope) {
+        const val = acc(scope);
+        if (val && typeof val === 'object' && '__html' in val) (el as HTMLElement).innerHTML = String(val.__html);
+        else (el as HTMLElement).innerHTML = toString(val);
+      } }; } });
+    }
   }
   if (node.hasAttribute('data-safe-html')) {
     const expr = node.getAttribute('data-safe-html')!; node.removeAttribute('data-safe-html');
@@ -926,12 +935,18 @@ function compileNodeBindings(el: Element, updaters: Updater[], destroyers: Array
 
   // data-html (raw), data-safe-html (escaped)
   if (el.hasAttribute('data-html')) {
-    const expr = el.getAttribute('data-html')!; el.removeAttribute('data-html');
-    updaters.push(scope => {
-      const val = get(scope, expr);
-      if (val && typeof val === 'object' && '__html' in val) (el as HTMLElement).innerHTML = String(val.__html);
-      else (el as HTMLElement).innerHTML = toString(val);
-    });
+    const raw = el.getAttribute('data-html')!; el.removeAttribute('data-html');
+    const unsafeMatch = raw.match(/^\s*unsafe\s*\((.*)\)\s*$/);
+    if (unsafeMatch) {
+      const inner = (unsafeMatch[1] || '').trim();
+      updaters.push(scope => { (el as HTMLElement).innerHTML = toString(get(scope, inner)); });
+    } else {
+      updaters.push(scope => {
+        const val = get(scope, raw);
+        if (val && typeof val === 'object' && '__html' in val) (el as HTMLElement).innerHTML = String(val.__html);
+        else (el as HTMLElement).innerHTML = toString(val);
+      });
+    }
   }
   if (el.hasAttribute('data-safe-html')) {
     const expr = el.getAttribute('data-safe-html')!; el.removeAttribute('data-safe-html');
