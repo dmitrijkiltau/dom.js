@@ -1,4 +1,4 @@
-import dom, { useTemplate, renderTemplate } from '../../dist/index.js';
+import dom, { useTemplate, renderTemplate, hydrateTemplate } from '../../dist/index.js';
 import { createTabbedExamples } from '../content.js';
 
 const renderSubsection = useTemplate('#subsection-template');
@@ -316,6 +316,61 @@ import { renderTemplate } from '@dmitrijkiltau/dom.js/template';
 dom('#container').append(
   renderTemplate('#template', data)
 );`
+      },
+      {
+        id: 'hydration',
+        title: 'Hydration (SSR)',
+        demo: `
+          <div class="space-y-4">
+            <div class="grid grid-cols-3 gap-4">
+              <div>
+                <label class="block text-sm mb-1">Count</label>
+                <input id="hydr-count" type="number" class="input" value="1" min="0">
+              </div>
+              <div>
+                <label class="block text-sm mb-1">Show A?</label>
+                <input id="hydr-show" type="checkbox" class="mr-2" checked>
+              </div>
+              <div>
+                <label class="block text-sm mb-1">Items (comma)</label>
+                <input id="hydr-items" class="input" value="A,B">
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button id="hydrate-ssr" class="btn btn-secondary">Simulate Server Render</button>
+              <button id="hydrate-hydrate" class="btn btn-primary">Hydrate + Wire</button>
+              <button id="hydrate-update" class="btn">Update</button>
+              <span class="text-sm text-gray-600">Clicks: <strong id="hydrate-clicks">0</strong></span>
+            </div>
+            <div id="hydration-host" class="border border-dashed p-3 rounded bg-gray-50 text-gray-900 min-h-[120px]"></div>
+          </div>
+
+          <template id="hydration-template">
+            <div id="hydr-root" class="p-2 border rounded">
+              <button id="hydr-btn" class="btn btn-sm mr-2" data-on-click="onClick($event)">
+                Clicks: <span id="hydr-cnt" data-text="count"></span>
+              </button>
+              <ul class="inline-block mr-2">
+                <li data-if="show">A</li>
+                <li data-else>B</li>
+              </ul>
+              <ol class="inline-block">
+                <li data-each="items as item, i"><span class="name" data-text="item"></span>#<em class="idx" data-text="i"></em></li>
+              </ol>
+            </div>
+          </template>
+        `,
+        code: `// Server (Node): pre-render HTML using the template
+import { renderTemplate } from '@dmitrijkiltau/dom.js/template';
+const html = renderTemplate('#tpl', { count: 1, show: true, items: ['A','B'] });
+// send html.outerHTML to client
+
+// Client: hydrate existing DOM without re-creating nodes
+import { hydrateTemplate } from '@dmitrijkiltau/dom.js/template';
+const root = document.querySelector('#hydr-root');
+const inst = hydrateTemplate('#tpl', root, { count: 1, onClick: () => {}, show: true, items: ['A','B'] });
+inst.update({ count: 2, items: ['C','D'] });
+inst.destroy();`
       }
     ]
   });
@@ -461,5 +516,41 @@ dom('#container').append(
       dom('#modular-items-container').append(item);
       dom('#modular-item-title').val('');
     }
+  });
+
+  // Event handlers for Hydration tab
+  let hydrateInst = null;
+  function readHydrationState() {
+    const count = parseInt(dom('#hydr-count').el()?.value || '0', 10) || 0;
+    const show = !!dom('#hydr-show').prop('checked');
+    const items = String(dom('#hydr-items').val() || '').split(',').map(s => s.trim()).filter(Boolean);
+    return { count, show, items };
+  }
+  dom('#hydrate-ssr').on('click', () => {
+    const base = readHydrationState();
+    const ssrNode = renderTemplate('#hydration-template', Object.assign({ onClick: () => {} }, base));
+    dom('#hydration-host').empty().append(ssrNode);
+    dom('#hydrate-clicks').text('0');
+  });
+  dom('#hydrate-hydrate').on('click', () => {
+    const host = dom('#hydration-host').el();
+    if (!host) return;
+    const root = host.querySelector('#hydr-root');
+    if (!root) return;
+    let clicks = 0;
+    const state = readHydrationState();
+    hydrateInst = hydrateTemplate('#hydration-template', root, Object.assign({}, state, {
+      onClick: () => { clicks++; dom('#hydrate-clicks').text(String(clicks)); }
+    }));
+  });
+  dom('#hydrate-update').on('click', () => {
+    if (!hydrateInst) return;
+    const root = dom('#hydration-host').el()?.querySelector('#hydr-root');
+    if (!root) return;
+    const state = readHydrationState();
+    // preserve click handler
+    const currentClicks = parseInt(dom('#hydrate-clicks').text() || '0', 10) || 0;
+    const onClick = () => { const next = currentClicks + 1; dom('#hydrate-clicks').text(String(next)); };
+    hydrateInst.update(Object.assign({}, state, { onClick }));
   });
 }
