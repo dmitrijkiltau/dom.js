@@ -13,12 +13,39 @@ export type TemplateInstance = {
   destroy: () => void;
 };
 
+// Cache compiled factories per HTMLTemplateElement so repeated useTemplate()
+// calls and multiple mounts reuse the same parsed blueprint.
+const TEMPLATE_FACTORY_CACHE = new WeakMap<HTMLTemplateElement, {
+  render: (data?: TemplateData) => Node;
+  mount: (data?: TemplateData) => TemplateInstance;
+}>();
+
 export function useTemplate(ref: string | HTMLTemplateElement) {
   const t = tpl(ref);
-  // Backward-compatible renderer (one-shot)
-  const render = (data?: TemplateData): Node => mountTemplate(t, data).el;
-  // Stateful usage: render.mount(data) -> instance
-  (render as any).mount = (data?: TemplateData) => mountTemplate(t, data);
+  let factory = TEMPLATE_FACTORY_CACHE.get(t);
+  if (!factory) {
+    const first = t.content.firstElementChild as Element | null;
+    if (!first) throw new Error('empty template');
+
+    const mount = (data?: TemplateData): TemplateInstance => {
+      const root = first.cloneNode(true) as Element;
+      const program = compile(root);
+      const instance: TemplateInstance = {
+        el: program.node,
+        update: (d?: TemplateData) => program.update(d ?? {}),
+        destroy: () => program.destroy()
+      };
+      program.update(data ?? {});
+      return instance;
+    };
+
+    const render = (data?: TemplateData): Node => mount(data).el;
+    factory = { render, mount };
+    TEMPLATE_FACTORY_CACHE.set(t, factory);
+  }
+
+  const render = factory.render as ((data?: TemplateData) => Node) & { mount?: (data?: TemplateData) => TemplateInstance };
+  (render as any).mount = factory.mount;
   return render as ((data?: TemplateData) => Node) & { mount: (data?: TemplateData) => TemplateInstance };
 }
 
