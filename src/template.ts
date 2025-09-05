@@ -113,36 +113,42 @@ function compilePlanNode(node: Element): Plan {
 
   if (node.hasAttribute('data-show')) {
     const expr = node.getAttribute('data-show')!; node.removeAttribute('data-show');
-    bindings.push({ attach(el) { return { update(scope) { (el as HTMLElement).style.display = truthy(get(scope, expr)) ? '' : 'none'; } }; } });
+    const acc = compileAccessor(expr);
+    bindings.push({ attach(el) { return { update(scope) { (el as HTMLElement).style.display = truthy(acc(scope)) ? '' : 'none'; } }; } });
   }
   if (node.hasAttribute('data-hide')) {
     const expr = node.getAttribute('data-hide')!; node.removeAttribute('data-hide');
-    bindings.push({ attach(el) { return { update(scope) { (el as HTMLElement).style.display = truthy(get(scope, expr)) ? 'none' : ''; } }; } });
+    const acc = compileAccessor(expr);
+    bindings.push({ attach(el) { return { update(scope) { (el as HTMLElement).style.display = truthy(acc(scope)) ? 'none' : ''; } }; } });
   }
   if (node.hasAttribute('data-text')) {
     const expr = node.getAttribute('data-text')!; node.removeAttribute('data-text');
-    bindings.push({ attach(el) { return { update(scope) { (el as HTMLElement).textContent = toString(get(scope, expr)); } }; } });
+    const acc = compileAccessor(expr);
+    bindings.push({ attach(el) { return { update(scope) { (el as HTMLElement).textContent = toString(acc(scope)); } }; } });
   }
   if (node.hasAttribute('data-html')) {
     const expr = node.getAttribute('data-html')!; node.removeAttribute('data-html');
+    const acc = compileAccessor(expr);
     bindings.push({ attach(el) { return { update(scope) {
-      const val = get(scope, expr);
+      const val = acc(scope);
       if (val && typeof val === 'object' && '__html' in val) (el as HTMLElement).innerHTML = String(val.__html);
       else (el as HTMLElement).innerHTML = toString(val);
     } }; } });
   }
   if (node.hasAttribute('data-safe-html')) {
     const expr = node.getAttribute('data-safe-html')!; node.removeAttribute('data-safe-html');
-    bindings.push({ attach(el) { return { update(scope) { (el as HTMLElement).innerHTML = escapeHTML(get(scope, expr)); } }; } });
+    const acc = compileAccessor(expr);
+    bindings.push({ attach(el) { return { update(scope) { (el as HTMLElement).innerHTML = escapeHTML(acc(scope)); } }; } });
   }
 
   // Snapshot attributes for data-attr-* and data-on-*
   for (const attr of Array.from(node.attributes)) {
     if (!attr.name.startsWith('data-attr-')) continue;
     const original = attr.name; const name = original.replace('data-attr-', ''); const expr = attr.value;
+    const acc = compileAccessor(expr);
     node.removeAttribute(original);
     bindings.push({ attach(el) { return { update(scope) {
-      const val = get(scope, expr);
+      const val = acc(scope);
       if (val === false || val == null) (el as Element).removeAttribute(name);
       else (el as Element).setAttribute(name, String(val));
     } }; } });
@@ -150,16 +156,17 @@ function compilePlanNode(node: Element): Plan {
 
   for (const attr of Array.from(node.attributes)) {
     if (!attr.name.startsWith('data-on-')) continue;
-    const original = attr.name; const type = original.replace('data-on-', ''); const expr = attr.value;
+    const original = attr.name; const type = original.replace('data-on-', ''); const spec = attr.value;
+    const parsed = parseHandlerSpec(spec);
     node.removeAttribute(original);
     bindings.push({ attach(el) {
       const EVENT_TOKEN: unique symbol = Symbol('event');
       const listener = (ev: Event) => {
         const scope = (listener as any)._scope as Scope;
-        const { fn, args } = resolveHandler(scope, expr, EVENT_TOKEN);
+        const fn = parsed.fn(scope);
         if (typeof fn === 'function') {
           try {
-            const finalArgs = (args ?? []).map(a => a === EVENT_TOKEN ? ev : a);
+            const finalArgs = parsed.args.map(a => a(scope, EVENT_TOKEN)).map(v => v === EVENT_TOKEN ? ev : v);
             (fn as any).call(el, ev, ...finalArgs);
           } catch {}
         }
@@ -403,6 +410,23 @@ function makeIncludePlan(node: Element): Plan {
   const includeExpr = node.getAttribute('data-include')!; node.removeAttribute('data-include');
   const withExpr = node.getAttribute('data-with') || undefined; if (withExpr) node.removeAttribute('data-with');
 
+  // Precompile context accessor
+  const withAcc = withExpr ? compileAccessor(withExpr) : null;
+  // Detect static template ref (e.g., "#tpl") and precompile Plan
+  const staticTplId = typeof includeExpr === 'string' && includeExpr.startsWith('#') ? includeExpr : null;
+  let staticTplPlan: Plan | null = null;
+  if (staticTplId) {
+    try {
+      const t = tpl(staticTplId);
+      staticTplPlan = PLAN_CACHE.get(t) || ((): Plan | null => {
+        const first = t.content.firstElementChild as Element | null; if (!first) return null;
+        const p = compilePlan(first); PLAN_CACHE.set(t, p); return p;
+      })();
+    } catch {}
+  }
+  // Dynamic ref accessor otherwise
+  const refAcc = staticTplId ? null : compileAccessor(includeExpr);
+
   return {
     instantiate(): Program {
       const start = document.createComment('include:start');
@@ -414,17 +438,24 @@ function makeIncludePlan(node: Element): Plan {
 
       const update = (data: TemplateData) => {
         const scope: Scope = Object.assign(Object.create(null), data);
-        const ctx = withExpr ? get(scope, withExpr) : scope;
+        const ctx = withAcc ? withAcc(scope) : scope;
         let templateEl: HTMLTemplateElement | null = null;
         let partialNode: Node | null = null;
+        let plan: Plan | null = staticTplPlan;
 
-        const ref = get(scope, includeExpr);
-        if (ref instanceof HTMLTemplateElement) templateEl = ref;
-        else if (typeof ref === 'string' && ref.startsWith('#')) templateEl = tpl(ref);
-        else if (typeof ref === 'function') {
-          partialNode = ref(ctx);
-        } else if (typeof includeExpr === 'string' && includeExpr.startsWith('#')) {
-          templateEl = tpl(includeExpr);
+        if (!staticTplPlan) {
+          const ref = refAcc ? refAcc(scope) : undefined;
+          if (ref instanceof HTMLTemplateElement) templateEl = ref;
+          else if (typeof ref === 'string' && ref.startsWith('#')) templateEl = tpl(ref);
+          else if (typeof ref === 'function') {
+            partialNode = ref(ctx);
+          }
+          if (templateEl) {
+            plan = PLAN_CACHE.get(templateEl) || ((): Plan | null => {
+              const first = templateEl!.content.firstElementChild as Element | null; if (!first) return null;
+              const p = compilePlan(first); PLAN_CACHE.set(templateEl!, p); return p;
+            })();
+          }
         }
 
         if (partialNode) {
@@ -434,11 +465,8 @@ function makeIncludePlan(node: Element): Plan {
           return;
         }
 
-        if (templateEl) {
+        if (plan) {
           if (child) { child.update(ctx as any); return; }
-          let plan = PLAN_CACHE.get(templateEl);
-          if (!plan) { const first = templateEl.content.firstElementChild as Element | null; if (first) { plan = compilePlan(first); PLAN_CACHE.set(templateEl, plan); } }
-          if (!plan) return;
           const p = plan.instantiate();
           p.update(ctx as any);
           end.before(p.node);
@@ -788,6 +816,68 @@ function removeBetween(start: Node, end: Node) {
 }
 
 // ——— Expressions & helpers ———
+type Accessor = (scope: any) => any;
+
+function compileAccessor(path: string): Accessor {
+  if (path == null || path === '') return (scope: any) => scope;
+  const segs = path.split('.');
+  return (obj: any) => {
+    let cur: any = obj;
+    for (const seg of segs) {
+      if (seg === '$parent' || seg === '..') cur = cur?.$parent ?? undefined;
+      else if (seg === '$this' || seg === 'this') cur = cur;
+      else cur = cur != null ? cur[seg] : undefined;
+    }
+    return cur;
+  };
+}
+
+type ArgEvaluator = (scope: any, EVENT_TOKEN: symbol) => any;
+function parseHandlerSpec(spec: string): { fn: Accessor; args: ArgEvaluator[] } {
+  const name = spec.trim();
+  if (!name) return { fn: () => undefined, args: [] };
+  const callMatch = name.match(/^([a-zA-Z_$][\w$]*)\s*\((.*)\)\s*$/);
+  let fnName = name; let argsSrc = '';
+  if (callMatch) { fnName = callMatch[1]; argsSrc = callMatch[2]; }
+  const fn = compileAccessor(fnName);
+  const args: ArgEvaluator[] = [];
+  if (callMatch) {
+    // split by commas not in quotes (simple)
+    const src = argsSrc;
+    let i = 0, cur = '', inStr: false | '"' | "'" = false;
+    const push = () => { const ev = compileArg(cur.trim()); if (ev) args.push(ev); cur = ''; };
+    while (i < src.length) {
+      const ch = src[i++];
+      if ((ch === '"' || ch === "'") && !inStr) { inStr = ch as any; cur += ch; continue; }
+      if (inStr === ch) { inStr = false; cur += ch; continue; }
+      if (!inStr && ch === ',') { push(); continue; }
+      cur += ch;
+    }
+    if (cur.trim()) push();
+  }
+  return { fn, args };
+}
+
+function compileArg(expr: string): ArgEvaluator | null {
+  if (!expr) return null;
+  // string literal
+  const t = expr.trim();
+  if ((t.startsWith('"') && t.endsWith('"')) || (t.startsWith("'") && t.endsWith("'"))) {
+    let val: any = t.slice(1, -1);
+    try { val = JSON.parse(t.replace(/^'(.+)'$/, '"$1"')); } catch {}
+    return () => val;
+  }
+  if (t === 'true') return () => true;
+  if (t === 'false') return () => false;
+  if (t === 'null') return () => null;
+  if (t === 'undefined') return () => undefined;
+  if (/^-?\d+(?:\.\d+)?$/.test(t)) { const num = parseFloat(t); return () => num; }
+  if (t === '$event') return (_s, EVENT_TOKEN) => EVENT_TOKEN;
+  // path
+  const acc = compileAccessor(t);
+  return (s) => acc(s);
+}
+
 function parseEach(expr: string): { listKey: string; itemAlias: string; indexAlias: string; keyExpr?: string } {
   // Syntax: "items", "items as item", "items as item, i", optional key: "... by keyExpr"
   const trimmed = expr.trim();
