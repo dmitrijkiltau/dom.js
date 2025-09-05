@@ -13,39 +13,31 @@ export type TemplateInstance = {
   destroy: () => void;
 };
 
-// Cache compiled factories per HTMLTemplateElement so repeated useTemplate()
-// calls and multiple mounts reuse the same parsed blueprint.
-const TEMPLATE_FACTORY_CACHE = new WeakMap<HTMLTemplateElement, {
-  render: (data?: TemplateData) => Node;
-  mount: (data?: TemplateData) => TemplateInstance;
-}>();
+// Cache precompiled Plans per template element. A Plan can be instantiated
+// multiple times without re-parsing attributes or re-traversing the template.
+const PLAN_CACHE = new WeakMap<HTMLTemplateElement, Plan>();
 
 export function useTemplate(ref: string | HTMLTemplateElement) {
   const t = tpl(ref);
-  let factory = TEMPLATE_FACTORY_CACHE.get(t);
-  if (!factory) {
-    const first = t.content.firstElementChild as Element | null;
-    if (!first) throw new Error('empty template');
-
-    const mount = (data?: TemplateData): TemplateInstance => {
-      const root = first.cloneNode(true) as Element;
-      const program = compile(root);
-      const instance: TemplateInstance = {
-        el: program.node,
-        update: (d?: TemplateData) => program.update(d ?? {}),
-        destroy: () => program.destroy()
-      };
-      program.update(data ?? {});
-      return instance;
+  const first = t.content.firstElementChild as Element | null;
+  if (!first) throw new Error('empty template');
+  let plan = PLAN_CACHE.get(t);
+  if (!plan) { plan = compilePlan(first); PLAN_CACHE.set(t, plan); }
+  const render = ((data?: TemplateData) => {
+    const program = plan!.instantiate();
+    program.update(data ?? {});
+    return program.node;
+  }) as ((data?: TemplateData) => Node) & { mount?: (data?: TemplateData) => TemplateInstance };
+  (render as any).mount = (data?: TemplateData) => {
+    const program = plan!.instantiate();
+    program.update(data ?? {});
+    const instance: TemplateInstance = {
+      el: program.node,
+      update: (d?: TemplateData) => program.update(d ?? {}),
+      destroy: () => program.destroy()
     };
-
-    const render = (data?: TemplateData): Node => mount(data).el;
-    factory = { render, mount };
-    TEMPLATE_FACTORY_CACHE.set(t, factory);
-  }
-
-  const render = factory.render as ((data?: TemplateData) => Node) & { mount?: (data?: TemplateData) => TemplateInstance };
-  (render as any).mount = factory.mount;
+    return instance;
+  };
   return render as ((data?: TemplateData) => Node) & { mount: (data?: TemplateData) => TemplateInstance };
 }
 
@@ -54,18 +46,8 @@ export function renderTemplate(ref: string | HTMLTemplateElement, data?: Templat
 }
 
 export function mountTemplate(ref: string | HTMLTemplateElement, data: TemplateData = {}): TemplateInstance {
-  const t = tpl(ref);
-  const first = t.content.firstElementChild;
-  if (!first) throw new Error('empty template');
-  const root = first.cloneNode(true) as Element;
-  const program = compile(root);
-  const instance: TemplateInstance = {
-    el: program.node,
-    update: (d?: TemplateData) => program.update(d ?? {}),
-    destroy: () => program.destroy()
-  };
-  program.update(data);
-  return instance;
+  const render = useTemplate(ref);
+  return (render as any).mount(data);
 }
 
 // ——— Safe HTML helpers ———
@@ -105,6 +87,139 @@ function compile(root: Element): Program {
   }
 
   return { node: compiledNode, update, destroy: () => destroyers.forEach(fn => fn()) };
+}
+
+// ——— Plan-based precompilation (non-structural) ———
+type BindingFactory = {
+  attach(el: Element): { update: (scope: Scope) => void; destroy?: () => void };
+};
+
+type Plan = { instantiate(): Program };
+
+function compilePlan(rootEl: Element): Plan {
+  // Deep-clone once and strip dynamic attributes on this normalized blueprint
+  const normalized = rootEl.cloneNode(true) as Element;
+  return compilePlanNode(normalized);
+}
+
+function compilePlanNode(node: Element): Plan {
+  // Fallback to legacy compiler for structural directives
+  if (node.hasAttribute('data-if') || node.hasAttribute('data-elseif') || node.hasAttribute('data-else') || node.hasAttribute('data-each') || node.hasAttribute('data-include')) {
+    return makeLegacyStructuralPlan(node);
+  }
+
+  // Non-structural bindings on this node
+  const bindings: BindingFactory[] = [];
+
+  if (node.hasAttribute('data-show')) {
+    const expr = node.getAttribute('data-show')!; node.removeAttribute('data-show');
+    bindings.push({ attach(el) { return { update(scope) { (el as HTMLElement).style.display = truthy(get(scope, expr)) ? '' : 'none'; } }; } });
+  }
+  if (node.hasAttribute('data-hide')) {
+    const expr = node.getAttribute('data-hide')!; node.removeAttribute('data-hide');
+    bindings.push({ attach(el) { return { update(scope) { (el as HTMLElement).style.display = truthy(get(scope, expr)) ? 'none' : ''; } }; } });
+  }
+  if (node.hasAttribute('data-text')) {
+    const expr = node.getAttribute('data-text')!; node.removeAttribute('data-text');
+    bindings.push({ attach(el) { return { update(scope) { (el as HTMLElement).textContent = toString(get(scope, expr)); } }; } });
+  }
+  if (node.hasAttribute('data-html')) {
+    const expr = node.getAttribute('data-html')!; node.removeAttribute('data-html');
+    bindings.push({ attach(el) { return { update(scope) {
+      const val = get(scope, expr);
+      if (val && typeof val === 'object' && '__html' in val) (el as HTMLElement).innerHTML = String(val.__html);
+      else (el as HTMLElement).innerHTML = toString(val);
+    } }; } });
+  }
+  if (node.hasAttribute('data-safe-html')) {
+    const expr = node.getAttribute('data-safe-html')!; node.removeAttribute('data-safe-html');
+    bindings.push({ attach(el) { return { update(scope) { (el as HTMLElement).innerHTML = escapeHTML(get(scope, expr)); } }; } });
+  }
+
+  // Snapshot attributes for data-attr-* and data-on-*
+  for (const attr of Array.from(node.attributes)) {
+    if (!attr.name.startsWith('data-attr-')) continue;
+    const original = attr.name; const name = original.replace('data-attr-', ''); const expr = attr.value;
+    node.removeAttribute(original);
+    bindings.push({ attach(el) { return { update(scope) {
+      const val = get(scope, expr);
+      if (val === false || val == null) (el as Element).removeAttribute(name);
+      else (el as Element).setAttribute(name, String(val));
+    } }; } });
+  }
+
+  for (const attr of Array.from(node.attributes)) {
+    if (!attr.name.startsWith('data-on-')) continue;
+    const original = attr.name; const type = original.replace('data-on-', ''); const expr = attr.value;
+    node.removeAttribute(original);
+    bindings.push({ attach(el) {
+      const EVENT_TOKEN: unique symbol = Symbol('event');
+      const listener = (ev: Event) => {
+        const scope = (listener as any)._scope as Scope;
+        const { fn, args } = resolveHandler(scope, expr, EVENT_TOKEN);
+        if (typeof fn === 'function') {
+          try {
+            const finalArgs = (args ?? []).map(a => a === EVENT_TOKEN ? ev : a);
+            (fn as any).call(el, ev, ...finalArgs);
+          } catch {}
+        }
+      };
+      (listener as any)._scope = Object.create(null);
+      el.addEventListener(type, listener as any);
+      return {
+        update(scope) { (listener as any)._scope = scope; },
+        destroy() { el.removeEventListener(type, listener as any); }
+      };
+    } });
+  }
+
+  // Children plans
+  const childPlans: Plan[] = [];
+  const kids = Array.from(node.children) as Element[];
+  for (const ch of kids) childPlans.push(compilePlanNode(ch));
+
+  return {
+    instantiate(): Program {
+      const el = node.cloneNode(false) as Element;
+      const updaters: Updater[] = [];
+      const destroyers: Array<() => void> = [];
+
+      for (const b of bindings) {
+        const res = b.attach(el);
+        updaters.push(res.update);
+        if (res.destroy) destroyers.push(res.destroy);
+      }
+
+      for (const cp of childPlans) {
+        const childProgram = cp.instantiate();
+        el.appendChild(childProgram.node);
+        updaters.push((s: Scope) => childProgram.update(s));
+        destroyers.push(() => childProgram.destroy());
+      }
+
+      function update(data: TemplateData) {
+        const scope: Scope = Object.assign(Object.create(null), data);
+        for (const u of updaters) u(scope);
+      }
+
+      return {
+        node: el,
+        update,
+        destroy: () => { for (const d of destroyers) d(); }
+      };
+    }
+  };
+}
+
+function makeLegacyStructuralPlan(node: Element): Plan {
+  // Keep original attributes and structure for legacy compiler
+  const blueprint = node.cloneNode(true) as Element;
+  return {
+    instantiate(): Program {
+      const root = blueprint.cloneNode(true) as Element;
+      return compile(root);
+    }
+  };
 }
 
 function compileNode(node: Element, updaters: Updater[], destroyers: Array<() => void>): Node {
