@@ -180,34 +180,51 @@ function compilePlanNode(node: Element): Plan {
     } });
   }
 
-  // Children plans with structural lookahead (if/elseif/else chains)
-  const childPlans: Plan[] = [];
-  const kids = Array.from(node.children) as Element[];
-  for (let i = 0; i < kids.length; ) {
-    const ch = kids[i] as Element;
-    if (ch.hasAttribute('data-if')) {
-      const chainNodes: Element[] = [ch];
-      let j = i + 1;
-      while (j < kids.length) {
-        const nx = kids[j] as Element;
-        if (nx.hasAttribute('data-elseif') || nx.hasAttribute('data-else')) { chainNodes.push(nx); j++; }
-        else break;
+  // Children: preserve static text and plan elements with structural lookahead
+  type ChildUnit = { kind: 'text'; text: string } | { kind: 'plan'; plan: Plan };
+  const childUnits: ChildUnit[] = [];
+  const nodes = Array.from(node.childNodes) as ChildNode[];
+  for (let i = 0; i < nodes.length; ) {
+    const cn = nodes[i];
+    if (cn.nodeType === 3) { // Text node
+      childUnits.push({ kind: 'text', text: (cn.textContent ?? '') });
+      i++;
+      continue;
+    }
+    if (cn.nodeType !== 1) { // Skip comments/others
+      i++;
+      continue;
+    }
+    const el = cn as Element;
+    if (el.hasAttribute('data-if')) {
+      const chainNodes: Element[] = [el];
+      let k = i;
+      while (true) {
+        // find next element sibling index
+        let nextElIdx = k + 1;
+        while (nextElIdx < nodes.length && nodes[nextElIdx].nodeType !== 1) nextElIdx++;
+        if (nextElIdx >= nodes.length) break;
+        const nx = nodes[nextElIdx] as Element;
+        if (nx.hasAttribute('data-elseif') || nx.hasAttribute('data-else')) { chainNodes.push(nx); k = nextElIdx; continue; }
+        break;
       }
-      childPlans.push(makeIfPlanFromChain(chainNodes));
-      i = j;
+      childUnits.push({ kind: 'plan', plan: makeIfPlanFromChain(chainNodes) });
+      i = ((): number => {
+        // advance i past last chain node
+        let idx = i;
+        for (const _ of chainNodes) {
+          // move idx to next element after current
+          let nextElIdx = idx + 1;
+          while (nextElIdx < nodes.length && nodes[nextElIdx].nodeType !== 1) nextElIdx++;
+          idx = nextElIdx;
+        }
+        return idx;
+      })();
       continue;
     }
-    if (ch.hasAttribute('data-each')) {
-      childPlans.push(makeEachPlan(ch));
-      i++;
-      continue;
-    }
-    if (ch.hasAttribute('data-include')) {
-      childPlans.push(makeIncludePlan(ch));
-      i++;
-      continue;
-    }
-    childPlans.push(compilePlanNode(ch));
+    if (el.hasAttribute('data-each')) { childUnits.push({ kind: 'plan', plan: makeEachPlan(el) }); i++; continue; }
+    if (el.hasAttribute('data-include')) { childUnits.push({ kind: 'plan', plan: makeIncludePlan(el) }); i++; continue; }
+    childUnits.push({ kind: 'plan', plan: compilePlanNode(el) });
     i++;
   }
 
@@ -223,8 +240,12 @@ function compilePlanNode(node: Element): Plan {
         if (res.destroy) destroyers.push(res.destroy);
       }
 
-      for (const cp of childPlans) {
-        const childProgram = cp.instantiate();
+      for (const unit of childUnits) {
+        if (unit.kind === 'text') {
+          el.appendChild(document.createTextNode(unit.text));
+          continue;
+        }
+        const childProgram = unit.plan.instantiate();
         el.appendChild(childProgram.node);
         updaters.push((s: Scope) => childProgram.update(s));
         destroyers.push(() => childProgram.destroy());
