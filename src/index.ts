@@ -1,7 +1,7 @@
 import { MaybeArray, Selector, EventTargetish, Handler } from './types';
 import { debounce, throttle, nextTick, raf, rafThrottle } from './utils';
 import { DOMCollection } from './collection';
-import { renderTemplate, useTemplate, tpl, mountTemplate, escapeHTML, unsafeHTML } from './template';
+import { renderTemplate, useTemplate, tpl, mountTemplate, escapeHTML, unsafeHTML, hydrateTemplate } from './template';
 import { serializeForm, toQueryString, onSubmit, toFormData, setForm, resetForm, validateForm, isValid } from './forms';
 import { animate, animations, installAnimationMethods } from './motion';
 import { http } from './http';
@@ -25,6 +25,7 @@ export interface Dom {
   useTemplate: typeof useTemplate;
   tpl: typeof tpl;
   mountTemplate: typeof mountTemplate;
+  hydrateTemplate: typeof hydrateTemplate;
   escapeHTML: typeof escapeHTML;
   unsafeHTML: typeof unsafeHTML;
   serializeForm: typeof serializeForm;
@@ -53,7 +54,7 @@ export interface Dom {
 
 const api = Object.assign(function core<T extends Element = Element>(input?: Selector<T>, context?: Element | Document | DOMCollection) { return dom<T>(input, context); }, {
   dom, fromHTML, create, on, once, off, ready, http,
-  renderTemplate, useTemplate, tpl, mountTemplate, escapeHTML, unsafeHTML,
+  renderTemplate, useTemplate, tpl, mountTemplate, hydrateTemplate, escapeHTML, unsafeHTML,
   serializeForm, toQueryString, onSubmit, toFormData, setForm, resetForm, validateForm, isValid,
   animate, animations,
   // Utilities
@@ -70,7 +71,7 @@ const api = Object.assign(function core<T extends Element = Element>(input?: Sel
 installAnimationMethods();
 
 // ——— Exports ———
-export { DOMCollection, renderTemplate, useTemplate, tpl, mountTemplate, escapeHTML, unsafeHTML, serializeForm, toQueryString, onSubmit, toFormData, setForm, resetForm, validateForm, isValid, animate, animations, http, use, debounce, throttle, nextTick, raf, rafThrottle, onIntersect, onResize, onMutation, scrollIntoView, scrollIntoViewIfNeeded };
+export { DOMCollection, renderTemplate, useTemplate, tpl, mountTemplate, hydrateTemplate, escapeHTML, unsafeHTML, serializeForm, toQueryString, onSubmit, toFormData, setForm, resetForm, validateForm, isValid, animate, animations, http, use, debounce, throttle, nextTick, raf, rafThrottle, onIntersect, onResize, onMutation, scrollIntoView, scrollIntoViewIfNeeded };
 export { dom, fromHTML, create, on, once, off, ready } from './core-api';
 export type Plugin = (api: Dom) => void;
 export default api;

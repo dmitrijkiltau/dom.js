@@ -273,6 +273,47 @@ await dom.raf(); // setTimeout fallback
 
 Environment safeguards: no `window`/`document` access at import time; `ready()` runs immediately; RAF helpers fallback; scroll/motion early‑return without DOM; `fromHTML()` returns empty collection; `create()` throws on server to surface misuse.
 
+### Hydration (client)
+
+If your HTML was rendered using dom.js templates (so it contains the `if/each/include` anchor comments), you can hydrate the existing DOM instead of re‑creating it. This wires event listeners and bindings while preserving the server‑rendered markup.
+
+```html
+<template id="user">
+  <div id="root">
+    <button data-on-click="onClick($event)"><span data-text="count"></span></button>
+    <ul>
+      <li data-if="showA">A</li>
+      <li data-else>B</li>
+    </ul>
+    <ol>
+      <li data-each="items as item, i">
+        <span data-text="item"></span>#<em data-text="i"></em>
+      </li>
+    </ol>
+  </div>
+  <!-- When rendered by dom.js, if/each/include are wrapped with comment anchors like `if:start`/`if:end`. -->
+  <!-- Those anchors enable fast, reliable hydration. -->
+  <!-- On the server, pre-render using the same template so anchors are present in the HTML. -->
+</template>
+```
+
+```js
+import { hydrateTemplate } from '@dmitrijkiltau/dom.js/template';
+
+const root = document.querySelector('#root');
+const state = { count: 1, onClick: () => console.log('clicked'), showA: true, items: ['A','B'] };
+
+const inst = hydrateTemplate('#user', root, state);
+inst.update({ count: 2, showA: false, items: ['C','D','E'] });
+// later
+inst.destroy();
+```
+
+Notes:
+- Hydration expects anchor comments (`if:start/end`, `each:start/end`, `include:start/end`) present in the HTML between the right nodes. These are inserted when the same template is used to render.
+- Dynamic `data-include` may instantiate on first update if it can’t match a static include.
+- Event handlers from `data-on-*` are wired during hydration; `update()` refreshes bound values without replacing nodes.
+
 ## TypeScript
 
 ```ts

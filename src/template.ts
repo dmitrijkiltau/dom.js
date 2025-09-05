@@ -50,6 +50,22 @@ export function mountTemplate(ref: string | HTMLTemplateElement, data: TemplateD
   return (render as any).mount(data);
 }
 
+// Bind to server-rendered DOM: hydrate instead of re-creating
+export function hydrateTemplate(ref: string | HTMLTemplateElement, root: Element, data: TemplateData = {}): TemplateInstance {
+  const t = tpl(ref);
+  const first = t.content.firstElementChild as Element | null;
+  if (!first) throw new Error('empty template');
+  let plan = PLAN_CACHE.get(t);
+  if (!plan) { plan = compilePlan(first); PLAN_CACHE.set(t, plan); }
+  const program = plan.hydrate(root);
+  program.update(data ?? {});
+  return {
+    el: root,
+    update: (d?: TemplateData) => program.update(d ?? {}),
+    destroy: () => program.destroy()
+  };
+}
+
 // ——— Safe HTML helpers ———
 export function escapeHTML(input: any): string {
   const s = String(input ?? '');
@@ -94,7 +110,7 @@ type BindingFactory = {
   attach(el: Element): { update: (scope: Scope) => void; destroy?: () => void };
 };
 
-type Plan = { instantiate(): Program };
+type Plan = { kind: 'element' | 'if' | 'each' | 'include'; rootTag?: string; instantiate(): Program; hydrate(target: Node): Program };
 
 function compilePlan(rootEl: Element): Plan {
   // Deep-clone once and strip dynamic attributes on this normalized blueprint
@@ -229,6 +245,8 @@ function compilePlanNode(node: Element): Plan {
   }
 
   return {
+    kind: 'element',
+    rootTag: (node.tagName || '').toUpperCase(),
     instantiate(): Program {
       const el = node.cloneNode(false) as Element;
       const updaters: Updater[] = [];
@@ -261,6 +279,85 @@ function compilePlanNode(node: Element): Plan {
         update,
         destroy: () => { for (const d of destroyers) d(); }
       };
+    },
+    hydrate(target: Node): Program {
+      const el = target as Element;
+      const updaters: Updater[] = [];
+      const destroyers: Array<() => void> = [];
+      for (const b of bindings) {
+        const res = b.attach(el);
+        updaters.push(res.update);
+        if (res.destroy) destroyers.push(res.destroy);
+      }
+      // Walk children and hydrate in order
+      let cursor: ChildNode | null = el.firstChild as ChildNode | null;
+      const nextSibling = (n: ChildNode | null) => n ? (n.nextSibling as ChildNode | null) : null;
+      const findNextElement = () => {
+        let n = cursor;
+        while (n && n.nodeType !== 1) n = nextSibling(n);
+        return n as Element | null;
+      };
+      const findNextAnchor = (label: string): { start: Comment | null; end: Comment | null } => {
+        // Find the next start anchor and match it with a balanced end
+        let start: Comment | null = null;
+        let n: ChildNode | null = cursor;
+        while (n) {
+          if (n.nodeType === 8 /* comment */ && (n as Comment).data === label + ':start') { start = n as Comment; break; }
+          n = nextSibling(n);
+        }
+        if (!start) return { start: null, end: null };
+        let depth = 1;
+        let m: ChildNode | null = start.nextSibling;
+        while (m) {
+          if (m.nodeType === 8 /* comment */) {
+            const d = (m as Comment).data;
+            if (d === label + ':start') depth++;
+            else if (d === label + ':end') { depth--; if (depth === 0) return { start, end: m as Comment }; }
+          }
+          m = m.nextSibling;
+        }
+        return { start, end: null };
+      };
+
+      for (const unit of childUnits) {
+        if (unit.kind === 'text') {
+          // Consume one text node if present; SSR may collapse whitespace, so skip if not
+          if (cursor && cursor.nodeType === 3) cursor = nextSibling(cursor);
+          continue;
+        }
+        // Plan unit
+        const childPlan = unit.plan;
+        if (childPlan.kind === 'element') {
+          const childEl = findNextElement();
+          if (childEl) {
+            const cp = childPlan.hydrate(childEl);
+            updaters.push((s: Scope) => cp.update(s));
+            destroyers.push(() => cp.destroy());
+            cursor = nextSibling(childEl);
+          }
+          continue;
+        }
+        // Structural: find anchors by label
+        const label = childPlan.kind; // 'if' | 'each' | 'include'
+        const found = findNextAnchor(label);
+        if (found.start) {
+          const cp = childPlan.hydrate(found.start);
+          updaters.push((s: Scope) => cp.update(s));
+          destroyers.push(() => cp.destroy());
+          cursor = (found.end ? (found.end.nextSibling as ChildNode | null) : null);
+        }
+      }
+
+      function update(data: TemplateData) {
+        const scope: Scope = Object.assign(Object.create(null), data);
+        for (const u of updaters) u(scope);
+      }
+
+      return {
+        node: el,
+        update,
+        destroy: () => { for (const d of destroyers) d(); }
+      };
     }
   };
 }
@@ -269,9 +366,26 @@ function makeLegacyStructuralPlan(node: Element): Plan {
   // Keep original attributes and structure for legacy compiler
   const blueprint = node.cloneNode(true) as Element;
   return {
+    kind: node.hasAttribute('data-if') || node.hasAttribute('data-elseif') || node.hasAttribute('data-else') ? 'if'
+      : node.hasAttribute('data-each') ? 'each'
+      : node.hasAttribute('data-include') ? 'include'
+      : 'element',
+    rootTag: (blueprint.tagName || '').toUpperCase(),
     instantiate(): Program {
       const root = blueprint.cloneNode(true) as Element;
       return compile(root);
+    },
+    hydrate(target: Node): Program {
+      // Fallback: compile against the live subtree without structural rewrites
+      const updaters: Updater[] = [];
+      const destroyers: Array<() => void> = [];
+      const nodeEl = target as Element;
+      const compiledRoot = compileNode(nodeEl, updaters, destroyers);
+      function update(data: TemplateData) {
+        const scope: Scope = Object.assign(Object.create(null), data);
+        for (const u of updaters) u(scope);
+      }
+      return { node: compiledRoot, update, destroy: () => destroyers.forEach(fn => fn()) };
     }
   };
 }
@@ -296,6 +410,7 @@ function makeIfPlanFromChain(nodes: Element[]): Plan {
   }
 
   return {
+    kind: 'if',
     instantiate(): Program {
       const start = document.createComment('if:start');
       const end = document.createComment('if:end');
@@ -329,6 +444,83 @@ function makeIfPlanFromChain(nodes: Element[]): Plan {
       };
       const destroy = () => { if (active) { try { active.destroy(); } catch {} } removeBetween(start, end); };
       return { node: frag, update, destroy };
+    },
+    hydrate(target: Node): Program {
+      const start = target as Comment;
+      // find matching end (balanced for nested ifs)
+      let end: Comment | null = null;
+      let depth = 1;
+      let n: Node | null = start.nextSibling;
+      while (n) {
+        if (n.nodeType === 8) {
+          const d = (n as Comment).data;
+          if (d === 'if:start') depth++;
+          else if (d === 'if:end') { depth--; if (depth === 0) { end = n as Comment; break; } }
+        }
+        n = n.nextSibling;
+      }
+      if (!end) throw new Error('hydrate(if): end anchor not found');
+
+      let activeIndex = -1;
+      let active: Program | null = null;
+
+      // Try to detect existing branch without mutating DOM
+      const firstBetween = ((): ChildNode | null => {
+        let c = start.nextSibling as ChildNode | null;
+        while (c && c !== end && (c.nodeType === 3 && !(c.textContent || '').trim())) c = c.nextSibling as ChildNode | null; // skip empty text
+        return c && c !== end ? c : null;
+      })();
+
+      if (firstBetween) {
+        // Try to map to chain based on node kind
+        for (let i = 0; i < chain.length; i++) {
+          const p = chain[i].plan as Plan;
+          if (firstBetween.nodeType === 1 && p.kind === 'element') {
+            if (p.rootTag && p.rootTag === ((firstBetween as Element).tagName || '').toUpperCase()) {
+              activeIndex = i;
+              try { active = p.hydrate(firstBetween as Element); } catch {}
+              break;
+            }
+          } else if (firstBetween.nodeType === 8 && p.kind !== 'element') {
+            const data = (firstBetween as Comment).data;
+            if (data && data.startsWith(p.kind + ':start')) {
+              activeIndex = i;
+              try { active = p.hydrate(firstBetween as Comment); } catch {}
+              break;
+            }
+          }
+        }
+      }
+
+      const update = (data: TemplateData) => {
+        const scope: Scope = Object.assign(Object.create(null), data);
+        // Compute desired index
+        let idx = -1;
+        for (let i = 0; i < chain.length; i++) {
+          const c = chain[i];
+          if (c.type === 'else') { idx = i; break; }
+          const cond = truthy(get(scope, c.expr!));
+          if (cond) { idx = i; break; }
+        }
+        if (idx !== activeIndex) {
+          // Remove old DOM and program
+          if (active) { try { active.destroy(); } catch {} }
+          removeBetween(start, end);
+          active = null;
+          if (idx !== -1) {
+            const p = chain[idx].plan.instantiate();
+            end.before(p.node);
+            active = p;
+          }
+          activeIndex = idx;
+        }
+        if (active) active.update(scope);
+      };
+      const destroy = () => { if (active) { try { active.destroy(); } catch {} } removeBetween(start, end); };
+      // For hydrate, return program tied to anchors; node is a placeholder
+      const frag = document.createDocumentFragment();
+      frag.append(document.createComment('hydrated-if'));
+      return { node: frag, update, destroy };
     }
   };
 }
@@ -342,6 +534,7 @@ function makeEachPlan(node: Element): Plan {
   type Row = { key: any; program: Program; scope: Scope };
 
   return {
+    kind: 'each',
     instantiate(): Program {
       const start = document.createComment('each:start');
       const end = document.createComment('each:end');
@@ -423,6 +616,125 @@ function makeEachPlan(node: Element): Plan {
 
       const destroy = () => { rows.forEach(r => { try { r.program.destroy(); } catch {} }); removeBetween(start, end); };
       return { node: frag, update, destroy };
+    },
+    hydrate(target: Node): Program {
+      const start = target as Comment;
+      // find matching end (balanced for nested each)
+      let end: Comment | null = null;
+      let depth = 1;
+      let nn: Node | null = start.nextSibling;
+      while (nn) {
+        if (nn.nodeType === 8) {
+          const d = (nn as Comment).data;
+          if (d === 'each:start') depth++;
+          else if (d === 'each:end') { depth--; if (depth === 0) { end = nn as Comment; break; } }
+        }
+        nn = nn.nextSibling;
+      }
+      if (!end) throw new Error('hydrate(each): end anchor not found');
+
+      type Row = { key: any; program: Program; scope: Scope };
+      let rows: Row[] = [];
+
+      function makeKey(itemScope: Scope): any {
+        const exprToUse = keyAttr || keyExpr;
+        if (!exprToUse) return undefined;
+        try { return get(itemScope, exprToUse); } catch { return undefined; }
+      }
+
+      const update = (data: TemplateData) => {
+        const scope: Scope = Object.assign(Object.create(null), data);
+        const list = get(scope, listKey);
+        const arr = Array.isArray(list) ? list : [];
+        const nextRows: Row[] = new Array(arr.length);
+
+        // On first run with no rows, try to hydrate existing children
+        if (rows.length === 0) {
+          // Build rows from current DOM nodes between anchors
+          const domChildren: Element[] = [];
+          let c: Node | null = start.nextSibling;
+          while (c && c !== end) {
+            if (c.nodeType === 1) domChildren.push(c as Element);
+            c = c.nextSibling;
+          }
+          for (let i = 0; i < domChildren.length && i < arr.length; i++) {
+            const childScope: Scope = Object.assign(Object.create(scope), {
+              [itemAlias]: arr[i],
+              [indexAlias]: i,
+              $item: arr[i],
+              $index: i,
+              $parent: scope
+            });
+            const key = makeKey(childScope);
+            const p = itemPlan.hydrate(domChildren[i]);
+            p.update(childScope);
+            rows.push({ key, program: p, scope: childScope });
+          }
+        }
+
+        const keyed = (keyAttr || keyExpr) != null;
+        const oldByKey = new Map<any, Row>();
+        if (keyed) for (const r of rows) oldByKey.set(r.key, r);
+
+        let prevSibling: Node = start;
+        for (let i = 0; i < arr.length; i++) {
+          const item = arr[i];
+          const childScope: Scope = Object.assign(Object.create(scope), {
+            [itemAlias]: item,
+            [indexAlias]: i,
+            $item: item,
+            $index: i,
+            $parent: scope
+          });
+          const key = makeKey(childScope);
+
+          let row: Row | undefined;
+          if (keyed && oldByKey.has(key)) {
+            row = oldByKey.get(key)!;
+            // Move node to correct position if needed
+            if (row.program.node.nextSibling !== end) {
+              if (prevSibling.nextSibling !== row.program.node) {
+                end.parentNode!.insertBefore(row.program.node, prevSibling.nextSibling);
+              }
+            }
+            row.scope = childScope;
+            row.program.update(childScope);
+            oldByKey.delete(key);
+          } else if (!keyed && rows[i]) {
+            row = rows[i];
+            row.scope = childScope;
+            row.program.update(childScope);
+          } else {
+            const p = itemPlan.instantiate();
+            end.parentNode!.insertBefore(p.node, prevSibling.nextSibling);
+            row = { key, program: p, scope: childScope };
+            row.program.update(childScope);
+          }
+          nextRows[i] = row!;
+        
+          prevSibling = row!.program.node;
+        }
+
+        // Remove leftovers
+        if (keyed) {
+          for (const r of oldByKey.values()) {
+            try { r.program.destroy(); } catch {}
+            if (r.program.node.parentNode) r.program.node.parentNode.removeChild(r.program.node);
+          }
+        } else {
+          for (let i = arr.length; i < rows.length; i++) {
+            const r = rows[i];
+            try { r.program.destroy(); } catch {}
+            if (r.program.node.parentNode) r.program.node.parentNode.removeChild(r.program.node);
+          }
+        }
+
+        rows = nextRows;
+      };
+      const destroy = () => { rows.forEach(r => { try { r.program.destroy(); } catch {} }); removeBetween(start, end); };
+      const frag = document.createDocumentFragment();
+      frag.append(document.createComment('hydrated-each'));
+      return { node: frag, update, destroy };
     }
   };
 }
@@ -449,6 +761,7 @@ function makeIncludePlan(node: Element): Plan {
   const refAcc = staticTplId ? null : compileAccessor(includeExpr);
 
   return {
+    kind: 'include',
     instantiate(): Program {
       const start = document.createComment('include:start');
       const end = document.createComment('include:end');
@@ -496,6 +809,70 @@ function makeIncludePlan(node: Element): Plan {
         }
       };
       const destroy = () => { if (child) { try { child.destroy(); } catch {} } removeBetween(start, end); };
+      return { node: frag, update, destroy };
+    },
+    hydrate(target: Node): Program {
+      const start = target as Comment;
+      let end: Comment | null = null;
+      let depth = 1;
+      let n: Node | null = start.nextSibling;
+      while (n) {
+        if (n.nodeType === 8) {
+          const d = (n as Comment).data;
+          if (d === 'include:start') depth++;
+          else if (d === 'include:end') { depth--; if (depth === 0) { end = n as Comment; break; } }
+        }
+        n = n.nextSibling;
+      }
+      if (!end) throw new Error('hydrate(include): end anchor not found');
+
+      let child: Program | null = null;
+
+      // Try to hydrate existing element if any and staticTplPlan is available
+      const firstBetween = ((): Element | null => {
+        let c: Node | null = start.nextSibling;
+        while (c && c !== end) { if (c.nodeType === 1) return c as Element; c = c.nextSibling; }
+        return null;
+      })();
+      if (firstBetween && staticTplPlan && (staticTplPlan.rootTag || '').toUpperCase() === (firstBetween.tagName || '').toUpperCase()) {
+        try { child = staticTplPlan.hydrate(firstBetween); } catch {}
+      }
+
+      const update = (data: TemplateData) => {
+        const scope: Scope = Object.assign(Object.create(null), data);
+        const ctx = withAcc ? withAcc(scope) : scope;
+
+        if (child) { child.update(ctx as any); return; }
+
+        // Fallback to instantiate path for dynamic includes
+        let templateEl: HTMLTemplateElement | null = null;
+        let partialNode: Node | null = null;
+        let plan: Plan | null = staticTplPlan;
+        if (!staticTplPlan) {
+          const ref = refAcc ? refAcc(scope) : undefined;
+          if (ref instanceof HTMLTemplateElement) templateEl = ref;
+          else if (typeof ref === 'string' && ref.startsWith('#')) templateEl = tpl(ref);
+          else if (typeof ref === 'function') { partialNode = ref(ctx); }
+          if (templateEl) {
+            plan = PLAN_CACHE.get(templateEl) || ((): Plan | null => {
+              const first = templateEl!.content.firstElementChild as Element | null; if (!first) return null;
+              const p = compilePlan(first); PLAN_CACHE.set(templateEl!, p); return p;
+            })();
+          }
+        }
+        if (partialNode) { removeBetween(start, end); end.before(partialNode); return; }
+        if (plan) {
+          const p = plan.instantiate();
+          p.update(ctx as any);
+          removeBetween(start, end);
+          end.before(p.node);
+          child = p;
+          return;
+        }
+      };
+      const destroy = () => { if (child) { try { child.destroy(); } catch {} } removeBetween(start, end); };
+      const frag = document.createDocumentFragment();
+      frag.append(document.createComment('hydrated-include'));
       return { node: frag, update, destroy };
     }
   };
