@@ -24,7 +24,7 @@ Note: “Import‑safe on server” means modules do not access `window`/`docume
 | Module                        | Key exports |
 | ---------------------------- | ----------- |
 | `core`                       | `default` (callable `dom()`), `dom`, `fromHTML`, `create`, `on`, `once`, `off`, `ready`, `DOMCollection`, `use` |
-| `template`                   | `renderTemplate`, `useTemplate`, `mountTemplate`, `hydrateTemplate`, `tpl`, `escapeHTML`, `unsafeHTML` |
+| `template`                   | `renderTemplate`, `useTemplate`, `mountTemplate`, `hydrateTemplate`, `tpl`, `setTemplateDevMode`, `escapeHTML`, `unsafeHTML` |
 | `forms`                      | `serializeForm`, `toFormData`, `toQueryString`, `setForm`, `resetForm`, `validateForm`, `onSubmit`, `isValid` |
 | `http`                       | `http`, `appendQuery` |
 | `motion`                     | `animate`, `animations`, `installAnimationMethods` |
@@ -102,6 +102,7 @@ Functions:
 - `tpl(ref)`, `renderTemplate(ref, data)`, `useTemplate(ref)` → `(data) => Node` with `.mount(data)`
 - `mountTemplate(ref, data)` → `{ el, update(data), destroy() }`
 - `hydrateTemplate(ref, root, data)` → binds to server-rendered `root` without re-creating DOM; returns `{ el, update, destroy }`
+- Diagnostics: `setTemplateDevMode(true|false)` → log binding errors/invalid expressions in development
 - Safety: `escapeHTML(str)`, `unsafeHTML(str)`, `isUnsafeHTML(str)` (alias)
 
 Bindings (overview):

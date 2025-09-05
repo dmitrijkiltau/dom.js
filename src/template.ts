@@ -1,5 +1,17 @@
 export type TemplateData = Record<string, any>;
 
+// ——— Dev diagnostics ———
+let TEMPLATE_DEV = false;
+export function setTemplateDevMode(enabled: boolean) { TEMPLATE_DEV = !!enabled; }
+function devError(context: string, err?: unknown) {
+  if (!TEMPLATE_DEV) return;
+  try { console.error(`[dom.js][template] ${context}`, err); } catch {}
+}
+function devWarn(context: string, detail?: unknown) {
+  if (!TEMPLATE_DEV) return;
+  try { console.warn(`[dom.js][template] ${context}`, detail); } catch {}
+}
+
 // ——— Public API ———
 export function tpl(ref: string | HTMLTemplateElement): HTMLTemplateElement {
   const t = typeof ref === 'string' ? document.querySelector(ref) : ref;
@@ -192,12 +204,11 @@ function compilePlanNode(node: Element): Plan {
       const listener = (ev: Event) => {
         const scope = (listener as any)._scope as Scope;
         const fn = parsed.fn(scope);
-        if (typeof fn === 'function') {
-          try {
-            const finalArgs = parsed.args.map(a => a(scope, EVENT_TOKEN)).map(v => v === EVENT_TOKEN ? ev : v);
-            (fn as any).call(el, ev, ...finalArgs);
-          } catch {}
-        }
+        if (typeof fn !== 'function') { devWarn(`event handler is not a function for data-on-${type} spec="${spec}"`, { value: fn }); return; }
+        try {
+          const finalArgs = parsed.args.map(a => a(scope, EVENT_TOKEN)).map(v => v === EVENT_TOKEN ? ev : v);
+          (fn as any).call(el, ev, ...finalArgs);
+        } catch (err) { devError(`error in event handler for data-on-${type} spec="${spec}"`, err); }
       };
       (listener as any)._scope = Object.create(null);
       el.addEventListener(type, listener as any);
@@ -414,7 +425,7 @@ function makeIfPlanFromChain(nodes: Element[]): Plan {
         }
         if (idx !== activeIndex) {
           // Remove old
-          if (active) { try { active.destroy(); } catch {} }
+          if (active) { try { active.destroy(); } catch (err) { devError('if: destroy failed', err); } }
           removeBetween(start, end);
           active = null;
           if (idx !== -1) {
@@ -426,7 +437,7 @@ function makeIfPlanFromChain(nodes: Element[]): Plan {
         }
         if (active) active.update(scope);
       };
-      const destroy = () => { if (active) { try { active.destroy(); } catch {} } removeBetween(start, end); };
+      const destroy = () => { if (active) { try { active.destroy(); } catch (err) { devError('if: destroy failed', err); } } removeBetween(start, end); };
       return { node: frag, update, destroy };
     },
     hydrate(target: Node): Program {
@@ -462,14 +473,14 @@ function makeIfPlanFromChain(nodes: Element[]): Plan {
           if (firstBetween.nodeType === 1 && p.kind === 'element') {
             if (p.rootTag && p.rootTag === ((firstBetween as Element).tagName || '').toUpperCase()) {
               activeIndex = i;
-              try { active = p.hydrate(firstBetween as Element); } catch {}
+              try { active = p.hydrate(firstBetween as Element); } catch (err) { devError('if: hydrate element branch failed', err); }
               break;
             }
           } else if (firstBetween.nodeType === 8 && p.kind !== 'element') {
             const data = (firstBetween as Comment).data;
             if (data && data.startsWith(p.kind + ':start')) {
               activeIndex = i;
-              try { active = p.hydrate(firstBetween as Comment); } catch {}
+              try { active = p.hydrate(firstBetween as Comment); } catch (err) { devError('if: hydrate non-element branch failed', err); }
               break;
             }
           }
@@ -488,7 +499,7 @@ function makeIfPlanFromChain(nodes: Element[]): Plan {
         }
         if (idx !== activeIndex) {
           // Remove old DOM and program
-          if (active) { try { active.destroy(); } catch {} }
+          if (active) { try { active.destroy(); } catch (err) { devError('if: destroy failed', err); } }
           removeBetween(start, end);
           active = null;
           if (idx !== -1) {
@@ -500,7 +511,7 @@ function makeIfPlanFromChain(nodes: Element[]): Plan {
         }
         if (active) active.update(scope);
       };
-      const destroy = () => { if (active) { try { active.destroy(); } catch {} } removeBetween(start, end); };
+      const destroy = () => { if (active) { try { active.destroy(); } catch (err) { devError('if: destroy failed', err); } } removeBetween(start, end); };
       // For hydrate, return program tied to anchors; node is a placeholder
       const frag = document.createDocumentFragment();
       frag.append(document.createComment('hydrated-if'));
@@ -530,7 +541,7 @@ function makeEachPlan(node: Element): Plan {
       function makeKey(itemScope: Scope): any {
         const exprToUse = keyAttr || keyExpr;
         if (!exprToUse) return undefined;
-        try { return get(itemScope, exprToUse); } catch { return undefined; }
+        try { return get(itemScope, exprToUse); } catch (err) { devError(`each: key evaluation failed for "${exprToUse}"`, err); return undefined; }
       }
 
       const update = (data: TemplateData) => {
@@ -584,13 +595,13 @@ function makeEachPlan(node: Element): Plan {
         // Remove leftovers
         if (keyed) {
           for (const r of oldByKey.values()) {
-            try { r.program.destroy(); } catch {}
+            try { r.program.destroy(); } catch (err) { devError('each: destroy leftover row failed', err); }
             if (r.program.node.parentNode) r.program.node.parentNode.removeChild(r.program.node);
           }
         } else {
           for (let i = arr.length; i < rows.length; i++) {
             const r = rows[i];
-            try { r.program.destroy(); } catch {}
+            try { r.program.destroy(); } catch (err) { devError('each: destroy leftover row failed', err); }
             if (r.program.node.parentNode) r.program.node.parentNode.removeChild(r.program.node);
           }
         }
@@ -598,7 +609,7 @@ function makeEachPlan(node: Element): Plan {
         rows = nextRows;
       };
 
-      const destroy = () => { rows.forEach(r => { try { r.program.destroy(); } catch {} }); removeBetween(start, end); };
+      const destroy = () => { rows.forEach(r => { try { r.program.destroy(); } catch (err) { devError('each: destroy row failed', err); } }); removeBetween(start, end); };
       return { node: frag, update, destroy };
     },
     hydrate(target: Node): Program {
@@ -623,7 +634,7 @@ function makeEachPlan(node: Element): Plan {
       function makeKey(itemScope: Scope): any {
         const exprToUse = keyAttr || keyExpr;
         if (!exprToUse) return undefined;
-        try { return get(itemScope, exprToUse); } catch { return undefined; }
+        try { return get(itemScope, exprToUse); } catch (err) { devError(`each(hydrate): key evaluation failed for "${exprToUse}"`, err); return undefined; }
       }
 
       const update = (data: TemplateData) => {
@@ -702,20 +713,20 @@ function makeEachPlan(node: Element): Plan {
         // Remove leftovers
         if (keyed) {
           for (const r of oldByKey.values()) {
-            try { r.program.destroy(); } catch {}
+            try { r.program.destroy(); } catch (err) { devError('each(hydrate): destroy leftover row failed', err); }
             if (r.program.node.parentNode) r.program.node.parentNode.removeChild(r.program.node);
           }
         } else {
           for (let i = arr.length; i < rows.length; i++) {
             const r = rows[i];
-            try { r.program.destroy(); } catch {}
+            try { r.program.destroy(); } catch (err) { devError('each(hydrate): destroy leftover row failed', err); }
             if (r.program.node.parentNode) r.program.node.parentNode.removeChild(r.program.node);
           }
         }
 
         rows = nextRows;
       };
-      const destroy = () => { rows.forEach(r => { try { r.program.destroy(); } catch {} }); removeBetween(start, end); };
+      const destroy = () => { rows.forEach(r => { try { r.program.destroy(); } catch (err) { devError('each(hydrate): destroy row failed', err); } }); removeBetween(start, end); };
       const frag = document.createDocumentFragment();
       frag.append(document.createComment('hydrated-each'));
       return { node: frag, update, destroy };
@@ -739,7 +750,7 @@ function makeIncludePlan(node: Element): Plan {
         const first = t.content.firstElementChild as Element | null; if (!first) return null;
         const p = compilePlan(first); PLAN_CACHE.set(t, p); return p;
       })();
-    } catch {}
+    } catch (err) { devError(`include: failed to precompile static template ${staticTplId}`, err); }
   }
   // Dynamic ref accessor otherwise
   const refAcc = staticTplId ? null : compileAccessor(includeExpr);
@@ -767,6 +778,8 @@ function makeIncludePlan(node: Element): Plan {
           else if (typeof ref === 'string' && ref.startsWith('#')) templateEl = tpl(ref);
           else if (typeof ref === 'function') {
             partialNode = ref(ctx);
+          } else if (ref != null) {
+            devWarn(`include: invalid reference resolved from "${includeExpr}"`, { value: ref });
           }
           if (templateEl) {
             plan = PLAN_CACHE.get(templateEl) || ((): Plan | null => {
@@ -777,7 +790,7 @@ function makeIncludePlan(node: Element): Plan {
         }
 
         if (partialNode) {
-          if (child) { try { child.destroy(); } catch {} child = null; }
+          if (child) { try { child.destroy(); } catch (err) { devError('include: destroy previous child failed', err); } child = null; }
           removeBetween(start, end);
           end.before(partialNode);
           return;
@@ -792,7 +805,7 @@ function makeIncludePlan(node: Element): Plan {
           return;
         }
       };
-      const destroy = () => { if (child) { try { child.destroy(); } catch {} } removeBetween(start, end); };
+      const destroy = () => { if (child) { try { child.destroy(); } catch (err) { devError('include: destroy child failed', err); } } removeBetween(start, end); };
       return { node: frag, update, destroy };
     },
     hydrate(target: Node): Program {
@@ -819,7 +832,7 @@ function makeIncludePlan(node: Element): Plan {
         return null;
       })();
       if (firstBetween && staticTplPlan && (staticTplPlan.rootTag || '').toUpperCase() === (firstBetween.tagName || '').toUpperCase()) {
-        try { child = staticTplPlan.hydrate(firstBetween); } catch {}
+        try { child = staticTplPlan.hydrate(firstBetween); } catch (err) { devError('include(hydrate): hydrate static child failed', err); }
       }
 
       const update = (data: TemplateData) => {
@@ -837,6 +850,7 @@ function makeIncludePlan(node: Element): Plan {
           if (ref instanceof HTMLTemplateElement) templateEl = ref;
           else if (typeof ref === 'string' && ref.startsWith('#')) templateEl = tpl(ref);
           else if (typeof ref === 'function') { partialNode = ref(ctx); }
+          else if (ref != null) { devWarn(`include(hydrate): invalid reference resolved from "${includeExpr}"`, { value: ref }); }
           if (templateEl) {
             plan = PLAN_CACHE.get(templateEl) || ((): Plan | null => {
               const first = templateEl!.content.firstElementChild as Element | null; if (!first) return null;
@@ -854,7 +868,7 @@ function makeIncludePlan(node: Element): Plan {
           return;
         }
       };
-      const destroy = () => { if (child) { try { child.destroy(); } catch {} } removeBetween(start, end); };
+      const destroy = () => { if (child) { try { child.destroy(); } catch (err) { devError('include(hydrate): destroy child failed', err); } } removeBetween(start, end); };
       const frag = document.createDocumentFragment();
       frag.append(document.createComment('hydrated-include'));
       return { node: frag, update, destroy };

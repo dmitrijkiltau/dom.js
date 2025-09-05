@@ -1,7 +1,7 @@
 import { MaybeArray, Selector, EventTargetish, Handler } from './types';
 import { debounce, throttle, nextTick, raf, rafThrottle } from './utils';
 import { DOMCollection } from './collection';
-import { renderTemplate, useTemplate, tpl, mountTemplate, escapeHTML, unsafeHTML, isUnsafeHTML, hydrateTemplate } from './template';
+import { renderTemplate, useTemplate, tpl, mountTemplate, escapeHTML, unsafeHTML, isUnsafeHTML, hydrateTemplate, setTemplateDevMode } from './template';
 import { serializeForm, toQueryString, onSubmit, toFormData, setForm, resetForm, validateForm, isValid } from './forms';
 import { animate, animations, installAnimationMethods } from './motion';
 import { http } from './http';
@@ -26,6 +26,7 @@ export interface Dom {
   tpl: typeof tpl;
   mountTemplate: typeof mountTemplate;
   hydrateTemplate: typeof hydrateTemplate;
+  setTemplateDevMode: typeof setTemplateDevMode;
   escapeHTML: typeof escapeHTML;
   unsafeHTML: typeof unsafeHTML;
   isUnsafeHTML: typeof isUnsafeHTML;
@@ -55,7 +56,7 @@ export interface Dom {
 
 const api = Object.assign(function core<T extends Element = Element>(input?: Selector<T>, context?: Element | Document | DOMCollection) { return dom<T>(input, context); }, {
   dom, fromHTML, create, on, once, off, ready, http,
-  renderTemplate, useTemplate, tpl, mountTemplate, hydrateTemplate, escapeHTML, unsafeHTML, isUnsafeHTML,
+  renderTemplate, useTemplate, tpl, mountTemplate, hydrateTemplate, setTemplateDevMode, escapeHTML, unsafeHTML, isUnsafeHTML,
   serializeForm, toQueryString, onSubmit, toFormData, setForm, resetForm, validateForm, isValid,
   animate, animations,
   // Utilities
@@ -73,6 +74,7 @@ installAnimationMethods();
 
 // ——— Exports ———
 export { DOMCollection, renderTemplate, useTemplate, tpl, mountTemplate, hydrateTemplate, escapeHTML, unsafeHTML, isUnsafeHTML, serializeForm, toQueryString, onSubmit, toFormData, setForm, resetForm, validateForm, isValid, animate, animations, http, use, debounce, throttle, nextTick, raf, rafThrottle, onIntersect, onResize, onMutation, scrollIntoView, scrollIntoViewIfNeeded };
+export { setTemplateDevMode } from './template';
 export { dom, fromHTML, create, on, once, off, ready } from './core-api';
 export type Plugin = (api: Dom) => void;
 export default api;

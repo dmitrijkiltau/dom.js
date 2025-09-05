@@ -185,6 +185,11 @@ Performance notes:
 - Structural directives (`data-if`/`elseif`/`else`, `data-each`, `data-include`) are precompiled; includes reuse cached plans.
 - Event handler specs (`data-on-*`) are parsed once; arguments support literals, paths, and `$event`.
 
+Diagnostics (dev):
+- Enable dev logging for template binding errors and invalid expressions:
+  `import { setTemplateDevMode } from '@dmitrijkiltau/dom.js/template'; setTemplateDevMode(true);`
+- Logs include event handler exceptions, non-function handlers, include ref issues, and safe destroy/hydrate errors.
+
 ## Forms
 
 ```js
