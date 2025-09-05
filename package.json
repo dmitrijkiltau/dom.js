@@ -1,6 +1,6 @@
 {
   "name": "@dmitrijkiltau/dom.js",
-  "version": "1.6.4",
+  "version": "1.6.5",
   "description": "A lightweight, modular DOM manipulation library with chainable API, zero dependencies, and modern ES modules.",
   "type": "module",
   "main": "dist/index.cjs",
@@ -87,7 +87,7 @@
     "build:core": "tsup src/core.ts --format esm,cjs --dts --minify",
     "analyze": "node scripts/analyze-bundles.mjs",
     "dev": "tsup src/index.ts --format esm --dts --watch",
-    "test": "node ./tests/sanity.mjs && node ./tests/modular.mjs && node ./tests/template-each.test.mjs && node ./tests/dom-manipulation.test.mjs && node ./tests/events-delegated.test.mjs",
+    "test": "node ./tests/sanity.mjs && node ./tests/modular.mjs && node ./tests/template-each.test.mjs && node ./tests/dom-manipulation.test.mjs && node ./tests/events-delegated.test.mjs && node ./tests/trigger-init.test.mjs",
     "test:types": "tsc -p tests/tsconfig.types.json",
     "test:core": "node ./tests/sanity.mjs",
     "test:modular": "node ./tests/modular.mjs",

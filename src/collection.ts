@@ -896,11 +896,31 @@ export class DOMCollection<T extends Element = Element> {
     const handler = maybeHandler as Function | undefined;
     return this.each(el => removeManaged(el, types, selector, handler));
   }
-  trigger(type: string, detail?: any): this {
+  trigger(type: string, init?: EventInit | CustomEventInit | any): this {
     return this.each(el => {
-      const event = detail !== undefined 
-        ? new CustomEvent(type, { detail, bubbles: true })
-        : new Event(type, { bubbles: true });
+      const view = (el as any).ownerDocument?.defaultView as (Window | undefined);
+      const EvCtor = (view && (view as any).Event) || (typeof Event !== 'undefined' ? Event : undefined);
+      const CevCtor = (view && (view as any).CustomEvent) || (typeof CustomEvent !== 'undefined' ? CustomEvent : undefined);
+
+      let event: Event;
+      if (init && typeof init === 'object' && (view && (init instanceof (view as any).Event))) {
+        event = init as Event;
+      } else if (init instanceof (globalThis as any).Event) {
+        event = init as Event;
+      } else {
+        const isInitLike = (v: any) => v && typeof v === 'object' && ('detail' in v || 'bubbles' in v || 'cancelable' in v || 'composed' in v);
+        const opts: any = (init !== undefined)
+          ? (isInitLike(init) ? { ...(init as any) } : { detail: init })
+          : {};
+        if (opts.bubbles == null) opts.bubbles = true;
+        if ('detail' in opts) {
+          const Ctor = CevCtor as any;
+          event = Ctor ? new Ctor(type, opts) : new (EvCtor as any)(type, opts);
+        } else {
+          const Ctor = EvCtor as any;
+          event = new Ctor(type, opts);
+        }
+      }
       el.dispatchEvent(event);
     });
   }

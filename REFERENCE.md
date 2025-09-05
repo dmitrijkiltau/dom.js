@@ -80,7 +80,9 @@ Visibility & layout:
 - Rect: `.rect()` (getBoundingClientRect snapshot)
 
 Events (collection):
-- `.on(types[, selector], handler, [options])`, `.once(...)`, `.off([types[, selector[, handler]]])`, `.trigger(type, detail?)`
+- `.on(types[, selector], handler, [options])`, `.once(...)`, `.off([types[, selector[, handler]]])`, `.trigger(type[, init])`
+  - `init` accepts `EventInit | CustomEventInit | any` (non‑object becomes `{ detail }`)
+  - Defaults to `{ bubbles: true }` if unspecified
 - Shortcuts: `.click([handler])`, `.focus()`, `.blur()`, `.hover(enter, leave)`
 - Pointer/touch: `.pointerdown/move/up/enter/leave/cancel()`, `.touchstart/move/end/cancel()`
 
