@@ -1,4 +1,4 @@
-import dom, { animations, useTemplate, inView, scrollIntoView } from '../dist/index.js';
+import dom, { animations, useTemplate, scrollIntoView } from '../dist/index.js';
 import { navigationItems } from './data/navigation.js';
 
 let lastSection = null;
@@ -53,8 +53,7 @@ function initSmoothScrolling() {
     const target = dom(`#${CSS.escape(id)}`).el();
     if (!target) return;
 
-    // Update URL without reloading and perform smooth scroll
-    if (window.location.hash !== `#${id}`) history.pushState(null, '', `#${id}`);
+    // Do not update hash here; let scroll spy compute and set it
     scrollIntoView(target, { behavior: 'smooth', block: 'start' });
   });
 }
@@ -62,32 +61,25 @@ function initSmoothScrolling() {
 function initScrollSpy() {
   const sections = navigationItems.map(i => dom(i.href).el()).filter(Boolean);
 
-  if (!('IntersectionObserver' in window) || sections.length === 0) {
-    window.addEventListener('scroll', dom.throttle(updateByScroll, 150), { passive: true });
-    updateByScroll();
-    return;
-  }
-
-  // mark active when a section becomes visible enough
-  const spy = inView(sections, { rootMargin: '-64px 0px -60% 0px', threshold: 0.25 });
-  spy.enter((el, entry) => {
-    const changed = setActive(el.id, false);
-    if (changed) history.replaceState(null, '', `#${el.id}`);
-  }).leave((el) => {
-    // Optionally handle leave of active section: fall back to lastSection if computed by scroll
-    // We keep it simple: if active leaves and no other enter yet, let scroll fallback handle it
-  });
+  // Always drive hash from scroll position for robust behavior across section sizes
+  const onScroll = dom.throttle(updateByScroll, 100);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  updateByScroll();
 
   function updateByScroll() {
-    const y = window.scrollY + 100;
+    const anchor = 80; // pixels from top to consider a section current
     let current = sections[0];
     for (const s of sections) {
-      if (s.offsetTop <= y) current = s;
+      const top = s.getBoundingClientRect().top;
+      if (top - anchor <= 0) current = s;
     }
     if (current === lastSection) return;
     lastSection = current;
-    const changed = setActive(current.id, false);
-    if (changed) history.replaceState(null, '', `#${current.id}`);
+    if (window.location.hash !== `#${current.id}`) {
+      history.replaceState(null, '', `#${current.id}`);
+      window.dispatchEvent(new Event('hashchange'));
+    }
   }
 }
 
@@ -183,6 +175,8 @@ function initHashOnLoad() {
   setTimeout(() => {
     // Smooth scroll to the section; active will be set by scroll spy when it enters
     scrollIntoView(el, { behavior: 'smooth', block: 'start' });
+    // Set initial active from existing hash
+    setActive(h, false);
   }, 0);
 }
 
