@@ -87,6 +87,7 @@ Events (collection):
 - `.on(types[, selector], handler, [options])`, `.once(...)`, `.off([types[, selector[, handler]]])`, `.trigger(type[, init])`
   - `init` accepts `EventInit | CustomEventInit | any` (non‑object becomes `{ detail }`)
   - Defaults to `{ bubbles: true }` if unspecified
+  - Also accepts a ready `Event`/`CustomEvent` instance: `.trigger(event)`; the event is dispatched as‑is
   - Namespacing: `click.ns` or `click.ns1.ns2`; remove by type+ns (`.off('click.ns')`) or namespace‑only (`.off('.ns')`)
   - Multiple types: space‑separated (e.g. `'.on("mouseenter mouseleave", ... )'`); removal works per‑type
   - Delegated off: `.off(types, selector[, handler])` removes only matching delegated handlers for `selector`

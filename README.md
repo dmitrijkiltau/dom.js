@@ -248,6 +248,10 @@ const c = new AbortController();
 on(document, "click.debug", handler, { signal: c.signal });
 // later
 c.abort(); // auto‑unbinds and prunes internal store
+
+// Trigger can take a ready Event instance, dispatched as-is
+const ev = new Event('custom', { bubbles: false });
+dom('#btn').trigger(ev);
 ```
 
 ## HTTP

@@ -928,18 +928,23 @@ export class DOMCollection<T extends Element = Element> {
     const handler = maybeHandler as Function | undefined;
     return this.each(el => removeManaged(el, types, selector, handler));
   }
-  trigger(type: string, init?: EventInit | CustomEventInit | any): this {
+  trigger(event: Event): this;
+  trigger(type: string, init?: Event | CustomEvent | EventInit | CustomEventInit | any): this;
+  trigger(typeOrEvent: any, init?: any): this {
     return this.each(el => {
       const view = (el as any).ownerDocument?.defaultView as (Window | undefined);
       const EvCtor = (view && (view as any).Event) || (typeof Event !== 'undefined' ? Event : undefined);
       const CevCtor = (view && (view as any).CustomEvent) || (typeof CustomEvent !== 'undefined' ? CustomEvent : undefined);
 
+      const isEventInstance = (v: any) => !!v && ((view && (v instanceof (view as any).Event)) || (v instanceof (globalThis as any).Event));
+
       let event: Event;
-      if (init && typeof init === 'object' && (view && (init instanceof (view as any).Event))) {
-        event = init as Event;
-      } else if (init instanceof (globalThis as any).Event) {
+      if (isEventInstance(typeOrEvent)) {
+        event = typeOrEvent as Event;
+      } else if (isEventInstance(init)) {
         event = init as Event;
       } else {
+        const type = String(typeOrEvent);
         const isInitLike = (v: any) => v && typeof v === 'object' && ('detail' in v || 'bubbles' in v || 'cancelable' in v || 'composed' in v);
         const opts: any = (init !== undefined)
           ? (isInitLike(init) ? { ...(init as any) } : { detail: init })
