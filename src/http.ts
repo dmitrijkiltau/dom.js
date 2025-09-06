@@ -26,6 +26,7 @@ export type HttpInit = RequestInit & RetryOptions & {
   controller?: AbortController; // optional explicit controller
   throwOnError?: boolean; // per-request override
   onUploadProgress?: (p: { loaded: number; total?: number; percent?: number }) => void;
+  onDownloadProgress?: (p: { loaded: number; total?: number; percent?: number }) => void;
   cacheKey?: string;
   cacheTtl?: number; // overrides default ttl
   noCache?: boolean;
@@ -200,8 +201,36 @@ function createClient(config: ClientConfig = {}): HttpMethod {
     while (attempt < maxAttempts) {
       try {
         const res = await fetch(reqCtx.url, { ...reqCtx.init, method: reqCtx.method });
+        // Inject download progress monitoring when supported
+        let resForHandlers = res;
+        if (reqCtx.init.onDownloadProgress && typeof ReadableStream !== 'undefined' && res.body) {
+          try {
+            const totalHeader = res.headers.get('Content-Length');
+            const total = totalHeader ? parseInt(totalHeader, 10) : undefined;
+            let loaded = 0;
+            const ts = new TransformStream<Uint8Array, Uint8Array>({
+              transform(chunk, controller) {
+                loaded += chunk?.byteLength || 0;
+                const percent = total != null ? (loaded / total) * 100 : undefined;
+                try {
+                  const payload: { loaded: number; total?: number; percent?: number } = { loaded };
+                  if (total != null) (payload as any).total = total;
+                  if (percent != null) (payload as any).percent = percent;
+                  reqCtx.init.onDownloadProgress!(payload);
+                } catch {}
+                controller.enqueue(chunk);
+              }
+            });
+            const stream = res.body.pipeThrough(ts);
+            resForHandlers = new Response(stream, { headers: res.headers, status: res.status, statusText: res.statusText });
+            try { (resForHandlers as any).url = (res as any).url || reqCtx.url; } catch {}
+          } catch {
+            // If anything fails, fall back to original response
+            resForHandlers = res;
+          }
+        }
         // Post-response interceptors (allow response replacement)
-        let resCtx: ResponseContext = { method: reqCtx.method, url: reqCtx.url, init: reqCtx.init, response: res };
+        let resCtx: ResponseContext = { method: reqCtx.method, url: reqCtx.url, init: reqCtx.init, response: resForHandlers };
         for (const ints of (cfg.interceptors || [])) {
           if (!ints.onResponse) continue;
           const out = await ints.onResponse(resCtx);

@@ -280,6 +280,21 @@ const created = await apiJson.post('/users', { name: 'Lin' }).then(r => r.json()
 // Opt-in caching for non‑GET methods (includes body hash in key)
 const apiCached = api.withCache({ enabled: true, methods: ['GET', 'POST'] });
 await apiCached.post('/users', { name: 'Mia' }, { cacheTtl: 5_000 });
+
+// Download and upload progress
+await api.get('/big-file', {
+  onDownloadProgress: ({ loaded, total, percent }) => {
+    if (total != null) console.log(`Downloaded ${Math.round(percent)}%`);
+    else console.log(`Downloaded ${loaded} bytes`);
+  }
+});
+
+await api.post('/upload', new Blob([/* ... */]), {
+  onUploadProgress: ({ loaded, total, percent }) => {
+    if (total != null) console.log(`Uploaded ${Math.round(percent)}%`);
+    else console.log(`Uploaded ${loaded} bytes`);
+  }
+});
 ```
 
 ## Motion

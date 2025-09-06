@@ -149,7 +149,7 @@ Client builders (chainable):
 - `withRetry({ retries, retryDelay, retryBackoff, retryOn })`, `withInterceptors({ onRequest, onResponse, onError })`
 - `withCache({ enabled, ttl, key, methods })`, `withThrowOnError([true])`
 
-Per‑request options (subset): `baseUrl`, `query`, `headers`, `timeout`, `controller`/`signal`, `throwOnError`, `onUploadProgress`, `retries`, `retryDelay`, `retryBackoff`, `retryOn`, `cacheKey`, `cacheTtl`, `noCache`.
+Per‑request options (subset): `baseUrl`, `query`, `headers`, `timeout`, `controller`/`signal`, `throwOnError`, `onUploadProgress`, `onDownloadProgress`, `retries`, `retryDelay`, `retryBackoff`, `retryOn`, `cacheKey`, `cacheTtl`, `noCache`.
 
 Utilities:
 - `http.appendQuery(url, params)`, `http.abortable()` → `{ controller, signal }`
