@@ -2,8 +2,8 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
-    // Keep Node environment so existing tests can manage jsdom when needed
-    environment: 'node',
+    // Use jsdom globally to simplify DOM tests
+    environment: 'jsdom',
     include: [
       'tests/**/*.test.*',
       'tests/*.test.*',
