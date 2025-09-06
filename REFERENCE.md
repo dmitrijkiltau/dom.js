@@ -40,6 +40,7 @@ Note: “Import‑safe on server” means modules do not access `window`/`docume
 - Events: `dom.on/once/off(target, types[, selector], handler, options)`, `dom.ready(fn)`
   - Supports direct and delegated forms for `Element`, `Document`, and `Window`
   - Multiple event types and namespaces (e.g. `"click resize.ns"`) supported
+  - Namespace-only unbind supported: pass just the namespace token (e.g. `off(target, '.ns')`)
 - Plugins: `dom.use(plugin)`
 - Class: `dom.DOMCollection`
 
@@ -85,6 +86,10 @@ Events (collection):
 - `.on(types[, selector], handler, [options])`, `.once(...)`, `.off([types[, selector[, handler]]])`, `.trigger(type[, init])`
   - `init` accepts `EventInit | CustomEventInit | any` (non‑object becomes `{ detail }`)
   - Defaults to `{ bubbles: true }` if unspecified
+  - Namespacing: `click.ns` or `click.ns1.ns2`; remove by type+ns (`.off('click.ns')`) or namespace‑only (`.off('.ns')`)
+  - Multiple types: space‑separated (e.g. `'.on("mouseenter mouseleave", ... )'`); removal works per‑type
+  - Delegated off: `.off(types, selector[, handler])` removes only matching delegated handlers for `selector`
+  - AbortController: pass `{ signal }` via options to auto‑unbind on `abort`
 
 Iteration helpers:
 - `.each(fn)` → iterate elements

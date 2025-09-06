@@ -220,11 +220,31 @@ Top‑level helpers work with `window`, `document`, Elements, and DOMCollections
 ```js
 import dom, { on, once, off, ready } from "@dmitrijkiltau/dom.js";
 
+// Multiple types + namespaces
 const stop = on(window, "scroll resize.ns", handler, { passive: true });
 stop(); // unbind
 
 dom(".btn").on("click focus", (e, el) => {/* ... */}, { passive: true }).once("click", () => {/* ... */});
 dom("#list").on("click", "a.item", (e, link, i) => {/* delegated */});
+
+// Namespace management
+// - Remove by type+namespace
+off(window, "resize.ns");
+// - Remove by namespace only (all types with .ns)
+off(window, ".ns");
+
+// Delegated off() on collections
+const $wrap = dom("#wrap");
+$wrap.on("click.nav", "a.alpha", alphaHandler);
+$wrap.on("click.nav", "a.beta", betaHandler);
+// Remove only alpha delegated handler
+$wrap.off("click.nav", "a.alpha");
+
+// Abort with { signal }
+const c = new AbortController();
+on(document, "click.debug", handler, { signal: c.signal });
+// later
+c.abort(); // auto‑unbinds and prunes internal store
 ```
 
 ## HTTP

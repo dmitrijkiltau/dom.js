@@ -52,6 +52,7 @@ export function addManaged(
     if (!spec.type) continue; // cannot bind only namespace
     const wrapped = wrappedFactory(spec.type);
     (target as any).addEventListener(spec.type, wrapped, options as any);
+
     const rec: ListenerRecord = {
       type: spec.type,
       namespaces: spec.namespaces,
@@ -61,9 +62,30 @@ export function addManaged(
       options,
       delegated: !!selector
     };
+
+    // If { signal } is provided, ensure managed store stays in sync on abort
+    let abortCb: (() => void) | undefined;
+    const signal = (options && typeof options === 'object' ? (options as AddEventListenerOptions).signal : undefined) as (AbortSignal | undefined);
+
+    // If signal already aborted, immediately unbind and skip storing
+    if (signal && signal.aborted) {
+      (target as any).removeEventListener(spec.type, wrapped, options as any);
+      continue;
+    }
+
     store.add(rec);
+
+    if (signal) {
+      abortCb = () => {
+        (target as any).removeEventListener(spec.type, wrapped, options as any);
+        store.delete(rec);
+      };
+      signal.addEventListener('abort', abortCb, { once: true } as any);
+    }
+
     unbinders.push(() => {
       (target as any).removeEventListener(spec.type, wrapped, options as any);
+      if (abortCb && signal) signal.removeEventListener('abort', abortCb as any);
       store.delete(rec);
     });
   }
