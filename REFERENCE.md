@@ -145,7 +145,7 @@ Requests:
     - `const fd = await http.post('/upload').then(r => r.formData())`
 
 Client builders (chainable):
-- `withBaseUrl(baseUrl)`, `withHeaders(headers)`, `withQuery(params)`, `withTimeout(ms)`
+- `withBaseUrl(baseUrl)`, `withHeaders(headers)`, `withQuery(params)`, `withTimeout(ms)`, `withJSON()`
 - `withRetry({ retries, retryDelay, retryBackoff, retryOn })`, `withInterceptors({ onRequest, onResponse, onError })`
 - `withCache({ enabled, ttl, key })`, `withThrowOnError([true])`
 
@@ -154,6 +154,9 @@ Per‑request options (subset): `baseUrl`, `query`, `headers`, `timeout`, `contr
 Utilities:
 - `http.appendQuery(url, params)`, `http.abortable()` → `{ controller, signal }`
 - Cache: `http.cache.clear/delete/get/set/computeKey`
+
+Notes:
+- Smart JSON: when `body` is a plain object, the client serializes it with `JSON.stringify` and sets `Content-Type: application/json` unless you already set a `Content-Type` header. Use `withJSON()` to also send `Accept: application/json` by default.
 
 ## Motion (motion module)
 

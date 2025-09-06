@@ -57,6 +57,7 @@ export type HttpMethod = {
   withRetry(opts: RetryOptions): HttpMethod;
   withCache(opts?: CacheOptions): HttpMethod;
   withThrowOnError(on?: boolean): HttpMethod;
+  withJSON(): HttpMethod;
   // Utilities
   appendQuery(url: string, params?: QueryParams): string;
   abortable(): { controller: AbortController; signal: AbortSignal };
@@ -122,14 +123,16 @@ function createClient(config: ClientConfig = {}): HttpMethod {
 
   async function request(method: string, url: string, body?: any, init?: HttpInit): Promise<WrappedResponse> {
     const mergedInit: HttpInit = { ...(init || {}) };
+    // Detect if caller passed a plain object as body (pre-serialization)
+    const originalBody = (body !== undefined) ? body : (mergedInit as any).body;
+    const isJsonBody = isPlainObject(originalBody);
     if (body !== undefined) mergedInit.body = serialize(body);
     // Merge headers
     const h = new Headers({ ...(cfg.defaultHeaders || {}) });
     if (mergedInit.headers) new Headers(mergedInit.headers).forEach((v, k) => h.set(k, v));
 
-    // Content-Type for JSON bodies (not FormData/Blob)
-    const rawBody = (mergedInit as any).body;
-    if (rawBody && !(rawBody instanceof FormData) && !(rawBody instanceof Blob) && !h.has('Content-Type')) h.set('Content-Type', 'application/json');
+    // Content-Type for plain-object JSON bodies (only when not explicitly set)
+    if (isJsonBody && !h.has('Content-Type')) h.set('Content-Type', 'application/json');
     mergedInit.headers = h;
 
     // Base URL + query
@@ -144,6 +147,7 @@ function createClient(config: ClientConfig = {}): HttpMethod {
     const throwOnError = mergedInit.throwOnError ?? cfg.throwOnError ?? false;
 
     // Upload progress wrapping
+    const rawBody = (mergedInit as any).body;
     if (mergedInit.onUploadProgress && rawBody && canStreamBody(rawBody)) {
       const { stream, total } = makeProgressStream(rawBody, mergedInit.onUploadProgress);
       mergedInit.body = stream as any;
@@ -261,6 +265,7 @@ function createClient(config: ClientConfig = {}): HttpMethod {
     withRetry(opts: RetryOptions) { return createClient({ ...cfg, retry: { ...(cfg.retry || {}), ...opts } }); },
     withCache(opts?: CacheOptions) { return createClient({ ...cfg, cache: { ...(cfg.cache || {}), ...(opts || { enabled: true }) } }); },
     withThrowOnError(on: boolean = true) { return createClient({ ...cfg, throwOnError: on }); },
+    withJSON() { return createClient({ ...cfg, defaultHeaders: { ...(cfg.defaultHeaders || {}), Accept: 'application/json' } }); },
 
     // Utils
     appendQuery(url: string, params?: QueryParams) { return appendQuery(url, params || {}); },
@@ -362,6 +367,17 @@ async function handleErrorInterceptors(ints: Interceptors[], ctx: ErrorContext):
 }
 
 // ——— Upload progress helpers ———
+function isPlainObject(value: any): value is Record<string, any> {
+  if (value == null || typeof value !== 'object') return false;
+  if (value instanceof FormData) return false;
+  if (value instanceof Blob) return false;
+  if (value instanceof ArrayBuffer) return false;
+  if (ArrayBuffer.isView(value)) return false;
+  if (typeof URLSearchParams !== 'undefined' && value instanceof URLSearchParams) return false;
+  if (typeof ReadableStream !== 'undefined' && value instanceof ReadableStream) return false;
+  return true;
+}
+
 function canStreamBody(body: any): boolean {
   return typeof ReadableStream !== 'undefined' && (typeof body === 'string' || body instanceof Blob || body instanceof ArrayBuffer || ArrayBuffer.isView(body));
 }

@@ -269,6 +269,13 @@ const api = http
 
 const r = await api.get("/users", { query: { page: 1 } });
 const users = await r.json();
+
+// Smart JSON: plain objects are serialized and Content-Type set automatically
+await api.post('/users', { name: 'Ada' }); // sends JSON with Content-Type: application/json
+
+// JSON-focused client (adds Accept: application/json by default)
+const apiJson = api.withJSON();
+const created = await apiJson.post('/users', { name: 'Lin' }).then(r => r.json());
 ```
 
 ## Motion
