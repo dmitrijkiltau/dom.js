@@ -477,6 +477,20 @@ dom(".items").highlight();
   - Modules (each): HTTP ~0.7 KB, Forms ~1.7 KB, Templates ~2.8 KB, Motion ~6.5 KB
 - Dependencies: Zero
 
+### Current Bundle Sizes (raw dist)
+
+<!-- AUTO-GENERATED: BUNDLE_SIZES_START -->
+| Module | ESM (KB) | CJS (KB) |
+| --- | --- | --- |
+| Full | 65.90 | 66.86 |
+| Core | 27.55 | 28.10 |
+| HTTP | 6.20 | 6.70 |
+| Templates | 16.66 | 17.26 |
+| Forms | 4.55 | 5.11 |
+| Motion | 31.51 | 32.05 |
+
+_Note: raw minified dist file sizes (not gzip)._<!-- AUTO-GENERATED: BUNDLE_SIZES_END -->
+
 ## Links
 
 - Reference: `REFERENCE.md` (full API/exports overview)
