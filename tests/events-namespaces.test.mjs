@@ -104,6 +104,28 @@ test('delegated off() by selector only removes matching handlers', () => {
   if (calls.b !== 1) throw new Error('delegated beta handler should remain');
 });
 
+test('top-level delegated off() on document by selector works', () => {
+  const wrap = document.getElementById('wrap');
+  const a = wrap.querySelector('a.alpha');
+  const b = wrap.querySelector('a.beta');
+  const calls = { a: 0, b: 0 };
+
+  const handlerA = () => { calls.a++; };
+  const handlerB = () => { calls.b++; };
+
+  on(document, 'click.doc', 'a.alpha', handlerA);
+  on(document, 'click.doc', 'a.beta', handlerB);
+
+  // Remove only alpha delegated handler via selector at top-level
+  off(document, 'click.doc', 'a.alpha', handlerA);
+
+  a.dispatchEvent(new domenv.window.MouseEvent('click', { bubbles: true }));
+  b.dispatchEvent(new domenv.window.MouseEvent('click', { bubbles: true }));
+
+  if (calls.a !== 0) throw new Error('top-level delegated alpha handler should be removed');
+  if (calls.b !== 1) throw new Error('top-level delegated beta handler should remain');
+});
+
 test('{ signal } abort stops handler and pre-aborted signal does not attach', () => {
   const btn = document.getElementById('btn');
   let n1 = 0, n2 = 0;
