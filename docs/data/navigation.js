@@ -1,17 +1,4 @@
-// Navigation data
-export const navigationItems = [
-  { title: 'Getting Started', href: '#getting-started' },
-  { title: 'Installation', href: '#installation' },
-  { title: 'Modular Architecture', href: '#modular-architecture' },
-  { title: 'Core API', href: '#core-api' },
-  { title: 'DOM Manipulation', href: '#dom-manipulation' },
-  { title: 'Layout & Geometry', href: '#layout-geometry' },
-  { title: 'Utilities', href: '#utilities' },
-  { title: 'Observers', href: '#observers' },
-  { title: 'Templates', href: '#templates' },
-  { title: 'Forms', href: '#forms' },
-  { title: 'Events', href: '#events' },
-  { title: 'HTTP', href: '#http' },
-  { title: 'Animation', href: '#animation' },
-  { title: 'Plugin System', href: '#plugins' }
-];
+// Navigation data derived from sections to ensure consistent ordering
+import { sections } from './sections.js';
+
+export const navigationItems = sections.map(s => ({ title: s.title, href: `#${s.id}` }));

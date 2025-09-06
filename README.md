@@ -93,8 +93,8 @@ import { renderTemplate, useTemplate, tpl } from "@dmitrijkiltau/dom.js/template
 import { onSubmit, serializeForm, toFormData, toQueryString, setForm, resetForm, validateForm } from "@dmitrijkiltau/dom.js/forms";
 import { animate, animations } from "@dmitrijkiltau/dom.js/motion";
 import { debounce, throttle, nextTick, raf, rafThrottle } from "@dmitrijkiltau/dom.js/utils";
-import { onIntersect, onResize, onMutation } from "@dmitrijkiltau/dom.js/observers";
-import { scrollIntoView, scrollIntoViewIfNeeded } from "@dmitrijkiltau/dom.js/scroll";
+import { onIntersect, inView, onResize, onMutation } from "@dmitrijkiltau/dom.js/observers";
+import { scrollIntoView, scrollIntoViewIfNeeded, lockScroll, unlockScroll } from "@dmitrijkiltau/dom.js/scroll";
 ```
 
 ## Core API Highlights
@@ -274,10 +274,30 @@ const users = await r.json();
 ## Motion
 
 ```js
-import { animate, animations } from "@dmitrijkiltau/dom.js/motion";
+import { animate, animations, sequence, stagger } from "@dmitrijkiltau/dom.js/motion";
 
 const [kf, op] = animations.fadeIn(250);
 await animate(dom(".box").el(), kf, op).finished;
+
+// Sequence multiple animations on the same element
+await dom('#card').sequence([
+  animations.slideDown(200),
+  100, // wait 100ms
+  animations.pulse(400)
+]);
+
+// Stagger across a list
+await dom('.item').stagger(100, (el, i) =>
+  dom(el).animate([
+    { opacity: 0, transform: 'translateY(8px)' },
+    { opacity: 1, transform: 'translateY(0px)' }
+  ], { duration: 300, fill: 'forwards' })
+);
+
+// Ensure visibility before animating (e.g., with reduced motion)
+await dom('.panel').withVisible().fadeIn(250);
+// Custom display value
+await dom('#row').withVisible('flex').slideDown(200);
 ```
 
 ## Utilities & Observers
@@ -285,13 +305,34 @@ await animate(dom(".box").el(), kf, op).finished;
 ```js
 import { debounce, throttle, nextTick, raf, rafThrottle } from "@dmitrijkiltau/dom.js/utils";
 import { onIntersect, onResize, onMutation } from "@dmitrijkiltau/dom.js/observers";
-import { scrollIntoView, scrollIntoViewIfNeeded } from "@dmitrijkiltau/dom.js/scroll";
+import { scrollIntoView, scrollIntoViewIfNeeded, lockScroll, unlockScroll } from "@dmitrijkiltau/dom.js/scroll";
 
 const onType = debounce(() => {/* ... */}, 150);
 await nextTick(); await raf();
 
 const stop1 = onIntersect(".watch", (entry, el) => {/* ... */}, { threshold: 0.1 });
+
+// In‑view sugar: subscribe to enter/leave
+const io = inView('.card', { threshold: 0.25, once: true });
+const unEnter = io.enter((el, entry) => {
+  // Called once per element when it reaches 25% visibility
+  el.classList.add('reveal');
+});
+io.leave((el) => {
+  // Called when it drops below 25% (not called if once:true already unobserved)
+});
+// Later: io.stop(); // disconnects observer and clears handlers
 scrollIntoView("#details", { behavior: "smooth", block: "start" });
+
+// Lock page scroll while a modal is open
+lockScroll();
+// ... open modal ...
+unlockScroll();
+
+// Lock a specific scrollable container
+lockScroll('#panel');
+// ...
+unlockScroll('#panel');
 ```
 
 ## SSR (Server‑Safe)

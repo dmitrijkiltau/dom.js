@@ -1,5 +1,5 @@
 import { Selector } from './types';
-import { isElement, toArray } from './utils';
+import { isElement } from './utils';
 import { DOMCollection } from './collection';
 
 function resolveTargets(input: Selector | DOMCollection): Element[] {
@@ -34,6 +34,64 @@ export function onIntersect(
   }, init);
   els.forEach(el => obs.observe(el));
   return () => { try { obs.disconnect(); } catch {} };
+}
+
+// In-view sugar: subscribe to enter/leave without raw IO
+export type InViewOptions = IntersectOptions;
+export function inView(
+  targets: Selector | DOMCollection,
+  options: InViewOptions = {}
+): {
+  enter: (cb: (el: Element, entry: IntersectionObserverEntry) => void) => ReturnType<typeof inView>;
+  leave: (cb: (el: Element, entry: IntersectionObserverEntry) => void) => ReturnType<typeof inView>;
+  stop: () => void;
+} {
+  const enterHandlers = new Set<(el: Element, entry: IntersectionObserverEntry) => void>();
+  const leaveHandlers = new Set<(el: Element, entry: IntersectionObserverEntry) => void>();
+  const states = new WeakMap<Element, boolean>();
+
+  // Normalize threshold for state decision; IO callback will still be fired per real thresholds.
+  let threshold = 0;
+  if (typeof options.threshold === 'number') threshold = options.threshold;
+  else if (Array.isArray(options.threshold) && options.threshold.length > 0) threshold = options.threshold[0] ?? 0;
+
+  const stop = onIntersect(
+    targets,
+    (entry, el, unobserve) => {
+      const ratio = entry.intersectionRatio ?? 0;
+      const nowIn = !!entry.isIntersecting && ratio >= threshold;
+      const prev = states.get(el);
+      if (prev === undefined) {
+        // Initialize state; fire enter immediately if already in
+        states.set(el, nowIn);
+        if (nowIn) {
+          for (const cb of Array.from(enterHandlers)) { try { cb(el, entry); } catch {} }
+          if (options.once) { try { unobserve(); } catch {} }
+        }
+        return;
+      }
+      if (prev !== nowIn) {
+        states.set(el, nowIn);
+        const handlers = nowIn ? enterHandlers : leaveHandlers;
+        for (const cb of Array.from(handlers)) { try { cb(el, entry); } catch {} }
+        if (options.once && nowIn) { try { unobserve(); } catch {} }
+      }
+    },
+    // Delegate IO config but manage `once` ourselves to ensure it tracks threshold-enter specifically
+    { root: options.root, rootMargin: options.rootMargin, threshold: options.threshold }
+  );
+
+  const api = {
+    enter: (cb: (el: Element, entry: IntersectionObserverEntry) => void) => { enterHandlers.add(cb); return api; },
+    leave: (cb: (el: Element, entry: IntersectionObserverEntry) => void) => { leaveHandlers.add(cb); return api; },
+    stop: () => {
+      try { stop(); } catch {}
+      enterHandlers.clear();
+      leaveHandlers.clear();
+    }
+  } as const;
+
+  return api as any;
 }
 
 // ResizeObserver wrapper
@@ -73,4 +131,3 @@ export function onMutation(
   });
   return () => { for (const o of observers) { try { o.disconnect(); } catch {} } };
 }
-

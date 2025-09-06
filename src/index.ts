@@ -3,12 +3,12 @@ import { debounce, throttle, nextTick, raf, rafThrottle } from './utils';
 import { DOMCollection } from './collection';
 import { renderTemplate, useTemplate, tpl, mountTemplate, escapeHTML, unsafeHTML, isUnsafeHTML, hydrateTemplate, setTemplateDevMode } from './template';
 import { serializeForm, toQueryString, onSubmit, toFormData, setForm, resetForm, validateForm, isValid } from './forms';
-import { animate, animations, installAnimationMethods } from './motion';
+import { animate, animations, installAnimationMethods, stagger, sequence } from './motion';
 import { http } from './http';
 import { use } from './plugins';
 import { dom, fromHTML, create, on, once, off, ready } from './core-api';
-import { onIntersect, onResize, onMutation } from './observers';
-import { scrollIntoView, scrollIntoViewIfNeeded } from './scroll';
+import { onIntersect, onResize, onMutation, inView } from './observers';
+import { scrollIntoView, scrollIntoViewIfNeeded, lockScroll, unlockScroll } from './scroll';
 
 // ——— API bag (default export) ———
 export interface Dom {
@@ -40,6 +40,8 @@ export interface Dom {
   isValid: typeof isValid;
   animate: typeof animate;
   animations: typeof animations;
+  stagger: typeof stagger;
+  sequence: typeof sequence;
   debounce: typeof debounce;
   throttle: typeof throttle;
   nextTick: typeof nextTick;
@@ -48,8 +50,11 @@ export interface Dom {
   onIntersect: typeof onIntersect;
   onResize: typeof onResize;
   onMutation: typeof onMutation;
+  inView: typeof inView;
   scrollIntoView: typeof scrollIntoView;
   scrollIntoViewIfNeeded: typeof scrollIntoViewIfNeeded;
+  lockScroll: typeof lockScroll;
+  unlockScroll: typeof unlockScroll;
   DOMCollection: typeof DOMCollection;
   use: (plugin: Plugin) => void;
 }
@@ -58,13 +63,13 @@ const api = Object.assign(function core<T extends Element = Element>(input?: Sel
   dom, fromHTML, create, on, once, off, ready, http,
   renderTemplate, useTemplate, tpl, mountTemplate, hydrateTemplate, setTemplateDevMode, escapeHTML, unsafeHTML, isUnsafeHTML,
   serializeForm, toQueryString, onSubmit, toFormData, setForm, resetForm, validateForm, isValid,
-  animate, animations,
+  animate, animations, stagger, sequence,
   // Utilities
   debounce, throttle, nextTick, raf, rafThrottle,
   // Observers
-  onIntersect, onResize, onMutation,
+  onIntersect, onResize, onMutation, inView,
   // Scroll helpers
-  scrollIntoView, scrollIntoViewIfNeeded,
+  scrollIntoView, scrollIntoViewIfNeeded, lockScroll, unlockScroll,
   DOMCollection,
   use: (plugin: Plugin) => use(plugin, api as any)
 }) as Dom;
@@ -73,7 +78,7 @@ const api = Object.assign(function core<T extends Element = Element>(input?: Sel
 installAnimationMethods();
 
 // ——— Exports ———
-export { DOMCollection, renderTemplate, useTemplate, tpl, mountTemplate, hydrateTemplate, escapeHTML, unsafeHTML, isUnsafeHTML, serializeForm, toQueryString, onSubmit, toFormData, setForm, resetForm, validateForm, isValid, animate, animations, http, use, debounce, throttle, nextTick, raf, rafThrottle, onIntersect, onResize, onMutation, scrollIntoView, scrollIntoViewIfNeeded };
+export { DOMCollection, renderTemplate, useTemplate, tpl, mountTemplate, hydrateTemplate, escapeHTML, unsafeHTML, isUnsafeHTML, serializeForm, toQueryString, onSubmit, toFormData, setForm, resetForm, validateForm, isValid, animate, animations, stagger, sequence, http, use, debounce, throttle, nextTick, raf, rafThrottle, onIntersect, onResize, onMutation, inView, scrollIntoView, scrollIntoViewIfNeeded, lockScroll, unlockScroll };
 export { setTemplateDevMode } from './template';
 export { dom, fromHTML, create, on, once, off, ready } from './core-api';
 export type Plugin = (api: Dom) => void;

@@ -101,6 +101,114 @@ export function scrollIntoViewIfNeeded(target: Selector | Element | DOMCollectio
   scrollIntoView(target as any, { ...opts, ifNeeded: true });
 }
 
+// ——— Scroll lock utilities ———
+type SavedStyles = Partial<Record<'overflow' | 'paddingRight' | 'position' | 'top' | 'left' | 'width', string>>;
+type LockState = {
+  count: number;
+  saved: SavedStyles;
+  scrollX: number;
+  scrollY: number;
+  mode: 'bodyFixed' | 'overflowHidden';
+};
+
+const lockMap: WeakMap<Element, LockState> = new WeakMap();
+
+function resolveTarget(input?: Selector | Element | DOMCollection | null): Element | null {
+  if (!hasDOM()) return null;
+  if (!input) return document.body || document.documentElement;
+  if (input instanceof DOMCollection) return input.el() ?? null;
+  if (typeof input === 'string') return document.querySelector(input);
+  if (isElement(input)) return input;
+  if ((input as any)?.documentElement) return (input as any).documentElement as Element;
+  return null;
+}
+
+function getScrollbarWidth(): number {
+  if (!hasDOM()) return 0;
+  const sw = window.innerWidth - document.documentElement.clientWidth;
+  return sw > 0 ? sw : 0;
+}
+
+export function lockScroll(target?: Selector | Element | DOMCollection | null): void {
+  if (!hasDOM()) return;
+  const el = resolveTarget(target);
+  if (!el) return;
+
+  const current = lockMap.get(el);
+  if (current) { current.count++; return; }
+
+  // Page-level lock if locking <body> or <html>
+  const tag = (el as Element).tagName;
+  const isPage = tag === 'BODY' || tag === 'HTML';
+
+  const saved: SavedStyles = {};
+  const style = (el as HTMLElement).style;
+  const computed = getComputedStyle(el as HTMLElement);
+
+  if (isPage) {
+    const scrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+    const scrollX = window.pageXOffset || document.documentElement.scrollLeft || 0;
+    saved.position = style.position || '';
+    saved.top = style.top || '';
+    saved.left = style.left || '';
+    saved.width = style.width || '';
+    saved.overflow = style.overflow || '';
+    saved.paddingRight = style.paddingRight || '';
+
+    const sw = getScrollbarWidth();
+    const basePadRight = parseFloat(computed.paddingRight) || 0;
+    if (sw > 0) style.paddingRight = `${basePadRight + sw}px`;
+
+    style.position = 'fixed';
+    style.top = `-${scrollY}px`;
+    style.left = `-${scrollX}px`;
+    style.width = '100%';
+    style.overflow = 'hidden';
+
+    lockMap.set(el, { count: 1, saved, scrollX, scrollY, mode: 'bodyFixed' });
+    return;
+  }
+
+  // Element-level lock: hide overflow and compensate for scrollbar
+  saved.overflow = style.overflow || '';
+  saved.paddingRight = style.paddingRight || '';
+
+  const hadVScroll = (el as HTMLElement).scrollHeight > (el as HTMLElement).clientHeight;
+  const sw = hadVScroll ? ((el as HTMLElement).offsetWidth - (el as HTMLElement).clientWidth) : 0;
+  const basePadRight = parseFloat(computed.paddingRight) || 0;
+
+  if (hadVScroll && sw > 0) style.paddingRight = `${basePadRight + sw}px`;
+  style.overflow = 'hidden';
+
+  lockMap.set(el, { count: 1, saved, scrollX: 0, scrollY: 0, mode: 'overflowHidden' });
+}
+
+export function unlockScroll(target?: Selector | Element | DOMCollection | null): void {
+  if (!hasDOM()) return;
+  const el = resolveTarget(target);
+  if (!el) return;
+  const state = lockMap.get(el);
+  if (!state) return; // not locked
+  if (--state.count > 0) return; // nested locks remain
+
+  const style = (el as HTMLElement).style;
+  const { saved, mode, scrollX, scrollY } = state;
+
+  // Restore styles
+  if (saved.overflow != null) style.overflow = saved.overflow;
+  if (saved.paddingRight != null) style.paddingRight = saved.paddingRight;
+  if (mode === 'bodyFixed') {
+    if (saved.position != null) style.position = saved.position;
+    if (saved.top != null) style.top = saved.top;
+    if (saved.left != null) style.left = saved.left;
+    if (saved.width != null) style.width = saved.width;
+    // Restore scroll position after releasing fixed body
+    window.scrollTo(scrollX, scrollY);
+  }
+
+  lockMap.delete(el);
+}
+
 // DOMCollection convenience methods
 declare module './collection' {
   interface DOMCollection {

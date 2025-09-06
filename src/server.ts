@@ -43,6 +43,80 @@ const api = Object.assign(function core<T extends Element = Element>(input?: Sel
   DOMCollection
 });
 
+// ——— Install SSR-safe stubs on DOMCollection ———
+// These mirror motion/scroll collection methods so code can call them on server.
+// Motion methods resolve immediately with the original collection; scroll methods no-op.
+(() => {
+  const proto: any = (DOMCollection as any).prototype;
+
+  // Motion: Promise-returning methods resolve immediately
+  const resolved = function <T>(this: T): Promise<T> { return Promise.resolve(this); };
+
+  proto.animate = function () { return resolved.call(this); };
+  proto.sequence = function () { return resolved.call(this); };
+  proto.stagger = function () { return resolved.call(this); };
+  proto.fadeIn = function () { return resolved.call(this); };
+  proto.fadeOut = function () { return resolved.call(this); };
+  proto.fadeToggle = function () { return resolved.call(this); };
+  proto.slideUp = function () { return resolved.call(this); };
+  proto.slideDown = function () { return resolved.call(this); };
+  proto.slideToggle = function () { return resolved.call(this); };
+  proto.pulse = function () { return resolved.call(this); };
+  proto.shake = function () { return resolved.call(this); };
+
+  // Visibility preset helper
+  proto.withVisible = function () {
+    const base = this;
+    return {
+      animate: () => Promise.resolve(base),
+      sequence: () => Promise.resolve(base),
+      fadeIn: () => Promise.resolve(base),
+      slideDown: () => Promise.resolve(base)
+    };
+  };
+
+  // Motion control: no-ops returning the collection
+  proto.pause = function () { return this; };
+  proto.resume = function () { return this; };
+  proto.cancel = function () { return this; };
+  proto.stop = function () { return this; };
+
+  // Scroll collection helpers: no-ops returning the collection
+  proto.scrollIntoView = function () { return this; };
+  proto.scrollIntoViewIfNeeded = function () { return this; };
+})();
+
 export type ServerDom = typeof api;
 export default api;
 
+// ——— Type augmentations (so server entry has typed stubs) ———
+declare module './collection' {
+  interface DOMCollection<T extends Element = Element> {
+    // Motion (promise-returning)
+    animate(keyframes: Keyframe[] | PropertyIndexedKeyframes, options?: KeyframeAnimationOptions): Promise<this>;
+    sequence(steps: Array<[Keyframe[] | PropertyIndexedKeyframes, KeyframeAnimationOptions] | ((el: HTMLElement, idx: number) => [Keyframe[] | PropertyIndexedKeyframes, KeyframeAnimationOptions]) | number>): Promise<this>;
+    stagger(stepMs: number, fn: (el: HTMLElement, idx: number) => any): Promise<this>;
+    fadeIn(duration?: number): Promise<this>;
+    fadeOut(duration?: number): Promise<this>;
+    fadeToggle(duration?: number): Promise<this>;
+    slideUp(duration?: number): Promise<this>;
+    slideDown(duration?: number): Promise<this>;
+    slideToggle(duration?: number): Promise<this>;
+    pulse(duration?: number): Promise<this>;
+    shake(duration?: number): Promise<this>;
+    withVisible(display?: string): {
+      animate: (keyframes: Keyframe[] | PropertyIndexedKeyframes, options?: KeyframeAnimationOptions) => Promise<DOMCollection<T>>;
+      sequence: (steps: Array<[Keyframe[] | PropertyIndexedKeyframes, KeyframeAnimationOptions] | ((el: HTMLElement, idx: number) => [Keyframe[] | PropertyIndexedKeyframes, KeyframeAnimationOptions]) | number>) => Promise<DOMCollection<T>>;
+      fadeIn: (duration?: number) => Promise<DOMCollection<T>>;
+      slideDown: (duration?: number) => Promise<DOMCollection<T>>;
+    };
+    // Motion control
+    pause(): this;
+    resume(): this;
+    cancel(): this;
+    stop(jumpToEnd?: boolean): this;
+    // Scroll
+    scrollIntoView(options?: import('./scroll').ScrollOptions): this;
+    scrollIntoViewIfNeeded(options?: Omit<import('./scroll').ScrollOptions, 'ifNeeded'>): this;
+  }
+}

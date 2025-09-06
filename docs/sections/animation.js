@@ -339,45 +339,43 @@ animation.addEventListener('finish', () => {
 
   dom('#pulse-demo').on('click', () => {
     resetBoxes();
-    dom('#appear-box').animate([
-      { transform: 'scale(1)', opacity: 1 },
-      { transform: 'scale(1.1)', opacity: 0.8 },
-      { transform: 'scale(1)', opacity: 1 }
-    ], {
-      duration: 800,
-      iterations: 3,
-      easing: 'ease-in-out'
-    });
+    dom('#appear-box').pulse(800);
   });
 
-  // Sequential animation
+  // Sequential animation via .sequence()
   dom('#sequence-demo').on('click', async () => {
     resetBoxes();
-    const box = dom('#sequence-box');
-
-    // Step 1: Slide right
-    await box.animate([
-      { transform: 'translateX(0px)' },
-      { transform: 'translateX(100px)' }
-    ], { duration: 800, fill: 'forwards' }).finished;
-
-    // Step 2: Slide down
-    await box.animate([
-      { transform: 'translateX(100px) translateY(0px)' },
-      { transform: 'translateX(100px) translateY(60px)' }
-    ], { duration: 800, fill: 'forwards' }).finished;
-
-    // Step 3: Scale and rotate
-    await box.animate([
-      { transform: 'translateX(100px) translateY(60px) scale(1) rotate(0deg)' },
-      { transform: 'translateX(100px) translateY(60px) scale(1.5) rotate(180deg)' }
-    ], { duration: 1000, fill: 'forwards' }).finished;
-
-    // Step 4: Return home with fade
-    await box.animate([
-      { transform: 'translateX(100px) translateY(60px) scale(1.5) rotate(180deg)', opacity: 1 },
-      { transform: 'translateX(0px) translateY(0px) scale(1) rotate(0deg)', opacity: 1 }
-    ], { duration: 1200, fill: 'forwards' }).finished;
+    await dom('#sequence-box').sequence([
+      [
+        [
+          { transform: 'translateX(0px)' },
+          { transform: 'translateX(100px)' }
+        ],
+        { duration: 800, fill: 'forwards' }
+      ],
+      [
+        [
+          { transform: 'translateX(100px) translateY(0px)' },
+          { transform: 'translateX(100px) translateY(60px)' }
+        ],
+        { duration: 800, fill: 'forwards' }
+      ],
+      [
+        [
+          { transform: 'translateX(100px) translateY(60px) rotate(0deg)' },
+          { transform: 'translateX(100px) translateY(60px) rotate(180deg)' }
+        ],
+        { duration: 800, fill: 'forwards' }
+      ],
+      200,
+      [
+        [
+          { transform: 'translateX(100px) translateY(60px) scale(1) rotate(180deg)', opacity: 1 },
+          { transform: 'translateX(0px) translateY(0px) scale(1) rotate(0deg)', opacity: 1 }
+        ],
+        { duration: 1200, fill: 'forwards' }
+      ]
+    ]);
   });
 
   function resetPresetDemo() {
@@ -392,7 +390,7 @@ animation.addEventListener('finish', () => {
     const duration = parseInt(dom('#duration-input').val()) || 400;
     resetPresetDemo();
     dom('#preset-demo-box').css('opacity', '0');
-    dom('#preset-demo-box').fadeIn(duration);
+    dom('#preset-demo-box').withVisible().fadeIn(duration);
     dom('#preset-output').html(`<strong>Fade In animation!</strong> Duration: ${duration}ms. The element fades from transparent to opaque.`);
   });
 
@@ -407,7 +405,7 @@ animation.addEventListener('finish', () => {
     const duration = parseInt(dom('#duration-input').val()) || 400;
     resetPresetDemo();
     dom('#preset-demo-box').css({ transform: 'translateY(20px)', opacity: '0' });
-    dom('#preset-demo-box').slideUp(duration);
+    dom('#preset-demo-box').withVisible().slideUp(duration);
     dom('#preset-output').html(`<strong>Slide Up animation!</strong> Duration: ${duration}ms. The element slides up while fading in.`);
   });
 
@@ -415,7 +413,7 @@ animation.addEventListener('finish', () => {
     const duration = parseInt(dom('#duration-input').val()) || 400;
     resetPresetDemo();
     dom('#preset-demo-box').css({ transform: 'translateY(-20px)', opacity: '0' });
-    dom('#preset-demo-box').slideDown(duration);
+    dom('#preset-demo-box').withVisible().slideDown(duration);
     dom('#preset-output').html(`<strong>Slide Down animation!</strong> Duration: ${duration}ms. The element slides down while fading in.`);
   });
 
