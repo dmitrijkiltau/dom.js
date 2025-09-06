@@ -185,6 +185,63 @@ export function installAnimationMethods() {
     return Promise.all(promises).then(() => this);
   };
 
+  // Visibility helper: returns an object with animation methods that ensure the
+  // element is visible (sets display) before animating. Useful when duration is
+  // reduced to 0 by prefers-reduced-motion, to still land in a visible state.
+  (DOMCollection as any).prototype.withVisible = function (display?: string) {
+    const base: DOMCollection = this;
+    const setVisible = (h: HTMLElement) => {
+      if (display !== undefined) {
+        (h.style.display as any) = display;
+      } else {
+        showEl(h);
+      }
+    };
+    const api: any = {};
+    api.animate = function (keyframes: Keyframe[] | PropertyIndexedKeyframes, options?: KeyframeAnimationOptions) {
+      if (!hasDOM()) return Promise.resolve(base);
+      const promises: Promise<void>[] = [];
+      for (const el of base.elements) {
+        const h = el as HTMLElement;
+        promises.push(enqueue(h, async () => {
+          setVisible(h);
+          if (motionDisabled()) return; // already visible; no animation
+          const anim = track(h, animate(h, keyframes as any, durationWithPrefs(options)));
+          try { await anim.finished; } catch {}
+        }));
+      }
+      return Promise.all(promises).then(() => base);
+    };
+    api.sequence = function (steps: SequenceStep[]) {
+      if (!hasDOM()) return Promise.resolve(base);
+      const proms: Promise<void>[] = [];
+      for (let i = 0; i < base.elements.length; i++) {
+        const h = base.elements[i] as HTMLElement;
+        proms.push(enqueue(h, async () => {
+          setVisible(h);
+          for (const step of steps) {
+            if (typeof step === 'number') { await sleep(Math.max(0, motionDisabled() ? 0 : step)); continue; }
+            const [keyframes, baseOpts] = typeof step === 'function' ? step(h, i) : step;
+            const opts = durationWithPrefs(baseOpts);
+            if (motionDisabled()) continue;
+            const anim = track(h, animate(h, keyframes as any, opts));
+            try { await anim.finished; } catch {}
+          }
+        }));
+      }
+      return Promise.all(proms).then(() => base);
+    };
+    api.fadeIn = function (duration?: number) {
+      const [kf, op] = animations.fadeIn(duration);
+      return api.animate(kf, op);
+    };
+    api.slideDown = function (duration?: number) {
+      const [kf, op] = animations.slideDown(duration);
+      return api.animate(kf, op);
+    };
+    return api;
+  };
+
   // Control helpers (pause/resume/cancel/stop)
   (DOMCollection as any).prototype.pause = function () {
     if (!hasDOM()) return this;

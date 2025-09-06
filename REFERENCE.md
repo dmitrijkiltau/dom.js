@@ -11,7 +11,7 @@ This reference provides a compact, scan-friendly overview of dom.js: entries, mo
 | `@dmitrijkiltau/dom.js/http`            | HTTP client                                          | Yes                   | ~0.7 KB                | API calls only |
 | `@dmitrijkiltau/dom.js/template`        | Template engine (render/use/mount, escape helpers)   | Yes                   | ~2.8 KB                | HTML templates |
 | `@dmitrijkiltau/dom.js/forms`           | Form serialize/populate/reset/validate/submit        | Yes                   | ~1.7 KB                | Forms utilities |
-| `@dmitrijkiltau/dom.js/motion`          | Animations + collection helpers installer            | Yes                   | ~6.5 KB                | Web Animations |
+| `@dmitrijkiltau/dom.js/motion`          | Animations and composition helpers                   | Yes                   | ~6.5 KB                | Web Animations |
 | `@dmitrijkiltau/dom.js/utils`           | debounce/throttle/nextTick/raf(/rafThrottle)         | Yes                   | tiny                   | Scheduling & rate‑limit |
 | `@dmitrijkiltau/dom.js/observers`       | onIntersect/onResize/onMutation wrappers             | Yes                   | tiny                   | Observers |
 | `@dmitrijkiltau/dom.js/scroll`          | scrollIntoView helpers                               | Yes                   | tiny                   | Scrolling |
@@ -27,7 +27,7 @@ Note: “Import‑safe on server” means modules do not access `window`/`docume
 | `template`                   | `renderTemplate`, `useTemplate`, `mountTemplate`, `hydrateTemplate`, `tpl`, `setTemplateDevMode`, `escapeHTML`, `unsafeHTML` |
 | `forms`                      | `serializeForm`, `toFormData`, `toQueryString`, `setForm`, `resetForm`, `validateForm`, `onSubmit`, `isValid` |
 | `http`                       | `http`, `appendQuery` |
-| `motion`                     | `animate`, `animations`, `installAnimationMethods` |
+| `motion`                     | `animate`, `animations`, `sequence`, `stagger` |
 | `utils`                      | `debounce`, `throttle`, `nextTick`, `raf`, `rafThrottle` (plus helpers like `toArray`, `isString`) |
 | `observers`                  | `onIntersect`, `onResize`, `onMutation` |
 | `scroll`                     | `scrollIntoView`, `scrollIntoViewIfNeeded` |
@@ -156,7 +156,8 @@ Utilities:
 - Presets: `animations.fadeIn/fadeOut/slideUp/slideDown/pulse/shake(duration?)`
 - Sequences: `sequence(steps)` → returns runner `(el, idx) => Promise<void>`; `steps` can be `[keyframes, options]`, function `(el, idx) => [keyframes, options]`, or a `number` delay in ms.
 - Stagger: `stagger(stepMs, fn)` → returns runner for collections/arrays; runs `fn(el, idx)` per element with `idx * stepMs` delay, integrated with per‑element queue. `fn` may return an `Animation` or a `Promise`.
-- Install collection helpers: `installAnimationMethods()` → adds `.fadeIn/.fadeOut/.fadeToggle/.slideUp/.slideDown/.slideToggle/.pulse/.shake()`, plus `.sequence(steps)` and `.stagger(stepMs, fn)`; all helpers are queued per‑element and return `Promise<DOMCollection>`
+- Collection helpers (.fadeIn/.fadeOut/.fadeToggle/.slideUp/.slideDown/.slideToggle/.pulse/.shake/.sequence/.stagger) are available on `DOMCollection` in the full bundle; they are queued per‑element and return `Promise<DOMCollection>`
+- Visibility wrapper: `withVisible([display])` returns animation helpers that make elements visible (set `display`) before animating — ensures correct state when reduced‑motion collapses durations to 0.
 
 ## Utilities & Observers & Scroll
 

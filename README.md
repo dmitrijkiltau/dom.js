@@ -293,6 +293,11 @@ await dom('.item').stagger(100, (el, i) =>
     { opacity: 1, transform: 'translateY(0px)' }
   ], { duration: 300, fill: 'forwards' })
 );
+
+// Ensure visibility before animating (e.g., with reduced motion)
+await dom('.panel').withVisible().fadeIn(250);
+// Custom display value
+await dom('#row').withVisible('flex').slideDown(200);
 ```
 
 ## Utilities & Observers
