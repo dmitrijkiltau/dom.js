@@ -154,7 +154,9 @@ Utilities:
 
 - Low‑level: `animate(el, keyframes, options)` → `Animation`
 - Presets: `animations.fadeIn/fadeOut/slideUp/slideDown/pulse/shake(duration?)`
-- Install collection helpers: `installAnimationMethods()` → adds `.fadeIn/.fadeOut/.fadeToggle/.slideUp/.slideDown/.slideToggle/.pulse/.shake()`; helpers are queued per‑element and return `Promise<DOMCollection>`
+- Sequences: `sequence(steps)` → returns runner `(el, idx) => Promise<void>`; `steps` can be `[keyframes, options]`, function `(el, idx) => [keyframes, options]`, or a `number` delay in ms.
+- Stagger: `stagger(stepMs, fn)` → returns runner for collections/arrays; runs `fn(el, idx)` per element with `idx * stepMs` delay, integrated with per‑element queue. `fn` may return an `Animation` or a `Promise`.
+- Install collection helpers: `installAnimationMethods()` → adds `.fadeIn/.fadeOut/.fadeToggle/.slideUp/.slideDown/.slideToggle/.pulse/.shake()`, plus `.sequence(steps)` and `.stagger(stepMs, fn)`; all helpers are queued per‑element and return `Promise<DOMCollection>`
 
 ## Utilities & Observers & Scroll
 

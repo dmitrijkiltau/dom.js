@@ -274,10 +274,25 @@ const users = await r.json();
 ## Motion
 
 ```js
-import { animate, animations } from "@dmitrijkiltau/dom.js/motion";
+import { animate, animations, sequence, stagger } from "@dmitrijkiltau/dom.js/motion";
 
 const [kf, op] = animations.fadeIn(250);
 await animate(dom(".box").el(), kf, op).finished;
+
+// Sequence multiple animations on the same element
+await dom('#card').sequence([
+  animations.slideDown(200),
+  100, // wait 100ms
+  animations.pulse(400)
+]);
+
+// Stagger across a list
+await dom('.item').stagger(100, (el, i) =>
+  dom(el).animate([
+    { opacity: 0, transform: 'translateY(8px)' },
+    { opacity: 1, transform: 'translateY(0px)' }
+  ], { duration: 300, fill: 'forwards' })
+);
 ```
 
 ## Utilities & Observers
