@@ -384,7 +384,10 @@ function makeProgressStream(body: any, onProgress: (p: { loaded: number; total?:
   }).pipeThrough(new TransformStream<Uint8Array, Uint8Array>({
     transform(chunk, controller) {
       loaded += chunk.byteLength;
-      onProgress({ loaded, total, percent: total ? (loaded / total) * 100 : undefined });
+      {
+        const percent = total ? (loaded / total) * 100 : undefined;
+        onProgress({ loaded, total, ...(percent === undefined ? {} : { percent }) });
+      }
       controller.enqueue(chunk);
     }
   }));
@@ -400,7 +403,10 @@ function makeBlobProgressStream(blob: Blob, onProgress: (p: { loaded: number; to
       const { done, value } = await reader.read();
       if (done) { controller.close(); return; }
       loaded += value?.byteLength || 0;
-      onProgress({ loaded, total, percent: total ? (loaded / total) * 100 : undefined });
+      {
+        const percent = total ? (loaded / total) * 100 : undefined;
+        onProgress({ loaded, total, ...(percent === undefined ? {} : { percent }) });
+      }
       if (value) controller.enqueue(value);
     },
     cancel() { reader.cancel(); }

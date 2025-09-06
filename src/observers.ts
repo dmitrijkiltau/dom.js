@@ -21,7 +21,11 @@ export function onIntersect(
 ): () => void {
   const els = resolveTargets(targets);
   if (typeof (globalThis as any).IntersectionObserver === 'undefined' || els.length === 0) return () => {};
-  const { once, ...init } = options || {};
+  const once = options?.once;
+  const ioInit: IntersectionObserverInit = {};
+  if (options?.root !== undefined) ioInit.root = options.root as (Element | Document | null);
+  if (options?.rootMargin !== undefined) ioInit.rootMargin = options.rootMargin as string;
+  if (options?.threshold !== undefined) ioInit.threshold = options.threshold as number | number[];
   const obs = new IntersectionObserver((entries) => {
     for (const entry of entries) {
       const el = entry.target as Element;
@@ -31,7 +35,7 @@ export function onIntersect(
       }
       callback(entry, el, unobserve);
     }
-  }, init);
+  }, ioInit);
   els.forEach(el => obs.observe(el));
   return () => { try { obs.disconnect(); } catch {} };
 }
@@ -78,7 +82,7 @@ export function inView(
       }
     },
     // Delegate IO config but manage `once` ourselves to ensure it tracks threshold-enter specifically
-    { root: options.root, rootMargin: options.rootMargin, threshold: options.threshold }
+    options
   );
 
   const api = {
