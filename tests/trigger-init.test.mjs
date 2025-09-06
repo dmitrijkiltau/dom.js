@@ -58,5 +58,21 @@ test('trigger() accepts CustomEventInit directly', () => {
   if (got !== 42) throw new Error('Expected detail to be 42');
 });
 
+test('trigger(event) dispatches a ready Event instance without wrapping', () => {
+  const btn = document.getElementById('btn');
+  const ev = new dom.window.CustomEvent('ping', { detail: { ok: true }, bubbles: false });
+  let same = false; let detailOk = false; let typeOk = false; let bubbled = false;
+  document.getElementById('root').addEventListener('ping', () => { bubbled = true; });
+  btn.addEventListener('ping', (e) => {
+    same = e === ev;
+    detailOk = (e instanceof dom.window.CustomEvent) && e.detail.ok === true;
+    typeOk = e.type === 'ping';
+  });
+  api(btn).trigger(ev);
+  if (!same) throw new Error('Expected the same Event instance to be dispatched');
+  if (!detailOk || !typeOk) throw new Error('Event instance properties lost or changed');
+  if (bubbled) throw new Error('Expected no bubbling when event.bubbles = false');
+});
+
 console.log(`\n📊 trigger() tests: ${passed} passed, ${failed} failed`);
 if (failed > 0) process.exit(1);

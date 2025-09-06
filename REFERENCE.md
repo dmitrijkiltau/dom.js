@@ -40,6 +40,7 @@ Note: “Import‑safe on server” means modules do not access `window`/`docume
 - Events: `dom.on/once/off(target, types[, selector], handler, options)`, `dom.ready(fn)`
   - Supports direct and delegated forms for `Element`, `Document`, and `Window`
   - Multiple event types and namespaces (e.g. `"click resize.ns"`) supported
+  - Namespace-only unbind supported: pass just the namespace token (e.g. `off(target, '.ns')`)
 - Plugins: `dom.use(plugin)`
 - Class: `dom.DOMCollection`
 
@@ -53,7 +54,8 @@ Selection & traversal:
 - List ops: `.slice(a,b)`, `.map(fn)`, `.get(i?)`
 
 Content & structure:
-- `.text([value])`, `.html([value|Node|DOMCollection])`
+- `.text([value])`, `.html([value|Node|DOMCollection|fn])`
+  - `fn: (el, i) => string|number|null|Node|DOMCollection` applied per element
 - `.append(node|string|DOMCollection)`, `.prepend(node|string|DOMCollection)`
 - `.appendTo(target)`, `.prependTo(target)`
 - `.insertBefore(target)`, `.insertAfter(target)`
@@ -69,7 +71,7 @@ Attributes, properties, values:
 - `.aria(name[, value])` or `.aria(map)` → convenience for `aria-*` attributes
 
 Classes & styles:
-- `.addClass(...names)`, `.removeClass(...names)`, `.toggleClass(names[, force])`, `.hasClass(name)`, `.replaceClass(oldClasses, newClasses)`
+- `.addClass(...names)`, `.removeClass(...names)`, `.toggleClass(names[, force])`, `.toggleClass(map)`, `.hasClass(name)`, `.replaceClass(oldClasses, newClasses)`
 - `.css(name[, value])` or `.css(map)`
 - `.cssVar(name[, value])`, `.cssVars(map)`
 - `.computed(names: "prop1 prop2" | string[])` → `{ name: value }`
@@ -85,6 +87,11 @@ Events (collection):
 - `.on(types[, selector], handler, [options])`, `.once(...)`, `.off([types[, selector[, handler]]])`, `.trigger(type[, init])`
   - `init` accepts `EventInit | CustomEventInit | any` (non‑object becomes `{ detail }`)
   - Defaults to `{ bubbles: true }` if unspecified
+  - Also accepts a ready `Event`/`CustomEvent` instance: `.trigger(event)`; the event is dispatched as‑is
+  - Namespacing: `click.ns` or `click.ns1.ns2`; remove by type+ns (`.off('click.ns')`) or namespace‑only (`.off('.ns')`)
+  - Multiple types: space‑separated (e.g. `'.on("mouseenter mouseleave", ... )'`); removal works per‑type
+  - Delegated off: `.off(types, selector[, handler])` removes only matching delegated handlers for `selector`
+  - AbortController: pass `{ signal }` via options to auto‑unbind on `abort`
 
 Iteration helpers:
 - `.each(fn)` → iterate elements

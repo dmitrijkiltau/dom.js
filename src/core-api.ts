@@ -88,13 +88,23 @@ export function once(target: EventTargetish | DOMCollection, types: string, sele
   return on(target, types, handler, baseOpts);
 }
 
-export function off(target: EventTargetish | DOMCollection, types?: string, handler?: (ev: Event) => void): void {
+export function off(target: EventTargetish | DOMCollection, types?: string, handler?: (ev: Event) => void): void;
+export function off(target: EventTargetish | DOMCollection, types: string, selector: string, handler?: Handler | ((ev: Event) => void)): void;
+export function off(target: EventTargetish | DOMCollection, types?: string, selectorOrHandler?: any, maybeHandler?: any): void {
   const list = target instanceof DOMCollection ? target.elements : [target as any];
-  if (!types) {
+  if (types === undefined) {
     list.forEach(t => removeAllManaged(t as any));
     return;
   }
-  list.forEach(t => removeManaged(t as any, types, handler as any));
+  if (typeof selectorOrHandler === 'function' || selectorOrHandler === undefined) {
+    const handler = selectorOrHandler as Function | undefined;
+    list.forEach(t => removeManaged(t as any, types, handler as any));
+    return;
+  }
+  // Delegated removal by selector (and optional handler)
+  const selector = String(selectorOrHandler);
+  const handler = maybeHandler as Function | undefined;
+  list.forEach(t => removeManaged(t as any, types, selector, handler));
 }
 
 export function ready(fn: () => void): void { domReady(fn); }

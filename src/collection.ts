@@ -206,8 +206,29 @@ export class DOMCollection<T extends Element = Element> {
     if (value === undefined) return (this.elements[0] as unknown as HTMLElement | undefined)?.textContent ?? '';
     return this.each(el => (el as unknown as HTMLElement).textContent = value == null ? '' : String(value));
   }
-  html(value?: string | number | null | Node | DOMCollection): any {
+  html(): string;
+  html(value: string | number | null | Node | DOMCollection): this;
+  html(fn: (el: T, idx: number) => string | number | null | Node | DOMCollection): this;
+  html(value?: any): any {
     if (value === undefined) return (this.elements[0] as unknown as HTMLElement | undefined)?.innerHTML ?? '';
+    if (typeof value === 'function') {
+      const fn = value as (el: T, idx: number) => string | number | null | Node | DOMCollection;
+      return this.each((el, i) => {
+        const res = fn(el, i);
+        const h = el as unknown as HTMLElement;
+        if (typeof res === 'string' || typeof res === 'number' || res === null) {
+          h.innerHTML = res == null ? '' : String(res);
+        } else if (res instanceof DOMCollection) {
+          h.innerHTML = '';
+          for (const n of res.elements) el.appendChild(n);
+        } else if (res instanceof Node) {
+          h.innerHTML = '';
+          el.appendChild(res);
+        } else {
+          h.innerHTML = res == null ? '' : String(res as any);
+        }
+      });
+    }
     if (typeof value === 'string' || typeof value === 'number' || value === null) {
       return this.each(el => (el as unknown as HTMLElement).innerHTML = value == null ? '' : String(value));
     }
@@ -569,8 +590,19 @@ export class DOMCollection<T extends Element = Element> {
       el.classList.add(...newNames);
     });
   }
-  toggleClass(name: string, force?: boolean): this {
-    const allNames = String(name).split(/\s+/).filter(Boolean);
+  toggleClass(map: Record<string, boolean>): this;
+  toggleClass(name: string, force?: boolean): this;
+  toggleClass(nameOrMap: string | Record<string, boolean>, force?: boolean): this {
+    if (typeof nameOrMap === 'object') {
+      const entries = Object.entries(nameOrMap);
+      return this.each(el => {
+        for (const [key, shouldEnable] of entries) {
+          const names = String(key).split(/\s+/).filter(Boolean);
+          for (const n of names) el.classList.toggle(n, !!shouldEnable);
+        }
+      });
+    }
+    const allNames = String(nameOrMap).split(/\s+/).filter(Boolean);
     return this.each(el => {
       for (const n of allNames) el.classList.toggle(n, force as any);
     });
@@ -896,18 +928,23 @@ export class DOMCollection<T extends Element = Element> {
     const handler = maybeHandler as Function | undefined;
     return this.each(el => removeManaged(el, types, selector, handler));
   }
-  trigger(type: string, init?: EventInit | CustomEventInit | any): this {
+  trigger(event: Event): this;
+  trigger(type: string, init?: Event | CustomEvent | EventInit | CustomEventInit | any): this;
+  trigger(typeOrEvent: any, init?: any): this {
     return this.each(el => {
       const view = (el as any).ownerDocument?.defaultView as (Window | undefined);
       const EvCtor = (view && (view as any).Event) || (typeof Event !== 'undefined' ? Event : undefined);
       const CevCtor = (view && (view as any).CustomEvent) || (typeof CustomEvent !== 'undefined' ? CustomEvent : undefined);
 
+      const isEventInstance = (v: any) => !!v && ((view && (v instanceof (view as any).Event)) || (v instanceof (globalThis as any).Event));
+
       let event: Event;
-      if (init && typeof init === 'object' && (view && (init instanceof (view as any).Event))) {
-        event = init as Event;
-      } else if (init instanceof (globalThis as any).Event) {
+      if (isEventInstance(typeOrEvent)) {
+        event = typeOrEvent as Event;
+      } else if (isEventInstance(init)) {
         event = init as Event;
       } else {
+        const type = String(typeOrEvent);
         const isInitLike = (v: any) => v && typeof v === 'object' && ('detail' in v || 'bubbles' in v || 'cancelable' in v || 'composed' in v);
         const opts: any = (init !== undefined)
           ? (isInitLike(init) ? { ...(init as any) } : { detail: init })

@@ -118,7 +118,9 @@ dom(".items")
   .addClass("active")
   .css({ opacity: 0.9 })
   .on("mouseenter", (e, el) => dom(el).toggleClass("hover"))
-  .append("<span>Hi</span>");
+  .append("<span>Hi</span>")
+  // Per-node HTML transform
+  .html((el, i) => i === 0 ? '<b>First</b>' : (() => { const n = document.createElement('i'); n.textContent = 'Second'; return n; })());
 ```
 
 Highlights by category:
@@ -126,6 +128,7 @@ Highlights by category:
 - Content & attrs: `text`, `html`, `append`, `prepend`, `before`, `after`, `replaceWith`, `wrap*`, `empty`, `clone`, `attr/attrs`, `prop`, `val`, `data`
   - `.dataset(map)` to set multiple `data-*` attrs; `.aria(name[, value])` and `.aria(map)` helpers
 - Classes & CSS: `addClass/removeClass/toggleClass/hasClass`, `css`, `cssVar/cssVars`, `computed`
+  - `toggleClass(name[, force])` or `toggleClass({ name: boolean, ... })` for batch toggling
 - Visibility & layout: `show/hide/toggle/isVisible`, `width/height/inner*/outer*`, `offset/position/offsetParent`, `scrollTop/scrollLeft`, `rect`
 - Events: `on/once/off/trigger`, shortcuts like `click`, `focus`, `blur`, `hover`, pointer/touch helpers
   - `.trigger(type[, init])` accepts `EventInit | CustomEventInit` and defaults to `{ bubbles: true }`; non‑object becomes `{ detail }`.
@@ -220,11 +223,35 @@ Top‑level helpers work with `window`, `document`, Elements, and DOMCollections
 ```js
 import dom, { on, once, off, ready } from "@dmitrijkiltau/dom.js";
 
+// Multiple types + namespaces
 const stop = on(window, "scroll resize.ns", handler, { passive: true });
 stop(); // unbind
 
 dom(".btn").on("click focus", (e, el) => {/* ... */}, { passive: true }).once("click", () => {/* ... */});
 dom("#list").on("click", "a.item", (e, link, i) => {/* delegated */});
+
+// Namespace management
+// - Remove by type+namespace
+off(window, "resize.ns");
+// - Remove by namespace only (all types with .ns)
+off(window, ".ns");
+
+// Delegated off() on collections
+const $wrap = dom("#wrap");
+$wrap.on("click.nav", "a.alpha", alphaHandler);
+$wrap.on("click.nav", "a.beta", betaHandler);
+// Remove only alpha delegated handler
+$wrap.off("click.nav", "a.alpha");
+
+// Abort with { signal }
+const c = new AbortController();
+on(document, "click.debug", handler, { signal: c.signal });
+// later
+c.abort(); // auto‑unbinds and prunes internal store
+
+// Trigger can take a ready Event instance, dispatched as-is
+const ev = new Event('custom', { bubbles: false });
+dom('#btn').trigger(ev);
 ```
 
 ## HTTP
