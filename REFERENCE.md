@@ -130,9 +130,10 @@ Performance:
 
 ## Forms (forms module)
 
-- `serializeForm(form)`, `toFormData(obj)`, `toQueryString(obj)`
+- `serializeForm<T = Record<string, any>>(form)` → nested object
+- `toFormData(obj)`, `toQueryString(obj)`
 - `setForm(form, values)`, `resetForm(form)`, `validateForm(form)`, `isValid(form)`
-- `onSubmit(form, (data, event) => Promise|void)`
+- `onSubmit<T = Record<string, any>>(form, (data: T, event) => Promise|void)`
 
 ## HTTP (http module)
 
@@ -169,6 +170,13 @@ Utilities:
 
 - Generics: `dom<T>(selector)` → `DOMCollection<T>` for typed chains
 - Events: names map to DOM event types (top‑level and collection)
+- Custom events typing: augment `interface CustomEventMap {}` in `@dmitrijkiltau/dom.js` to map names → detail payloads. Overloads enable:
+  - `dom.on(window|document|element, 'my:event', (e) => e.detail …)`
+  - `dom('#btn').on<'my:event'>('my:event', (e) => e.detail …)`
+- Typed serialization:
+  - `DOMCollection.prototype.serialize<T = Record<string, any>>(): T`
+  - `serializeForm<T = Record<string, any>>(form): T` (forms module)
+  - `onSubmit<T = Record<string, any>>(form, (data: T, ev) => …)` (forms module)
 - Augmentation: `declare module '@dmitrijkiltau/dom.js' { interface Dom { … } }` then `dom.use(api => { /* add methods */ })`
 Notes:
 - For explicit raw HTML intent, templates may use `data-html="unsafe(expr)"`.
