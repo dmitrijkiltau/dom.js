@@ -88,3 +88,35 @@ const api = Object.assign(function core<T extends Element = Element>(input?: Sel
 
 export type ServerDom = typeof api;
 export default api;
+
+// ——— Type augmentations (so server entry has typed stubs) ———
+declare module './collection' {
+  interface DOMCollection<T extends Element = Element> {
+    // Motion (promise-returning)
+    animate(keyframes: Keyframe[] | PropertyIndexedKeyframes, options?: KeyframeAnimationOptions): Promise<this>;
+    sequence(steps: Array<[Keyframe[] | PropertyIndexedKeyframes, KeyframeAnimationOptions] | ((el: HTMLElement, idx: number) => [Keyframe[] | PropertyIndexedKeyframes, KeyframeAnimationOptions]) | number>): Promise<this>;
+    stagger(stepMs: number, fn: (el: HTMLElement, idx: number) => any): Promise<this>;
+    fadeIn(duration?: number): Promise<this>;
+    fadeOut(duration?: number): Promise<this>;
+    fadeToggle(duration?: number): Promise<this>;
+    slideUp(duration?: number): Promise<this>;
+    slideDown(duration?: number): Promise<this>;
+    slideToggle(duration?: number): Promise<this>;
+    pulse(duration?: number): Promise<this>;
+    shake(duration?: number): Promise<this>;
+    withVisible(display?: string): {
+      animate: (keyframes: Keyframe[] | PropertyIndexedKeyframes, options?: KeyframeAnimationOptions) => Promise<DOMCollection<T>>;
+      sequence: (steps: Array<[Keyframe[] | PropertyIndexedKeyframes, KeyframeAnimationOptions] | ((el: HTMLElement, idx: number) => [Keyframe[] | PropertyIndexedKeyframes, KeyframeAnimationOptions]) | number>) => Promise<DOMCollection<T>>;
+      fadeIn: (duration?: number) => Promise<DOMCollection<T>>;
+      slideDown: (duration?: number) => Promise<DOMCollection<T>>;
+    };
+    // Motion control
+    pause(): this;
+    resume(): this;
+    cancel(): this;
+    stop(jumpToEnd?: boolean): this;
+    // Scroll
+    scrollIntoView(options?: import('./scroll').ScrollOptions): this;
+    scrollIntoViewIfNeeded(options?: Omit<import('./scroll').ScrollOptions, 'ifNeeded'>): this;
+  }
+}
