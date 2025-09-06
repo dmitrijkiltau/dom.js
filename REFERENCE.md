@@ -147,7 +147,7 @@ Requests:
 Client builders (chainable):
 - `withBaseUrl(baseUrl)`, `withHeaders(headers)`, `withQuery(params)`, `withTimeout(ms)`, `withJSON()`
 - `withRetry({ retries, retryDelay, retryBackoff, retryOn })`, `withInterceptors({ onRequest, onResponse, onError })`
-- `withCache({ enabled, ttl, key })`, `withThrowOnError([true])`
+- `withCache({ enabled, ttl, key, methods })`, `withThrowOnError([true])`
 
 Per‑request options (subset): `baseUrl`, `query`, `headers`, `timeout`, `controller`/`signal`, `throwOnError`, `onUploadProgress`, `retries`, `retryDelay`, `retryBackoff`, `retryOn`, `cacheKey`, `cacheTtl`, `noCache`.
 
@@ -157,6 +157,7 @@ Utilities:
 
 Notes:
 - Smart JSON: when `body` is a plain object, the client serializes it with `JSON.stringify` and sets `Content-Type: application/json` unless you already set a `Content-Type` header. Use `withJSON()` to also send `Accept: application/json` by default.
+- Caching guardrails: caches only `GET` by default. To cache other methods, pass `withCache({ enabled: true, methods: ['GET', 'POST'] })`. When caching non‑GET requests, the default cache key becomes `method:url:body=<hash>` where `<hash>` is a stable digest of the request body.
 
 ## Motion (motion module)
 

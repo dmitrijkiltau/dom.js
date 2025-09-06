@@ -276,6 +276,10 @@ await api.post('/users', { name: 'Ada' }); // sends JSON with Content-Type: appl
 // JSON-focused client (adds Accept: application/json by default)
 const apiJson = api.withJSON();
 const created = await apiJson.post('/users', { name: 'Lin' }).then(r => r.json());
+
+// Opt-in caching for non‑GET methods (includes body hash in key)
+const apiCached = api.withCache({ enabled: true, methods: ['GET', 'POST'] });
+await apiCached.post('/users', { name: 'Mia' }, { cacheTtl: 5_000 });
 ```
 
 ## Motion

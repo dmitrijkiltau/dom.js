@@ -16,6 +16,7 @@ export type CacheOptions = {
   enabled?: boolean;
   ttl?: number; // ms
   key?: (ctx: { method: string; url: string; init: HttpInit }) => string;
+  methods?: string[]; // which HTTP methods to cache, default ['GET']
 };
 
 export type HttpInit = RequestInit & RetryOptions & {
@@ -170,7 +171,12 @@ function createClient(config: ClientConfig = {}): HttpMethod {
 
     // Caching pre-check
     const cacheOpts = cfg.cache || {};
-    const cacheEnabled = (cacheOpts.enabled ?? false) && method === 'GET' && !mergedInit.noCache;
+    // Allow only GET by default; users can opt into other methods via cache.methods
+    const allowedMethods = cacheOpts.methods ?? ['GET'];
+    const cacheEnabled = (cacheOpts.enabled ?? false) && allowedMethods.includes(method) && !mergedInit.noCache;
+    // Precompute a stable body hash for non-GET caching scenarios before body may be converted to a stream
+    const preBodyHash = method !== 'GET' ? computeBodyHash(originalBody) : null;
+    if (preBodyHash) (mergedInit as any).__bodyHash = preBodyHash;
     const cacheKey = mergedInit.cacheKey || (cacheOpts.key ? cacheOpts.key(reqCtx) : defaultCacheKey(reqCtx));
     if (cacheEnabled) {
       const cached = cache.get(cacheKey);
@@ -331,8 +337,14 @@ export function appendQuery(url: string, params: QueryParams): string {
 }
 
 function defaultCacheKey(ctx: { method: string; url: string; init: HttpInit }) {
-  // Cache by method + url (+ body hash for non-GET if opted-in later)
-  return `${ctx.method}:${ctx.url}`;
+  // Cache by method + url (+ body hash for non-GET when caching non-GET is enabled)
+  let key = `${ctx.method}:${ctx.url}`;
+  if (ctx.method !== 'GET') {
+    const pre = (ctx.init as any).__bodyHash as string | undefined;
+    const bh = pre || computeBodyHashFromInit(ctx.init);
+    if (bh) key += `:body=${bh}`;
+  }
+  return key;
 }
 
 function cloneResponse(res: Response): Response {
@@ -367,6 +379,80 @@ async function handleErrorInterceptors(ints: Interceptors[], ctx: ErrorContext):
 }
 
 // ——— Upload progress helpers ———
+function fnv1a32Hex(str: string): string {
+  let h = 0x811c9dc5; // offset basis
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    // 32-bit FNV-1a prime 16777619
+    h = (h >>> 0) + ((h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24));
+  }
+  // convert to unsigned 32-bit hex
+  return (h >>> 0).toString(16).padStart(8, '0');
+}
+
+function hashBytesHex(bytes: Uint8Array): string {
+  // Efficiently hash bytes by mapping to a string of char codes in chunks
+  let h = 0x811c9dc5 >>> 0;
+  const fnvPrime = 0x01000193; // 16777619
+  for (let i = 0; i < bytes.length; i++) {
+    h ^= (bytes[i] ?? 0);
+    h = Math.imul(h, fnvPrime) >>> 0;
+  }
+  return h.toString(16).padStart(8, '0');
+}
+
+function stableStringify(value: any): string {
+  const seen = new WeakSet();
+  const helper = (v: any): any => {
+    if (v === null || typeof v !== 'object') return v;
+    if (seen.has(v)) return '[Circular]';
+    seen.add(v);
+    if (Array.isArray(v)) return v.map(helper);
+    const keys = Object.keys(v).sort();
+    const out: Record<string, any> = {};
+    for (const k of keys) out[k] = helper(v[k]);
+    return out;
+  };
+  return JSON.stringify(helper(value));
+}
+
+function describeFormData(fd: FormData): string {
+  const parts: string[] = [];
+  // FormData preserves order; to be stable independent of construction order, sort by key+desc
+  for (const [k, v] of (Array.from(fd as any) as Array<[string, any]>)) {
+    let desc: string;
+    if (typeof v === 'string') desc = `s:${v}`;
+    else {
+      const blob = v as Blob & { name?: string };
+      const name = (blob as any).name || '';
+      desc = `b:${blob.size}:${blob.type || ''}:${name}`;
+    }
+    parts.push(`${k}=${desc}`);
+  }
+  parts.sort();
+  return parts.join('&');
+}
+
+function computeBodyHashFromInit(init: HttpInit): string | null {
+  try { return computeBodyHash((init as any).body); } catch { return null; }
+}
+
+function computeBodyHash(body: any): string | null {
+  try {
+    if (body == null) return '0';
+    if (typeof body === 'string') return fnv1a32Hex('s:' + body);
+    if (typeof URLSearchParams !== 'undefined' && body instanceof URLSearchParams) return fnv1a32Hex('u:' + body.toString());
+    if (body instanceof Blob) return fnv1a32Hex(`b:${body.size}:${body.type || ''}`);
+    if (body instanceof ArrayBuffer) return hashBytesHex(new Uint8Array(body));
+    if (ArrayBuffer.isView(body)) return hashBytesHex(new Uint8Array(body.buffer, body.byteOffset, body.byteLength));
+    if (typeof FormData !== 'undefined' && body instanceof FormData) return fnv1a32Hex('f:' + describeFormData(body));
+    if (typeof ReadableStream !== 'undefined' && body instanceof ReadableStream) return 'stream';
+    if (typeof body === 'object') return fnv1a32Hex('j:' + stableStringify(body));
+    return fnv1a32Hex('x:' + String(body));
+  } catch {
+    return null;
+  }
+}
 function isPlainObject(value: any): value is Record<string, any> {
   if (value == null || typeof value !== 'object') return false;
   if (value instanceof FormData) return false;
