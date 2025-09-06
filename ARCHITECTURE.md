@@ -74,6 +74,19 @@ Environment safeguards:
 
 See `README.md` for SSR usage examples.
 
+### Template Hydration
+
+The template engine supports client‑side hydration that binds event listeners and data bindings to server‑rendered HTML, instead of re‑creating nodes.
+
+- Structural directives (`data-if/elseif/else`, `data-each`, `data-include`) are compiled to plans that render with paired anchor comments: `if:start/if:end`, `each:start/each:end`, `include:start/include:end`.
+- During hydration, the same Plans use these anchors to locate the existing DOM subtree and wire up bindings:
+  - Element plans: attach non‑structural bindings (`data-text`, `data-html`, `data-attr-*`, `data-on-*`, `data-show/hide`) directly to the live element, then hydrate child plans in order.
+  - If plans: detect the active branch between `if` anchors, hydrate the branch, and on updates switch branches (removing/re‑inserting between anchors) while preserving the anchors.
+  - Each plans: on first update, hydrate existing children between `each` anchors into row programs; subsequent updates perform keyed/non‑keyed diffing as usual.
+  - Include plans: attempt to hydrate static includes if the precompiled partial matches the existing node; otherwise instantiate on first update.
+
+API: `hydrateTemplate(ref, root, data)` returns `{ el, update, destroy }` similar to `mountTemplate`. It expects that `root` corresponds to the first element inside the template `ref` as rendered on the server and that structural anchors are present in the HTML.
+
 ## Bundling & Imports
 
 dom.js ships pure ESM with subpath exports to support three common patterns:
@@ -96,6 +109,23 @@ These entry points are designed for good tree‑shaking in modern bundlers. See 
 | Motion          | ~6.5 KB   | Animations                    |
 
 Actual sizes depend on your bundler and configuration.
+
+## Template Engine (Plan/Program)
+
+The template system compiles HTML templates to a reusable Plan (parse once) and instantiates Programs (per mount/update):
+
+- Plan: result of a single DOM walk that normalizes a template node, collects binding factories, and compiles structural directives (`if/elseif/else`, `each`, `include`). Plans are pure and reusable.
+- Program: per‑instance object `{ node, update(data), destroy() }` created from a Plan. It clones the normalized blueprint, attaches listeners, and wires updaters.
+
+Caching:
+- A `WeakMap<HTMLTemplateElement, Plan>` caches compiled plans per template element. `useTemplate(ref)` and `renderTemplate(ref)` both use this cache.
+- `data-include` reuses the same cache for nested templates. Static `#id` includes are resolved during planning when possible.
+
+Parsing:
+- Non‑structural bindings (`data-text/html/safe-html`, `data-attr-*`, `data-show/hide`) use compiled accessors instead of repeated string path parsing.
+- Event handlers (`data-on-*`) are pre‑parsed once into a function accessor and argument evaluators (literals, paths, `$event`).
+
+This two‑phase design removes repeated parsing/traversal across mounts while keeping the public API unchanged.
 
 ## Contribution Guidelines (Architecture)
 

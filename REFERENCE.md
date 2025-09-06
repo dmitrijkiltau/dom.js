@@ -24,7 +24,7 @@ Note: “Import‑safe on server” means modules do not access `window`/`docume
 | Module                        | Key exports |
 | ---------------------------- | ----------- |
 | `core`                       | `default` (callable `dom()`), `dom`, `fromHTML`, `create`, `on`, `once`, `off`, `ready`, `DOMCollection`, `use` |
-| `template`                   | `renderTemplate`, `useTemplate`, `mountTemplate`, `tpl`, `escapeHTML`, `unsafeHTML` |
+| `template`                   | `renderTemplate`, `useTemplate`, `mountTemplate`, `hydrateTemplate`, `tpl`, `setTemplateDevMode`, `escapeHTML`, `unsafeHTML` |
 | `forms`                      | `serializeForm`, `toFormData`, `toQueryString`, `setForm`, `resetForm`, `validateForm`, `onSubmit`, `isValid` |
 | `http`                       | `http`, `appendQuery` |
 | `motion`                     | `animate`, `animations`, `installAnimationMethods` |
@@ -101,14 +101,25 @@ Forms (collection helpers):
 Functions:
 - `tpl(ref)`, `renderTemplate(ref, data)`, `useTemplate(ref)` → `(data) => Node` with `.mount(data)`
 - `mountTemplate(ref, data)` → `{ el, update(data), destroy() }`
-- Safety: `escapeHTML(str)`, `unsafeHTML(str)`
+- `hydrateTemplate(ref, root, data)` → binds to server-rendered `root` without re-creating DOM; returns `{ el, update, destroy }`
+- Diagnostics: `setTemplateDevMode(true|false)` → log binding errors/invalid expressions in development
+- Safety: `escapeHTML(str)`, `unsafeHTML(str)`, `isUnsafeHTML(str)` (alias)
 
 Bindings (overview):
-- `data-text`, `data-html`, `data-safe-html`, `data-attr-*`, `data-show`, `data-hide`
+- `data-text`, `data-html`, `data-safe-html`
+- `data-attr-*`, `data-on-*`
+- `data-show`, `data-hide`
+- `data-class-<name>`: toggle class on truthy
+- `data-style-<prop>`: set/remove inline style
 - `data-on-<type>="handler(args)"` (event passed as first arg implicitly)
 - Loops: `data-each="items as item, i [by key]"` (supports keyed diff; also `data-key`)
 - Includes: `data-include="#tplId"` or renderer ref, optional `data-with` for context
 - Conditionals: `data-if` / `data-elseif` / `data-else` sibling chains
+
+Performance:
+- Per‑template compile caching: `useTemplate(ref)` caches a compiled plan per `HTMLTemplateElement` (also used by `renderTemplate`).
+- Structural plans: `if/elseif/else`, `each`, and `include` are precompiled and instantiated quickly.
+- Includes consult the same cache for nested templates; event handler specs are parsed once.
 
 ## Forms (forms module)
 
@@ -149,3 +160,6 @@ Utilities:
 - Generics: `dom<T>(selector)` → `DOMCollection<T>` for typed chains
 - Events: names map to DOM event types (top‑level and collection)
 - Augmentation: `declare module '@dmitrijkiltau/dom.js' { interface Dom { … } }` then `dom.use(api => { /* add methods */ })`
+Notes:
+- For explicit raw HTML intent, templates may use `data-html="unsafe(expr)"`.
+- Alternatively, return a wrapper from data using `unsafeHTML(x)` / `isUnsafeHTML(x)` and bind with `data-html="path"`.
