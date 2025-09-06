@@ -1,23 +1,6 @@
-#!/usr/bin/env node
-
+import { test } from 'vitest';
 import { JSDOM } from 'jsdom';
 import { on, once } from '../dist/index.js';
-
-console.log('\n🧪 Testing top-level delegated events (document/window)...');
-
-let passed = 0;
-let failed = 0;
-
-function test(name, fn) {
-  try {
-    fn();
-    console.log(`✅ ${name}`);
-    passed++;
-  } catch (error) {
-    console.error(`❌ ${name}: ${error.message}`);
-    failed++;
-  }
-}
 
 // Setup DOM
 const dom = new JSDOM('<!doctype html><html><body><ul id="list"><li class="item"><a class="link">A</a></li></ul></body></html>');
@@ -44,5 +27,4 @@ test('once() delegated fires only once', () => {
   if (n !== 1) throw new Error('Expected once delegated handler to fire only once');
 });
 
-console.log(`\n📊 Top-level delegation: ${passed} passed, ${failed} failed`);
-if (failed > 0) process.exit(1);
+// Summary handled by Vitest

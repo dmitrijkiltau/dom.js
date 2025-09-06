@@ -1,23 +1,6 @@
-#!/usr/bin/env node
-
+import { test } from 'vitest';
 import { JSDOM } from 'jsdom';
 import { renderTemplate } from '../dist/template.js';
-
-console.log('\n🧪 Testing data-each template binding...');
-
-let passed = 0;
-let failed = 0;
-
-function test(name, fn) {
-  try {
-    fn();
-    console.log(`✅ ${name}`);
-    passed++;
-  } catch (error) {
-    console.error(`❌ ${name}: ${error.message}`);
-    failed++;
-  }
-}
 
 // Setup DOM
 const dom = new JSDOM('<!doctype html><html><body></body></html>');
@@ -49,5 +32,4 @@ test('Repeats elements for array items', () => {
   if (lis[1].querySelector('em')?.textContent !== '1') throw new Error('Second index mismatch');
 });
 
-console.log(`\n📊 Template Test Results: ${passed} passed, ${failed} failed`);
-if (failed > 0) process.exit(1);
+// Summary handled by Vitest

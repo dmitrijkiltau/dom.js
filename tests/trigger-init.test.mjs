@@ -1,23 +1,6 @@
-#!/usr/bin/env node
-
+import { test } from 'vitest';
 import { JSDOM } from 'jsdom';
 import api from '../dist/index.js';
-
-console.log('\n🧪 Testing trigger() init options (EventInit | CustomEventInit)...');
-
-let passed = 0;
-let failed = 0;
-
-function test(name, fn) {
-  try {
-    fn();
-    console.log(`✅ ${name}`);
-    passed++;
-  } catch (error) {
-    console.error(`❌ ${name}: ${error.message}`);
-    failed++;
-  }
-}
 
 // Setup DOM
 const dom = new JSDOM('<!doctype html><html><body><div id="root"><button id="btn"></button></div></body></html>');
@@ -74,5 +57,4 @@ test('trigger(event) dispatches a ready Event instance without wrapping', () => 
   if (bubbled) throw new Error('Expected no bubbling when event.bubbles = false');
 });
 
-console.log(`\n📊 trigger() tests: ${passed} passed, ${failed} failed`);
-if (failed > 0) process.exit(1);
+// Summary handled by Vitest

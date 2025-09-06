@@ -1,23 +1,6 @@
-#!/usr/bin/env node
-
+import { test } from 'vitest';
 import { JSDOM } from 'jsdom';
 import { renderTemplate, hydrateTemplate } from '../dist/template.js';
-
-console.log('\n🧪 Testing template hydration (SSR -> hydrate)...');
-
-let passed = 0;
-let failed = 0;
-
-function test(name, fn) {
-  try {
-    fn();
-    console.log(`✅ ${name}`);
-    passed++;
-  } catch (error) {
-    console.error(`❌ ${name}: ${error.message}`);
-    failed++;
-  }
-}
 
 // Setup DOM
 const dom = new JSDOM('<!doctype html><html><body></body></html>');
@@ -86,6 +69,4 @@ test('Hydrates server-rendered DOM and wires listeners', () => {
   inst.destroy();
 });
 
-console.log(`\n📊 Hydration Test Results: ${passed} passed, ${failed} failed`);
-if (failed > 0) process.exit(1);
-
+// Summary handled by Vitest

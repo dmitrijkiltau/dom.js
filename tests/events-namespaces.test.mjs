@@ -1,23 +1,6 @@
-#!/usr/bin/env node
-
+import { test } from 'vitest';
 import { JSDOM } from 'jsdom';
 import dom, { on, off } from '../dist/index.js';
-
-console.log('\n🧪 Testing events: namespaces, multiple types, delegated off(), and { signal }...');
-
-let passed = 0;
-let failed = 0;
-
-function test(name, fn) {
-  try {
-    fn();
-    console.log(`✅ ${name}`);
-    passed++;
-  } catch (error) {
-    console.error(`❌ ${name}: ${error.message}`);
-    failed++;
-  }
-}
 
 // Setup DOM
 const domenv = new JSDOM('<!doctype html><html><body><button id="btn">B</button><div id="wrap"><a class="alpha">A</a><a class="beta">B</a></div></body></html>');
@@ -145,5 +128,4 @@ test('{ signal } abort stops handler and pre-aborted signal does not attach', ()
   if (n2 !== 0) throw new Error('pre-aborted signal should not attach');
 });
 
-console.log(`\n📊 Events (namespaces/delegation/signal): ${passed} passed, ${failed} failed`);
-if (failed > 0) process.exit(1);
+// Summary handled by Vitest

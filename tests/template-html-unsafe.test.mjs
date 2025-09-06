@@ -1,23 +1,6 @@
-#!/usr/bin/env node
-
+import { test } from 'vitest';
 import { JSDOM } from 'jsdom';
 import { renderTemplate, isUnsafeHTML, escapeHTML } from '../dist/template.js';
-
-console.log('\n🧪 Testing unsafe HTML bindings...');
-
-let passed = 0;
-let failed = 0;
-
-function test(name, fn) {
-  try {
-    fn();
-    console.log(`✅ ${name}`);
-    passed++;
-  } catch (error) {
-    console.error(`❌ ${name}: ${error.message}`);
-    failed++;
-  }
-}
 
 // Setup DOM
 const dom = new JSDOM('<!doctype html><html><body></body></html>');
@@ -66,6 +49,4 @@ test('isUnsafeHTML wrapper works with data-html', () => {
   if (c.innerHTML !== '<i>em</i>') throw new Error('Expected raw HTML from wrapper in #c');
 });
 
-console.log(`\n📊 Unsafe HTML Test Results: ${passed} passed, ${failed} failed`);
-if (failed > 0) process.exit(1);
-
+// Summary handled by Vitest

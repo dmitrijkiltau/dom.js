@@ -1,28 +1,10 @@
-#!/usr/bin/env node
-
-// Test modular imports
+import { test } from 'vitest';
 import dom from '../dist/index.js';
 import domCore from '../dist/core.js';
 import { http } from '../dist/http.js';
 import { renderTemplate } from '../dist/template.js';
 import { serializeForm } from '../dist/forms.js';
 import { animate, animations } from '../dist/motion.js';
-
-console.log('🧪 Testing modular imports...\n');
-
-let passed = 0;
-let failed = 0;
-
-function test(description, fn) {
-  try {
-    fn();
-    console.log(`✅ ${description}`);
-    passed++;
-  } catch (error) {
-    console.log(`❌ ${description}: ${error.message}`);
-    failed++;
-  }
-}
 
 // Test core module
 test('Core module exports dom function', () => {
@@ -88,11 +70,4 @@ test('Core bundle has fewer features than full bundle', () => {
   if (!dom.renderTemplate) throw new Error('Full bundle should include template functionality');
 });
 
-console.log(`\n📊 Modular Test Results: ${passed} passed, ${failed} failed`);
-
-if (failed > 0) {
-  console.log('❌ Some modular tests failed');
-  process.exit(1);
-} else {
-  console.log('✅ All modular tests passed');
-}
+// Summary handled by Vitest
