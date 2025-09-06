@@ -14,7 +14,7 @@ This reference provides a compact, scan-friendly overview of dom.js: entries, mo
 | `@dmitrijkiltau/dom.js/motion`          | Animations and composition helpers                   | Yes                   | ~6.5 KB                | Web Animations |
 | `@dmitrijkiltau/dom.js/utils`           | debounce/throttle/nextTick/raf(/rafThrottle)         | Yes                   | tiny                   | Scheduling & rate‑limit |
 | `@dmitrijkiltau/dom.js/observers`       | onIntersect/onResize/onMutation wrappers             | Yes                   | tiny                   | Observers |
-| `@dmitrijkiltau/dom.js/scroll`          | scrollIntoView helpers                               | Yes                   | tiny                   | Scrolling |
+| `@dmitrijkiltau/dom.js/scroll`          | scrollIntoView + scroll lock                         | Yes                   | tiny                   | Scrolling |
 | `@dmitrijkiltau/dom.js/server`          | Server‑safe entry (no real DOM ops)                  | Yes                   | —                      | SSR/Node import |
 
 Note: “Import‑safe on server” means modules do not access `window`/`document` at import time. DOM‑touching functions still require a browser.
@@ -30,7 +30,7 @@ Note: “Import‑safe on server” means modules do not access `window`/`docume
 | `motion`                     | `animate`, `animations`, `sequence`, `stagger` |
 | `utils`                      | `debounce`, `throttle`, `nextTick`, `raf`, `rafThrottle` (plus helpers like `toArray`, `isString`) |
 | `observers`                  | `onIntersect`, `onResize`, `onMutation` |
-| `scroll`                     | `scrollIntoView`, `scrollIntoViewIfNeeded` |
+| `scroll`                     | `scrollIntoView`, `scrollIntoViewIfNeeded`, `lockScroll`, `unlockScroll` |
 | `server`                     | `default` (SSR‑safe `dom()` + `http` + utils; DOM ops are guarded) |
 
 ## Top‑Level `dom()` Object (full bundle and core)
@@ -163,7 +163,7 @@ Utilities:
 
 - Utils: `debounce(fn, wait, opts?)`, `throttle(fn, wait, opts?)`, `nextTick(cb?)`, `raf(cb?)`, `rafThrottle(fn)`
 - Observers: `onIntersect(targets, cb, opts?)`, `inView(targets, { threshold, once, ... }?)`, `onResize(targets, cb, opts?)`, `onMutation(targets, cb, opts?)`
-- Scroll: `scrollIntoView(target, opts)`, `scrollIntoViewIfNeeded(target, opts)` and collection counterparts
+- Scroll: `scrollIntoView(target, opts)`, `scrollIntoViewIfNeeded(target, opts)` (also available on collections); `lockScroll(el?)`, `unlockScroll(el?)`
 
 ## Typing & Plugins
 

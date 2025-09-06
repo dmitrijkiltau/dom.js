@@ -94,7 +94,7 @@ import { onSubmit, serializeForm, toFormData, toQueryString, setForm, resetForm,
 import { animate, animations } from "@dmitrijkiltau/dom.js/motion";
 import { debounce, throttle, nextTick, raf, rafThrottle } from "@dmitrijkiltau/dom.js/utils";
 import { onIntersect, inView, onResize, onMutation } from "@dmitrijkiltau/dom.js/observers";
-import { scrollIntoView, scrollIntoViewIfNeeded } from "@dmitrijkiltau/dom.js/scroll";
+import { scrollIntoView, scrollIntoViewIfNeeded, lockScroll, unlockScroll } from "@dmitrijkiltau/dom.js/scroll";
 ```
 
 ## Core API Highlights
@@ -305,7 +305,7 @@ await dom('#row').withVisible('flex').slideDown(200);
 ```js
 import { debounce, throttle, nextTick, raf, rafThrottle } from "@dmitrijkiltau/dom.js/utils";
 import { onIntersect, onResize, onMutation } from "@dmitrijkiltau/dom.js/observers";
-import { scrollIntoView, scrollIntoViewIfNeeded } from "@dmitrijkiltau/dom.js/scroll";
+import { scrollIntoView, scrollIntoViewIfNeeded, lockScroll, unlockScroll } from "@dmitrijkiltau/dom.js/scroll";
 
 const onType = debounce(() => {/* ... */}, 150);
 await nextTick(); await raf();
@@ -323,6 +323,16 @@ io.leave((el) => {
 });
 // Later: io.stop(); // disconnects observer and clears handlers
 scrollIntoView("#details", { behavior: "smooth", block: "start" });
+
+// Lock page scroll while a modal is open
+lockScroll();
+// ... open modal ...
+unlockScroll();
+
+// Lock a specific scrollable container
+lockScroll('#panel');
+// ...
+unlockScroll('#panel');
 ```
 
 ## SSR (Server‑Safe)
