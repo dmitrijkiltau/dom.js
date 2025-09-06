@@ -1,4 +1,4 @@
-import dom, { animations, useTemplate } from '../dist/index.js';
+import dom, { animations, useTemplate, inView, scrollIntoView } from '../dist/index.js';
 import { navigationItems } from './data/navigation.js';
 
 let lastSection = null;
@@ -55,8 +55,7 @@ function initSmoothScrolling() {
 
     // Update URL without reloading and perform smooth scroll
     if (window.location.hash !== `#${id}`) history.pushState(null, '', `#${id}`);
-    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    setActive(id, true);
+    scrollIntoView(target, { behavior: 'smooth', block: 'start' });
   });
 }
 
@@ -69,19 +68,15 @@ function initScrollSpy() {
     return;
   }
 
-  const io = new IntersectionObserver((entries) => {
-    let best = null;
-    for (const e of entries) {
-      if (!e.isIntersecting) continue;
-      if (!best || e.intersectionRatio > best.intersectionRatio) best = e;
-    }
-    if (best) {
-      const changed = setActive(best.target.id, false);
-      if (changed) history.replaceState(null, '', `#${best.target.id}`);
-    }
-  }, { rootMargin: '-64px 0px -60% 0px', threshold: [0, 0.25, 0.5, 0.75, 1] });
-
-  sections.forEach(sec => io.observe(sec));
+  // mark active when a section becomes visible enough
+  const spy = inView(sections, { rootMargin: '-64px 0px -60% 0px', threshold: 0.25 });
+  spy.enter((el, entry) => {
+    const changed = setActive(el.id, false);
+    if (changed) history.replaceState(null, '', `#${el.id}`);
+  }).leave((el) => {
+    // Optionally handle leave of active section: fall back to lastSection if computed by scroll
+    // We keep it simple: if active leaves and no other enter yet, let scroll fallback handle it
+  });
 
   function updateByScroll() {
     const y = window.scrollY + 100;
@@ -186,8 +181,8 @@ function initHashOnLoad() {
   const el = dom(`#${CSS.escape(h)}`).el();
   if (!el) return;
   setTimeout(() => {
-    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    setActive(h, false);
+    // Smooth scroll to the section; active will be set by scroll spy when it enters
+    scrollIntoView(el, { behavior: 'smooth', block: 'start' });
   }, 0);
 }
 
@@ -198,5 +193,3 @@ function initHashChangeSync() {
     if (h) setActive(h);
   });
 }
-
-// Using dom.throttle from library for rate-limiting
