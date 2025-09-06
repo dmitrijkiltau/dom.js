@@ -118,7 +118,9 @@ dom(".items")
   .addClass("active")
   .css({ opacity: 0.9 })
   .on("mouseenter", (e, el) => dom(el).toggleClass("hover"))
-  .append("<span>Hi</span>");
+  .append("<span>Hi</span>")
+  // Per-node HTML transform
+  .html((el, i) => i === 0 ? '<b>First</b>' : (() => { const n = document.createElement('i'); n.textContent = 'Second'; return n; })());
 ```
 
 Highlights by category:

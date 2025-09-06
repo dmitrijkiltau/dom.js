@@ -26,6 +26,7 @@ global.document = dom.window.document;
 global.Element = dom.window.Element;
 global.HTMLElement = dom.window.HTMLElement;
 global.HTMLTemplateElement = dom.window.HTMLTemplateElement;
+global.Node = dom.window.Node;
 
 // Alias
 const $ = api;
@@ -73,6 +74,19 @@ test('html can accept Element and DOMCollection to replace contents', () => {
   $(root).html(new DOMCollection([a, b]));
   const ids = Array.from(root.children).map(c => c.id);
   if (ids.join(',') !== 'h2a,h2b') throw new Error('html(DOMCollection) did not replace content correctly');
+});
+
+test('html can accept a function (el, i) to compute content per node', () => {
+  const a = document.createElement('div'); a.id = 'hcb-a'; a.innerHTML = 'old';
+  const b = document.createElement('div'); b.id = 'hcb-b'; b.innerHTML = 'old';
+  new DOMCollection([a, b]).html((el, i) => {
+    if (i === 0) return '<u id="u1">U1</u>';
+    const n = document.createElement('strong');
+    n.id = 'n1'; n.textContent = 'N1';
+    return n;
+  });
+  if (a.firstElementChild?.id !== 'u1') throw new Error('html(fn) did not set HTML string for first');
+  if (b.firstElementChild?.id !== 'n1') throw new Error('html(fn) did not set Node for second');
 });
 
 test('prependTo inserts collection at the beginning of target', () => {

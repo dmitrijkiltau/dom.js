@@ -206,8 +206,29 @@ export class DOMCollection<T extends Element = Element> {
     if (value === undefined) return (this.elements[0] as unknown as HTMLElement | undefined)?.textContent ?? '';
     return this.each(el => (el as unknown as HTMLElement).textContent = value == null ? '' : String(value));
   }
-  html(value?: string | number | null | Node | DOMCollection): any {
+  html(): string;
+  html(value: string | number | null | Node | DOMCollection): this;
+  html(fn: (el: T, idx: number) => string | number | null | Node | DOMCollection): this;
+  html(value?: any): any {
     if (value === undefined) return (this.elements[0] as unknown as HTMLElement | undefined)?.innerHTML ?? '';
+    if (typeof value === 'function') {
+      const fn = value as (el: T, idx: number) => string | number | null | Node | DOMCollection;
+      return this.each((el, i) => {
+        const res = fn(el, i);
+        const h = el as unknown as HTMLElement;
+        if (typeof res === 'string' || typeof res === 'number' || res === null) {
+          h.innerHTML = res == null ? '' : String(res);
+        } else if (res instanceof DOMCollection) {
+          h.innerHTML = '';
+          for (const n of res.elements) el.appendChild(n);
+        } else if (res instanceof Node) {
+          h.innerHTML = '';
+          el.appendChild(res);
+        } else {
+          h.innerHTML = res == null ? '' : String(res as any);
+        }
+      });
+    }
     if (typeof value === 'string' || typeof value === 'number' || value === null) {
       return this.each(el => (el as unknown as HTMLElement).innerHTML = value == null ? '' : String(value));
     }

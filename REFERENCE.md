@@ -54,7 +54,8 @@ Selection & traversal:
 - List ops: `.slice(a,b)`, `.map(fn)`, `.get(i?)`
 
 Content & structure:
-- `.text([value])`, `.html([value|Node|DOMCollection])`
+- `.text([value])`, `.html([value|Node|DOMCollection|fn])`
+  - `fn: (el, i) => string|number|null|Node|DOMCollection` applied per element
 - `.append(node|string|DOMCollection)`, `.prepend(node|string|DOMCollection)`
 - `.appendTo(target)`, `.prependTo(target)`
 - `.insertBefore(target)`, `.insertAfter(target)`
