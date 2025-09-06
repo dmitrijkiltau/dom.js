@@ -23,6 +23,7 @@ A lightweight, modular DOM manipulation library with chainable API, zero depende
   - [SSR (Server‑Safe)](#ssr-serversafe)
   - [TypeScript](#typescript)
   - [Plugin System](#plugin-system)
+  - [Advanced Recipes](#advanced-recipes)
   - [Browser Support \& Size](#browser-support--size)
   - [Security](#security)
   - [Contributing](#contributing)
@@ -493,6 +494,154 @@ use((api) => {
 
 await dom.flash(".message");
 dom(".items").highlight();
+```
+
+## Advanced Recipes
+
+### HTTP interceptors: auth header + refresh
+
+Inject an access token on every request, and transparently refresh on 401. Uses `withInterceptors`, `withThrowOnError`, and optional `withRetryAfter`.
+
+```ts
+import { http } from '@dmitrijkiltau/dom.js/http'
+
+let accessToken: string | null = null
+const getToken = () => accessToken
+const setToken = (t: string | null) => (accessToken = t)
+
+let refreshing: Promise<string> | null = null
+function refreshOnce() {
+  if (!refreshing) {
+    refreshing = (async () => {
+      const r = await http.post('/auth/refresh', { /* refresh_token, cookies, etc. */ })
+      const data = await r.json<{ access_token: string }>()
+      setToken(data.access_token)
+      return data.access_token
+    })().finally(() => (refreshing = null))
+  }
+  return refreshing!
+}
+
+const api = http
+  .withBaseUrl('/api')
+  .withThrowOnError()
+  .withRetryAfter()
+  .withRetry({ retries: 1 })
+  .withInterceptors({
+    async onRequest(ctx) {
+      const token = getToken()
+      if (!token) return ctx
+      const headers = new Headers(ctx.init.headers || {})
+      headers.set('Authorization', `Bearer ${token}`)
+      return { ...ctx, init: { ...ctx.init, headers } }
+    },
+    async onError(ctx) {
+      const err = ctx.error
+      // Only handle unauthorized for non-refresh endpoints; avoid loops via marker
+      const httpErr = err as any
+      if (!(httpErr && httpErr.status === 401) || /\/auth\/refresh/.test(ctx.url)) return
+      const headers = new Headers(ctx.init.headers || {})
+      if (headers.get('X-Retried') === '1') return // already retried once
+      const newToken = await refreshOnce()
+      headers.set('Authorization', `Bearer ${newToken}`)
+      headers.set('X-Retried', '1')
+      const res = await fetch(ctx.url, { ...ctx.init, headers, method: ctx.method })
+      return { method: ctx.method, url: ctx.url, init: { ...ctx.init, headers }, response: res }
+    }
+  })
+
+// Usage
+const users = await api.get('/users').then(r => r.json())
+```
+
+Notes:
+- Prefer single‑flight refresh to avoid the thundering herd. Share the refresh promise and replay waiting requests after it resolves.
+- Guard against infinite loops (e.g., mark retried requests with a header, or skip refresh endpoint).
+- Combine with `http.retryOnStatus([429, [500, 599]])` if you want status‑based retries.
+
+### Templates: keyed lists (stable DOM for reorder/patch)
+
+Use keys to preserve elements when reordering or updating items. You can specify the key inline with `by` or via `data-key`.
+
+```html
+<template id="todos-tpl">
+  <ul>
+    <!-- Inline key expression -->
+    <li data-each="todos as t by t.id">
+      <input type="checkbox" data-prop-checked="t.done">
+      <span data-text="t.title"></span>
+    </li>
+  </ul>
+</template>
+```
+
+```js
+import { renderTemplate } from '@dmitrijkiltau/dom.js/template'
+
+const view = renderTemplate('#todos-tpl', {
+  todos: [
+    { id: 1, title: 'A', done: false },
+    { id: 2, title: 'B', done: true }
+  ]
+})
+document.querySelector('#app').appendChild(view.node)
+
+// Reorder + update one item — DOM nodes with the same key are preserved
+view.update({
+  todos: [
+    { id: 2, title: 'B!', done: false }, // same key (2): text/checked update in place
+    { id: 1, title: 'A', done: false }
+  ]
+})
+```
+
+Alternative with `data-key`:
+
+```html
+<template id="todos-tpl2">
+  <ul>
+    <li data-each="todos as t" data-key="t.id">
+      <span data-text="t.title"></span>
+    </li>
+  </ul>
+  <!-- data-key is equivalent to `by t.id` in data-each -->
+  <!-- Use stable keys; avoid array indexes to enable efficient diffing. -->
+</template>
+```
+
+### Plugins with module augmentation (TypeScript)
+
+Add new methods to `dom` and `DOMCollection` with type‑safe augmentation. Ship plugins as side‑effect‑free ESM.
+
+```ts
+// types.d.ts — in your app or plugin package
+declare module '@dmitrijkiltau/dom.js' {
+  interface Dom {
+    flash(selector: string, ms?: number): Promise<void>
+  }
+  interface DOMCollection<T extends Element = Element> {
+    highlight(): DOMCollection<T>
+  }
+}
+```
+
+```ts
+// plugin.ts
+import dom, { use } from '@dmitrijkiltau/dom.js'
+
+use((api) => {
+  api.flash = async (selector: string, ms = 150) => {
+    const anim = api(selector).animate([{ opacity: 0 }, { opacity: 1 }], { duration: ms })
+    await anim.finished
+  }
+  api.DOMCollection.prototype.highlight = function () {
+    return this.addClass('highlight')
+  }
+})
+
+// usage
+await dom.flash('.message')
+dom('.items').highlight()
 ```
 
 ## Browser Support & Size
