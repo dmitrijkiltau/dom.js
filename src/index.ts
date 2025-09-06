@@ -7,7 +7,7 @@ import { animate, animations, installAnimationMethods, stagger, sequence } from 
 import { http } from './http';
 import { use } from './plugins';
 import { dom, fromHTML, create, on, once, off, ready } from './core-api';
-import { onIntersect, onResize, onMutation } from './observers';
+import { onIntersect, onResize, onMutation, inView } from './observers';
 import { scrollIntoView, scrollIntoViewIfNeeded } from './scroll';
 
 // ——— API bag (default export) ———
@@ -50,6 +50,7 @@ export interface Dom {
   onIntersect: typeof onIntersect;
   onResize: typeof onResize;
   onMutation: typeof onMutation;
+  inView: typeof inView;
   scrollIntoView: typeof scrollIntoView;
   scrollIntoViewIfNeeded: typeof scrollIntoViewIfNeeded;
   DOMCollection: typeof DOMCollection;
@@ -64,7 +65,7 @@ const api = Object.assign(function core<T extends Element = Element>(input?: Sel
   // Utilities
   debounce, throttle, nextTick, raf, rafThrottle,
   // Observers
-  onIntersect, onResize, onMutation,
+  onIntersect, onResize, onMutation, inView,
   // Scroll helpers
   scrollIntoView, scrollIntoViewIfNeeded,
   DOMCollection,
@@ -75,7 +76,7 @@ const api = Object.assign(function core<T extends Element = Element>(input?: Sel
 installAnimationMethods();
 
 // ——— Exports ———
-export { DOMCollection, renderTemplate, useTemplate, tpl, mountTemplate, hydrateTemplate, escapeHTML, unsafeHTML, isUnsafeHTML, serializeForm, toQueryString, onSubmit, toFormData, setForm, resetForm, validateForm, isValid, animate, animations, stagger, sequence, http, use, debounce, throttle, nextTick, raf, rafThrottle, onIntersect, onResize, onMutation, scrollIntoView, scrollIntoViewIfNeeded };
+export { DOMCollection, renderTemplate, useTemplate, tpl, mountTemplate, hydrateTemplate, escapeHTML, unsafeHTML, isUnsafeHTML, serializeForm, toQueryString, onSubmit, toFormData, setForm, resetForm, validateForm, isValid, animate, animations, stagger, sequence, http, use, debounce, throttle, nextTick, raf, rafThrottle, onIntersect, onResize, onMutation, inView, scrollIntoView, scrollIntoViewIfNeeded };
 export { setTemplateDevMode } from './template';
 export { dom, fromHTML, create, on, once, off, ready } from './core-api';
 export type Plugin = (api: Dom) => void;

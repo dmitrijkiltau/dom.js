@@ -162,7 +162,7 @@ Utilities:
 ## Utilities & Observers & Scroll
 
 - Utils: `debounce(fn, wait, opts?)`, `throttle(fn, wait, opts?)`, `nextTick(cb?)`, `raf(cb?)`, `rafThrottle(fn)`
-- Observers: `onIntersect(targets, cb, opts?)`, `onResize(targets, cb, opts?)`, `onMutation(targets, cb, opts?)`
+- Observers: `onIntersect(targets, cb, opts?)`, `inView(targets, { threshold, once, ... }?)`, `onResize(targets, cb, opts?)`, `onMutation(targets, cb, opts?)`
 - Scroll: `scrollIntoView(target, opts)`, `scrollIntoViewIfNeeded(target, opts)` and collection counterparts
 
 ## Typing & Plugins

@@ -93,7 +93,7 @@ import { renderTemplate, useTemplate, tpl } from "@dmitrijkiltau/dom.js/template
 import { onSubmit, serializeForm, toFormData, toQueryString, setForm, resetForm, validateForm } from "@dmitrijkiltau/dom.js/forms";
 import { animate, animations } from "@dmitrijkiltau/dom.js/motion";
 import { debounce, throttle, nextTick, raf, rafThrottle } from "@dmitrijkiltau/dom.js/utils";
-import { onIntersect, onResize, onMutation } from "@dmitrijkiltau/dom.js/observers";
+import { onIntersect, inView, onResize, onMutation } from "@dmitrijkiltau/dom.js/observers";
 import { scrollIntoView, scrollIntoViewIfNeeded } from "@dmitrijkiltau/dom.js/scroll";
 ```
 
@@ -311,6 +311,17 @@ const onType = debounce(() => {/* ... */}, 150);
 await nextTick(); await raf();
 
 const stop1 = onIntersect(".watch", (entry, el) => {/* ... */}, { threshold: 0.1 });
+
+// In‑view sugar: subscribe to enter/leave
+const io = inView('.card', { threshold: 0.25, once: true });
+const unEnter = io.enter((el, entry) => {
+  // Called once per element when it reaches 25% visibility
+  el.classList.add('reveal');
+});
+io.leave((el) => {
+  // Called when it drops below 25% (not called if once:true already unobserved)
+});
+// Later: io.stop(); // disconnects observer and clears handlers
 scrollIntoView("#details", { behavior: "smooth", block: "start" });
 ```
 
