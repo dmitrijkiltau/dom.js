@@ -138,7 +138,11 @@ Performance:
 ## HTTP (http module)
 
 Requests:
-- `http.get/post/put/patch/delete(url, [init])` → wrapped response (`{ ok, status, text(), json<T>(), html(), okOrThrow(), cancel() }`)
+- `http.get/post/put/patch/delete(url, [init])` → wrapped response (`{ ok, status, text(), json<T>(), blob(), arrayBuffer(), formData(), html(), okOrThrow(), cancel() }`)
+  - Examples:
+    - `const img = await http.get('/img').then(r => r.okOrThrow().blob())`
+    - `const buf = await http.get('/bin').then(r => r.arrayBuffer())`
+    - `const fd = await http.post('/upload').then(r => r.formData())`
 
 Client builders (chainable):
 - `withBaseUrl(baseUrl)`, `withHeaders(headers)`, `withQuery(params)`, `withTimeout(ms)`
