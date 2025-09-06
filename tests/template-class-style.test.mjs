@@ -1,23 +1,6 @@
-#!/usr/bin/env node
-
+import { test } from 'vitest';
 import { JSDOM } from 'jsdom';
 import { useTemplate } from '../dist/template.js';
-
-console.log('\n🧪 Testing data-class-* and data-style-* bindings...');
-
-let passed = 0;
-let failed = 0;
-
-function test(name, fn) {
-  try {
-    fn();
-    console.log(`✅ ${name}`);
-    passed++;
-  } catch (error) {
-    console.error(`❌ ${name}: ${error.message}`);
-    failed++;
-  }
-}
 
 // Setup DOM
 const dom = new JSDOM('<!doctype html><html><body></body></html>');
@@ -52,6 +35,4 @@ test('Toggles class and sets styles', () => {
   inst.destroy();
 });
 
-console.log(`\n📊 Class/Style Test Results: ${passed} passed, ${failed} failed`);
-if (failed > 0) process.exit(1);
-
+// Summary handled by Vitest

@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-test-size:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Build dist
+        run: npm run build
+
+      - name: Run tests (dist)
+        run: npm run test:dist
+
+      - name: Analyze bundles (report only)
+        run: npm run analyze
+
+      - name: Check bundle size ceilings
+        run: npm run size:check
+
+      - name: Verify docs bundle tables are in sync
+        run: npm run size:docs:check
+

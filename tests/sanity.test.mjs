@@ -1,27 +1,5 @@
-#!/usr/bin/env node
-
-/**
- * Basic sanity test for dom.js
- * Ensures the build output is valid and core functions work
- */
-
+import { test } from 'vitest';
 import api, { dom, DOMCollection, http, once, animations } from '../dist/index.js';
-
-console.log('🧪 Running dom.js sanity tests...\n');
-
-let passed = 0;
-let failed = 0;
-
-function test(name, fn) {
-  try {
-    fn();
-    console.log(`✅ ${name}`);
-    passed++;
-  } catch (error) {
-    console.log(`❌ ${name}: ${error.message}`);
-    failed++;
-  }
-}
 
 // Test basic exports
 test('Default export exists and is a function', () => {
@@ -100,13 +78,5 @@ test('DOMCollection has animation shortcuts', () => {
   }
 });
 
-// Summary
-console.log(`\n📊 Test Results: ${passed} passed, ${failed} failed`);
+// Summary handled by Vitest
 
-if (failed > 0) {
-  console.log('❌ Some tests failed');
-  process.exit(1);
-} else {
-  console.log('✅ All tests passed');
-  process.exit(0);
-}

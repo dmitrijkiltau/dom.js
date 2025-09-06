@@ -28,6 +28,23 @@ export type EventMapFor<T> =
 export type EventFromName<TTarget, TName extends string> =
   TName extends keyof EventMapFor<TTarget> ? EventMapFor<TTarget>[TName] : Event;
 
+// Custom event typing augmentation point
+// Consumers can augment this interface via module augmentation to strongly type
+// custom event names to their `detail` payloads, e.g.:
+//
+// declare module '@dmitrijkiltau/dom.js' {
+//   interface CustomEventMap {
+//     'user:login': { id: string };
+//   }
+// }
+export interface CustomEventMap {}
+
+// Map a target + event name to a typed Event including custom events
+export type TypedEvent<TTarget, K extends string> =
+  K extends keyof EventMapFor<TTarget> ? EventMapFor<TTarget>[K]
+  : K extends keyof CustomEventMap ? CustomEvent<CustomEventMap[K]>
+  : Event;
+
 // Handler with typed Event and Element
 /**
  * Event handler function used by DOMCollection and helpers.

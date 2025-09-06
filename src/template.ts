@@ -253,7 +253,7 @@ function compilePlanNode(node: Element): Plan {
   const childUnits: ChildUnit[] = [];
   const nodes = Array.from(node.childNodes) as ChildNode[];
   for (let i = 0; i < nodes.length; ) {
-    const cn = nodes[i];
+    const cn = nodes[i]!;
     if (cn.nodeType === 3) { // Text node
       childUnits.push({ kind: 'text', text: (cn.textContent ?? '') });
       i++;
@@ -270,9 +270,9 @@ function compilePlanNode(node: Element): Plan {
       while (true) {
         // find next element sibling index
         let nextElIdx = k + 1;
-        while (nextElIdx < nodes.length && nodes[nextElIdx].nodeType !== 1) nextElIdx++;
+        while (nextElIdx < nodes.length && nodes[nextElIdx]!.nodeType !== 1) nextElIdx++;
         if (nextElIdx >= nodes.length) break;
-        const nx = nodes[nextElIdx] as Element;
+        const nx = nodes[nextElIdx]! as Element;
         if (nx.hasAttribute('data-elseif') || nx.hasAttribute('data-else')) { chainNodes.push(nx); k = nextElIdx; continue; }
         break;
       }
@@ -283,7 +283,7 @@ function compilePlanNode(node: Element): Plan {
         for (const _ of chainNodes) {
           // move idx to next element after current
           let nextElIdx = idx + 1;
-          while (nextElIdx < nodes.length && nodes[nextElIdx].nodeType !== 1) nextElIdx++;
+          while (nextElIdx < nodes.length && nodes[nextElIdx]!.nodeType !== 1) nextElIdx++;
           idx = nextElIdx;
         }
         return idx;
@@ -420,7 +420,7 @@ function makeIfPlanFromChain(nodes: Element[]): Plan {
   type ChainItem = { type: 'if' | 'elseif' | 'else'; expr?: string; plan: Plan };
   const chain: ChainItem[] = [];
   for (let idx = 0; idx < nodes.length; idx++) {
-    const el = nodes[idx];
+    const el = nodes[idx]!;
     if (idx === 0 && el.hasAttribute('data-if')) {
       const expr = el.getAttribute('data-if')!; el.removeAttribute('data-if');
       chain.push({ type: 'if', expr, plan: compilePlanNode(el) });
@@ -447,7 +447,7 @@ function makeIfPlanFromChain(nodes: Element[]): Plan {
         const scope: Scope = Object.assign(Object.create(null), data);
         let idx = -1;
         for (let i = 0; i < chain.length; i++) {
-          const c = chain[i];
+          const c = chain[i]!;
           if (c.type === 'else') { idx = i; break; }
           const cond = truthy(get(scope, c.expr!));
           if (cond) { idx = i; break; }
@@ -458,7 +458,7 @@ function makeIfPlanFromChain(nodes: Element[]): Plan {
           removeBetween(start, end);
           active = null;
           if (idx !== -1) {
-            const p = chain[idx].plan.instantiate();
+            const p = chain[idx]!.plan.instantiate();
             end.before(p.node);
             active = p;
           }
@@ -498,7 +498,7 @@ function makeIfPlanFromChain(nodes: Element[]): Plan {
       if (firstBetween) {
         // Try to map to chain based on node kind
         for (let i = 0; i < chain.length; i++) {
-          const p = chain[i].plan as Plan;
+          const p = chain[i]!.plan as Plan;
           if (firstBetween.nodeType === 1 && p.kind === 'element') {
             if (p.rootTag && p.rootTag === ((firstBetween as Element).tagName || '').toUpperCase()) {
               activeIndex = i;
@@ -521,7 +521,7 @@ function makeIfPlanFromChain(nodes: Element[]): Plan {
         // Compute desired index
         let idx = -1;
         for (let i = 0; i < chain.length; i++) {
-          const c = chain[i];
+          const c = chain[i]!;
           if (c.type === 'else') { idx = i; break; }
           const cond = truthy(get(scope, c.expr!));
           if (cond) { idx = i; break; }
@@ -532,7 +532,7 @@ function makeIfPlanFromChain(nodes: Element[]): Plan {
           removeBetween(start, end);
           active = null;
           if (idx !== -1) {
-            const p = chain[idx].plan.instantiate();
+            const p = chain[idx]!.plan.instantiate();
             end.before(p.node);
             active = p;
           }
@@ -608,9 +608,12 @@ function makeEachPlan(node: Element): Plan {
             row.program.update(childScope);
             oldByKey.delete(key);
           } else if (!keyed && rows[i]) {
-            row = rows[i];
-            row.scope = childScope;
-            row.program.update(childScope);
+            const existing = rows[i];
+            if (existing) {
+              row = existing;
+              row.scope = childScope;
+              row.program.update(childScope);
+            }
           } else {
             const p = itemPlan.instantiate();
             end.parentNode!.insertBefore(p.node, prevSibling.nextSibling);
@@ -630,6 +633,7 @@ function makeEachPlan(node: Element): Plan {
         } else {
           for (let i = arr.length; i < rows.length; i++) {
             const r = rows[i];
+            if (!r) continue;
             try { r.program.destroy(); } catch (err) { devError('each: destroy leftover row failed', err); }
             if (r.program.node.parentNode) r.program.node.parentNode.removeChild(r.program.node);
           }
@@ -690,7 +694,7 @@ function makeEachPlan(node: Element): Plan {
               $parent: scope
             });
             const key = makeKey(childScope);
-            const p = itemPlan.hydrate(domChildren[i]);
+            const p = itemPlan.hydrate(domChildren[i]!);
             p.update(childScope);
             rows.push({ key, program: p, scope: childScope });
           }
@@ -725,9 +729,12 @@ function makeEachPlan(node: Element): Plan {
             row.program.update(childScope);
             oldByKey.delete(key);
           } else if (!keyed && rows[i]) {
-            row = rows[i];
-            row.scope = childScope;
-            row.program.update(childScope);
+            const existing = rows[i];
+            if (existing) {
+              row = existing;
+              row.scope = childScope;
+              row.program.update(childScope);
+            }
           } else {
             const p = itemPlan.instantiate();
             end.parentNode!.insertBefore(p.node, prevSibling.nextSibling);
@@ -748,6 +755,7 @@ function makeEachPlan(node: Element): Plan {
         } else {
           for (let i = arr.length; i < rows.length; i++) {
             const r = rows[i];
+            if (!r) continue;
             try { r.program.destroy(); } catch (err) { devError('each(hydrate): destroy leftover row failed', err); }
             if (r.program.node.parentNode) r.program.node.parentNode.removeChild(r.program.node);
           }
@@ -934,7 +942,7 @@ function parseHandlerSpec(spec: string): { fn: Accessor; args: ArgEvaluator[] } 
   if (!name) return { fn: () => undefined, args: [] };
   const callMatch = name.match(/^([a-zA-Z_$][\w$]*)\s*\((.*)\)\s*$/);
   let fnName = name; let argsSrc = '';
-  if (callMatch) { fnName = callMatch[1]; argsSrc = callMatch[2]; }
+  if (callMatch) { fnName = callMatch[1] ?? ''; argsSrc = callMatch[2] ?? ''; }
   const fn = compileAccessor(fnName);
   const args: ArgEvaluator[] = [];
   if (callMatch) {
@@ -978,7 +986,7 @@ function parseEach(expr: string): { listKey: string; itemAlias: string; indexAli
   // Syntax: "items", "items as item", "items as item, i", optional key: "... by keyExpr"
   const trimmed = expr.trim();
   const byParts = trimmed.split(/\s+by\s+/i);
-  let left = byParts[0].trim();
+  let left = (byParts[0] ?? '').trim();
   const keyExpr = byParts[1] ? byParts[1].trim() : undefined;
 
   const asMatch = left.split(/\s+as\s+/i);
@@ -986,13 +994,17 @@ function parseEach(expr: string): { listKey: string; itemAlias: string; indexAli
   let itemAlias = 'item';
   let indexAlias = '$index';
   if (asMatch.length === 2) {
-    listKey = asMatch[0].trim();
-    const rhs = asMatch[1].trim();
+    listKey = (asMatch[0] ?? '').trim();
+    const rhs = (asMatch[1] ?? '').trim();
     const parts = rhs.split(',');
-    if (parts[0]) itemAlias = parts[0].trim();
-    if (parts[1]) indexAlias = parts[1].trim();
+    const p0 = parts[0];
+    if (p0 && p0.trim()) itemAlias = p0.trim();
+    const p1 = parts[1];
+    if (p1 && p1.trim()) indexAlias = p1.trim();
   }
-  return { listKey, itemAlias, indexAlias, keyExpr };
+  const result: { listKey: string; itemAlias: string; indexAlias: string; keyExpr?: string } = { listKey, itemAlias, indexAlias };
+  if (keyExpr !== undefined) (result as any).keyExpr = keyExpr;
+  return result;
 }
 
 function truthy(v: any): boolean { return !!v; }

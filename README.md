@@ -406,6 +406,54 @@ dom('#list').on('click', 'a.item', (e, link) => link.focus());
 - Event names map to DOM event types (top‑level and collection)
 - Module augmentation supported for plugins
 
+### Custom Event Typing
+
+Augment `CustomEventMap` to type your custom events by name. Overloads on `dom.on`, `dom().on`, and `dom().once` pick up these types.
+
+```ts
+declare module '@dmitrijkiltau/dom.js' {
+  interface CustomEventMap {
+    'user:login': { id: string };
+    'cart:updated': { items: number };
+  }
+}
+
+// Top-level targets
+dom.on(document, 'user:login', (e) => {
+  // e is CustomEvent<{ id: string }>
+  console.log(e.detail.id);
+});
+
+// Collections
+dom('#btn').on<'cart:updated'>('cart:updated', (e, el) => {
+  // e.detail.items is number
+  el.textContent = String(e.detail.items);
+});
+```
+
+### Typed Serialization
+
+Hint the expected shape when serializing forms for stronger types.
+
+```ts
+type FormShape = {
+  user: { name: string; email?: string };
+  tags: string[];
+};
+
+// Collection helper
+const data1 = dom('form').serialize<FormShape>();
+
+// Forms module
+import { serializeForm, onSubmit } from '@dmitrijkiltau/dom.js/forms';
+const data2 = serializeForm<FormShape>(document.querySelector('form')!);
+
+onSubmit<FormShape>('form', (data, ev) => {
+  // data is FormShape here
+  console.log(data.user.name);
+});
+```
+
 ## Plugin System
 
 ```js
@@ -428,6 +476,20 @@ dom(".items").highlight();
   - Core only: ~6–7 KB
   - Modules (each): HTTP ~0.7 KB, Forms ~1.7 KB, Templates ~2.8 KB, Motion ~6.5 KB
 - Dependencies: Zero
+
+### Current Bundle Sizes (raw dist)
+
+<!-- AUTO-GENERATED: BUNDLE_SIZES_START -->
+| Module | ESM (KB) | CJS (KB) |
+| --- | --- | --- |
+| Full | 65.90 | 66.86 |
+| Core | 27.55 | 28.10 |
+| HTTP | 6.20 | 6.70 |
+| Templates | 16.66 | 17.26 |
+| Forms | 4.55 | 5.11 |
+| Motion | 31.51 | 32.05 |
+
+_Note: raw minified dist file sizes (not gzip)._<!-- AUTO-GENERATED: BUNDLE_SIZES_END -->
 
 ## Links
 

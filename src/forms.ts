@@ -4,12 +4,17 @@ export type Formish = HTMLFormElement | DOMCollection | string | null | undefine
 
 function resolveForm(input: Formish): HTMLFormElement {
   if (!input) throw new Error('Form not provided');
+  // Direct form element
+  if (typeof HTMLFormElement !== 'undefined' && input instanceof HTMLFormElement) {
+    return input as HTMLFormElement;
+  }
   if (typeof input === 'string') {
     const el = document.querySelector(input);
     if (!el) throw new Error(`Form not found: ${input}`);
     if (!(el instanceof HTMLFormElement)) throw new Error('Selector did not resolve to <form>');
     return el;
   }
+  // DOMCollection-like (has .elements list)
   if (typeof input === 'object' && input != null && 'elements' in (input as any)) {
     const el = (input as any).elements?.[0];
     if (!el) throw new Error('Empty collection');
@@ -32,7 +37,7 @@ function parseName(name: string): Array<{ key?: string; index?: number; push?: b
   if (root) out.push({ key: root });
   let m: RegExpExecArray | null;
   while ((m = re.exec(name))) {
-    const seg = m[1];
+    const seg = m[1] ?? '';
     if (seg === '') out.push({ push: true });
     else if (/^\d+$/.test(seg)) out.push({ index: parseInt(seg, 10) });
     else out.push({ key: seg });
@@ -44,7 +49,7 @@ function setNested(target: any, name: string, value: any) {
   const tokens = parseName(name);
   let obj = target;
   for (let i = 0; i < tokens.length; i++) {
-    const t = tokens[i];
+    const t = tokens[i]!;
     const last = i === tokens.length - 1;
 
     if (t.key != null) {
@@ -82,7 +87,9 @@ function setNested(target: any, name: string, value: any) {
       continue;
     }
     if (typeof t.index === 'number') {
-      if (!Array.isArray(obj)) obj = (obj[tokens[i - 1] as any] = []);
+      if (!Array.isArray(obj)) obj = (tokens[i - 1] && (tokens[i - 1] as any).key != null)
+        ? (obj[(tokens[i - 1] as any).key] = [])
+        : [];
       if (last) {
         obj[t.index] = value;
         return;
@@ -144,13 +151,13 @@ function buildObjectFromEntries(entries: Entry[]): Record<string, any> {
 }
 
 // ——— Public API ———
-export function serializeForm(form: Formish): Record<string, any> {
+export function serializeForm<T extends Record<string, any> = Record<string, any>>(form: Formish): T {
   const el = resolveForm(form);
   // Use real FormData to respect browser rules, then convert
   const fd = new FormData(el);
   const entries: Entry[] = [];
   for (const [k, v] of (fd as any).entries()) entries.push([k, v]);
-  return buildObjectFromEntries(entries);
+  return buildObjectFromEntries(entries) as unknown as T;
 }
 
 export function toFormData(obj: Record<string, any>): FormData {
@@ -203,11 +210,11 @@ export function toQueryString(obj: Record<string, any>): string {
   return usp.toString();
 }
 
-export function onSubmit(form: Formish, handler: (data: Record<string, any>, ev: SubmitEvent) => void | Promise<void>) {
+export function onSubmit<T extends Record<string, any> = Record<string, any>>(form: Formish, handler: (data: T, ev: SubmitEvent) => void | Promise<void>) {
   const el = resolveForm(form);
   el.addEventListener('submit', async (ev) => {
     ev.preventDefault();
-    const data = serializeForm(el);
+    const data = serializeForm<T>(el);
     await handler(data, ev);
   });
 }

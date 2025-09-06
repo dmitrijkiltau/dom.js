@@ -1,23 +1,6 @@
-#!/usr/bin/env node
-
+import { test } from 'vitest';
 import { JSDOM } from 'jsdom';
 import api from '../dist/index.js';
-
-console.log('\n🧪 Testing QoL helpers: dataset, aria, beforeEach/afterEach...');
-
-let passed = 0;
-let failed = 0;
-
-function test(name, fn) {
-  try {
-    fn();
-    console.log(`✅ ${name}`);
-    passed++;
-  } catch (error) {
-    console.error(`❌ ${name}: ${error.message}`);
-    failed++;
-  }
-}
 
 // Setup DOM
 const dom = new JSDOM('<!doctype html><html><body><div id="a"></div><div id="b"></div></body></html>');
@@ -69,5 +52,4 @@ test('beforeEach/afterEach call the callback for each element', () => {
   if (before !== 2 || after !== 2) throw new Error('beforeEach/afterEach did not run for each element');
 });
 
-console.log(`\n📊 QoL tests: ${passed} passed, ${failed} failed`);
-if (failed > 0) process.exit(1);
+// Summary handled by Vitest

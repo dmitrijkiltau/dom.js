@@ -1,22 +1,5 @@
-#!/usr/bin/env node
-
+import { test } from 'vitest';
 import { JSDOM } from 'jsdom';
-
-console.log('\n🧪 Testing inView() helper...');
-
-let passed = 0;
-let failed = 0;
-
-function test(name, fn) {
-  try {
-    fn();
-    console.log(`✅ ${name}`);
-    passed++;
-  } catch (error) {
-    console.error(`❌ ${name}: ${error.message}`);
-    failed++;
-  }
-}
 
 // Setup DOM
 const dom = new JSDOM('<!doctype html><html><body><div id="a"></div><div id="b"></div></body></html>');
@@ -89,6 +72,4 @@ test('once:true unobserves after first enter per element', () => {
   iv.stop();
 });
 
-console.log(`\n📊 inView: ${passed} passed, ${failed} failed`);
-if (failed > 0) process.exit(1);
-
+// Summary handled by Vitest

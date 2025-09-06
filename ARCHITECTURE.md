@@ -110,6 +110,20 @@ These entry points are designed for good tree‑shaking in modern bundlers. See 
 
 Actual sizes depend on your bundler and configuration.
 
+### Current Bundle Sizes (raw dist)
+
+<!-- AUTO-GENERATED: BUNDLE_SIZES_START -->
+| Module | ESM (KB) | CJS (KB) |
+| --- | --- | --- |
+| Full | 65.90 | 66.86 |
+| Core | 27.55 | 28.10 |
+| HTTP | 6.20 | 6.70 |
+| Templates | 16.66 | 17.26 |
+| Forms | 4.55 | 5.11 |
+| Motion | 31.51 | 32.05 |
+
+_Note: raw minified dist file sizes (not gzip)._<!-- AUTO-GENERATED: BUNDLE_SIZES_END -->
+
 ## Template Engine (Plan/Program)
 
 The template system compiles HTML templates to a reusable Plan (parse once) and instantiates Programs (per mount/update):

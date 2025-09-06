@@ -30,16 +30,25 @@ export class DOMCollection<T extends Element = Element> {
 
   // Core iterator
   each(fn: (el: T, idx: number) => void): this {
-    for (let i = 0; i < this.elements.length; i++) fn(this.elements[i], i);
+    for (let i = 0; i < this.elements.length; i++) { const el = this.elements[i]!; fn(el, i); }
     return this;
   }
 
   // Basic DOM read helpers
   get length(): number { return this.elements.length; }
   el<U extends T = T>(i?: number): U | undefined { return this.elements[(i ?? 0)] as U | undefined; }
-  first(): DOMCollection<T> { return new DOMCollection<T>(this.elements.length ? [this.elements[0]] : []); }
-  last(): DOMCollection<T> { return new DOMCollection<T>(this.elements.length ? [this.elements[this.elements.length - 1]] : []); }
-  eq(i: number): DOMCollection<T> { return new DOMCollection<T>(this.elements[i] ? [this.elements[i]] : []); }
+  first(): DOMCollection<T> {
+    const firstEl = this.elements[0];
+    return new DOMCollection<T>(firstEl !== undefined ? [firstEl] : []);
+  }
+  last(): DOMCollection<T> {
+    const lastEl = this.elements[this.elements.length - 1];
+    return new DOMCollection<T>(lastEl !== undefined ? [lastEl] : []);
+  }
+  eq(i: number): DOMCollection<T> {
+    const el = this.elements[i];
+    return new DOMCollection<T>(el !== undefined ? [el] : []);
+  }
   find(selector: string): DOMCollection {
     const found: Element[] = [];
     for (const el of this.elements) found.push(...toArray(el.querySelectorAll(selector)));
@@ -49,7 +58,8 @@ export class DOMCollection<T extends Element = Element> {
     if (typeof selector === 'function') {
       const filtered: T[] = [];
       for (let i = 0; i < this.elements.length; i++) {
-        if (selector(this.elements[i], i)) filtered.push(this.elements[i]);
+        const el = this.elements[i]!;
+        if (selector(el, i)) filtered.push(el);
       }
       return new DOMCollection<T>(filtered);
     }
@@ -251,7 +261,7 @@ export class DOMCollection<T extends Element = Element> {
     const recipients = this.elements;
     const lastIdx = recipients.length - 1;
     for (let i = 0; i < recipients.length; i++) {
-      const el = recipients[i];
+      const el = recipients[i]!;
       if (typeof child === 'string') {
         (el as unknown as HTMLElement).insertAdjacentHTML('beforeend', child);
       } else if (child instanceof DOMCollection) {
@@ -269,14 +279,14 @@ export class DOMCollection<T extends Element = Element> {
     const recipients = this.elements;
     const lastIdx = recipients.length - 1;
     for (let i = 0; i < recipients.length; i++) {
-      const el = recipients[i];
+      const el = recipients[i]!;
       if (typeof child === 'string') {
         (el as unknown as HTMLElement).insertAdjacentHTML('afterbegin', child);
       } else if (child instanceof DOMCollection) {
         // Insert in order so final order matches input
         const first = el.firstChild;
         for (let j = child.elements.length - 1; j >= 0; j--) {
-          const n = child.elements[j];
+          const n = child.elements[j]!;
           el.insertBefore(i === lastIdx ? n : n.cloneNode(true), first);
         }
       } else {
@@ -327,7 +337,7 @@ export class DOMCollection<T extends Element = Element> {
     if (!targets.length) return this;
     const lastIdx = targets.length - 1;
     for (let i = 0; i < targets.length; i++) {
-      const t = targets[i];
+      const t = targets[i]!;
       const parent = t.parentNode;
       if (!parent) continue;
       const nodes = i === lastIdx ? this.elements : this.elements.map(n => n.cloneNode(true) as Element);
@@ -402,7 +412,7 @@ export class DOMCollection<T extends Element = Element> {
     if (!targets.length) return this;
     const lastIdx = targets.length - 1;
     for (let i = 0; i < targets.length; i++) {
-      const t = targets[i];
+      const t = targets[i]!;
       const parent = t.parentNode;
       if (!parent) continue;
       if (this.elements.length === 0) {
@@ -467,6 +477,7 @@ export class DOMCollection<T extends Element = Element> {
     if (!wrapEl) return this;
     // Find insertion parent/before for the first element
     const firstEl = this.elements[0];
+    if (!firstEl) return this;
     const parent = firstEl.parentNode;
     if (!parent) return this;
     parent.insertBefore(wrapEl, firstEl);
@@ -866,6 +877,18 @@ export class DOMCollection<T extends Element = Element> {
     handler: Handler<GlobalEventHandlersEventMap[K], U>,
     options?: boolean | AddEventListenerOptions
   ): this;
+  // Custom events: allow generic event names mapped via CustomEventMap augmentation
+  on<K extends string>(
+    types: K,
+    handler: Handler<import('./types').TypedEvent<Element, K>, T>,
+    options?: boolean | AddEventListenerOptions
+  ): this;
+  on<K extends string, U extends Element = Element>(
+    types: K,
+    selector: string,
+    handler: Handler<import('./types').TypedEvent<Element, K>, U>,
+    options?: boolean | AddEventListenerOptions
+  ): this;
   on(
     types: string,
     handler: Handler,
@@ -906,6 +929,18 @@ export class DOMCollection<T extends Element = Element> {
     types: K,
     selector: string,
     handler: Handler<GlobalEventHandlersEventMap[K], U>,
+    options?: boolean | AddEventListenerOptions
+  ): this;
+  // Custom events: once()
+  once<K extends string>(
+    types: K,
+    handler: Handler<import('./types').TypedEvent<Element, K>, T>,
+    options?: boolean | AddEventListenerOptions
+  ): this;
+  once<K extends string, U extends Element = Element>(
+    types: K,
+    selector: string,
+    handler: Handler<import('./types').TypedEvent<Element, K>, U>,
     options?: boolean | AddEventListenerOptions
   ): this;
   once(types: string, selectorOrHandler: any, maybeHandler?: any, options?: boolean | AddEventListenerOptions): this {
@@ -1046,8 +1081,8 @@ export class DOMCollection<T extends Element = Element> {
   afterEach(fn: (el: T, idx: number) => void): this { return this.each(fn); }
 
   // Form serialization
-  serialize(): Record<string, any> {
-    if (this.elements.length === 0) return {};
+  serialize<T extends Record<string, any> = Record<string, any>>(): T {
+    if (this.elements.length === 0) return {} as unknown as T;
     const firstEl = this.elements[0];
     if (firstEl instanceof HTMLFormElement) {
       return serializeFormEl(firstEl);
@@ -1098,7 +1133,7 @@ export class DOMCollection<T extends Element = Element> {
       if (root) out.push({ key: root });
       let m: RegExpExecArray | null;
       while ((m = re.exec(name))) {
-        const seg = m[1];
+        const seg = m[1] ?? '';
         if (seg === '') out.push({ push: true });
         else if (/^\d+$/.test(seg)) out.push({ index: parseInt(seg, 10) });
         else out.push({ key: seg });
@@ -1109,7 +1144,7 @@ export class DOMCollection<T extends Element = Element> {
       const tokens = parseName(name);
       let obj = target;
       for (let i = 0; i < tokens.length; i++) {
-        const t = tokens[i];
+        const t = tokens[i]!;
         const last = i === tokens.length - 1;
         if (t.key != null) {
           if (last) {
@@ -1141,7 +1176,9 @@ export class DOMCollection<T extends Element = Element> {
           continue;
         }
         if (typeof t.index === 'number') {
-          if (!Array.isArray(obj)) obj = (obj[tokens[i - 1] as any] = []);
+          if (!Array.isArray(obj)) obj = (tokens[i - 1] && (tokens[i - 1] as any).key != null)
+            ? (obj[(tokens[i - 1] as any).key] = [])
+            : [];
           if (last) { obj[t.index] = value; return; }
           if (obj[t.index] == null) obj[t.index] = {};
           obj = obj[t.index];
@@ -1150,7 +1187,7 @@ export class DOMCollection<T extends Element = Element> {
     };
     const out: Record<string, any> = {};
     for (const [k, v] of entries) setNested(out, k, v);
-    return out;
+    return out as unknown as T;
   }
 
   // Convert current collection's serialized data to FormData

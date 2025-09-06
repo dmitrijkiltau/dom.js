@@ -1,4 +1,4 @@
-import { MaybeArray, Selector, EventTargetish, Handler } from './types';
+import { MaybeArray, Selector, EventTargetish, Handler, TypedEvent } from './types';
 import { isString, isElement, isDocument, isWindow, hasDOM } from './utils';
 import { DOMCollection } from './collection';
 import { onDirect, onDelegated, removeManaged, removeAllManaged, ready as domReady } from './events';
@@ -45,10 +45,19 @@ export function create(tag: string, attrs?: Record<string, any> | null, children
 // ——— Event helpers ———
 export function on<K extends keyof GlobalEventHandlersEventMap>(target: Element | DOMCollection, types: K, handler: (ev: GlobalEventHandlersEventMap[K]) => void, options?: boolean | AddEventListenerOptions): () => void;
 export function on<K extends keyof GlobalEventHandlersEventMap, U extends Element = Element>(target: Element | DOMCollection, types: K, selector: string, handler: Handler<GlobalEventHandlersEventMap[K], U>, options?: boolean | AddEventListenerOptions): () => void;
+// Custom events on Element/DOMCollection
+export function on<K extends string>(target: Element | DOMCollection, types: K, handler: (ev: TypedEvent<Element, K>) => void, options?: boolean | AddEventListenerOptions): () => void;
+export function on<K extends string, U extends Element = Element>(target: Element | DOMCollection, types: K, selector: string, handler: Handler<TypedEvent<Element, K>, U>, options?: boolean | AddEventListenerOptions): () => void;
 export function on<K extends keyof DocumentEventMap>(target: Document, types: K, handler: (ev: DocumentEventMap[K]) => void, options?: boolean | AddEventListenerOptions): () => void;
 export function on<K extends keyof DocumentEventMap, U extends Element = Element>(target: Document, types: K, selector: string, handler: Handler<DocumentEventMap[K], U>, options?: boolean | AddEventListenerOptions): () => void;
+// Custom events on Document
+export function on<K extends string>(target: Document, types: K, handler: (ev: TypedEvent<Document, K>) => void, options?: boolean | AddEventListenerOptions): () => void;
+export function on<K extends string, U extends Element = Element>(target: Document, types: K, selector: string, handler: Handler<TypedEvent<Document, K>, U>, options?: boolean | AddEventListenerOptions): () => void;
 export function on<K extends keyof WindowEventMap>(target: Window, types: K, handler: (ev: WindowEventMap[K]) => void, options?: boolean | AddEventListenerOptions): () => void;
 export function on<K extends keyof WindowEventMap, U extends Element = Element>(target: Window, types: K, selector: string, handler: Handler<WindowEventMap[K], U>, options?: boolean | AddEventListenerOptions): () => void;
+// Custom events on Window
+export function on<K extends string>(target: Window, types: K, handler: (ev: TypedEvent<Window, K>) => void, options?: boolean | AddEventListenerOptions): () => void;
+export function on<K extends string, U extends Element = Element>(target: Window, types: K, selector: string, handler: Handler<TypedEvent<Window, K>, U>, options?: boolean | AddEventListenerOptions): () => void;
 // Fallback overloads when the target is union-typed at the call site
 export function on(target: EventTargetish | DOMCollection, types: string, handler: (ev: Event) => void, options?: boolean | AddEventListenerOptions): () => void;
 export function on(target: EventTargetish | DOMCollection, types: string, selector: string, handler: Handler, options?: boolean | AddEventListenerOptions): () => void;

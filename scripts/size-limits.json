@@ -1,0 +1,19 @@
+{
+  "esm": {
+    "index.js": 70.0,
+    "core.js": 30.0,
+    "http.js": 7.0,
+    "template.js": 18.0,
+    "forms.js": 6.0,
+    "motion.js": 35.0
+  },
+  "cjs": {
+    "index.cjs": 72.0,
+    "core.cjs": 31.0,
+    "http.cjs": 7.5,
+    "template.cjs": 19.0,
+    "forms.cjs": 6.5,
+    "motion.cjs": 36.0
+  }
+}
+

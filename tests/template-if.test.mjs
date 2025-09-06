@@ -1,23 +1,6 @@
-#!/usr/bin/env node
-
+import { test } from 'vitest';
 import { JSDOM } from 'jsdom';
 import { renderTemplate } from '../dist/template.js';
-
-console.log('\n🧪 Testing data-if/elseif/else template bindings...');
-
-let passed = 0;
-let failed = 0;
-
-function test(name, fn) {
-  try {
-    fn();
-    console.log(`✅ ${name}`);
-    passed++;
-  } catch (error) {
-    console.error(`❌ ${name}: ${error.message}`);
-    failed++;
-  }
-}
 
 // Setup DOM
 const dom = new JSDOM('<!doctype html><html><body></body></html>');
@@ -69,6 +52,4 @@ test('Shows Else when both are false', () => {
   if (lis[0].textContent !== 'E') throw new Error('Expected Else branch');
 });
 
-console.log(`\n📊 If/Else Test Results: ${passed} passed, ${failed} failed`);
-if (failed > 0) process.exit(1);
-
+// Summary handled by Vitest

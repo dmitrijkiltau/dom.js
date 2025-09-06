@@ -1,23 +1,6 @@
-#!/usr/bin/env node
-
+import { test } from 'vitest';
 import { JSDOM } from 'jsdom';
 import api, { DOMCollection } from '../dist/index.js';
-
-console.log('\n🧪 Testing DOM manipulation helpers (prepend, prependTo, replaceWith, wrap, unwrap)...');
-
-let passed = 0;
-let failed = 0;
-
-function test(name, fn) {
-  try {
-    fn();
-    console.log(`✅ ${name}`);
-    passed++;
-  } catch (error) {
-    console.error(`❌ ${name}: ${error.message}`);
-    failed++;
-  }
-}
 
 // Setup DOM
 const dom = new JSDOM('<!doctype html><html><body></body></html>');
@@ -324,5 +307,4 @@ test('detach removes nodes but preserves event listeners on the nodes', () => {
   if (count !== 1) throw new Error('Event listener lost after detach');
 });
 
-console.log(`\n📊 DOM Manipulation Test Results: ${passed} passed, ${failed} failed`);
-if (failed > 0) process.exit(1);
+// Summary handled by Vitest
