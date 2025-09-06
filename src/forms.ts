@@ -4,12 +4,17 @@ export type Formish = HTMLFormElement | DOMCollection | string | null | undefine
 
 function resolveForm(input: Formish): HTMLFormElement {
   if (!input) throw new Error('Form not provided');
+  // Direct form element
+  if (typeof HTMLFormElement !== 'undefined' && input instanceof HTMLFormElement) {
+    return input as HTMLFormElement;
+  }
   if (typeof input === 'string') {
     const el = document.querySelector(input);
     if (!el) throw new Error(`Form not found: ${input}`);
     if (!(el instanceof HTMLFormElement)) throw new Error('Selector did not resolve to <form>');
     return el;
   }
+  // DOMCollection-like (has .elements list)
   if (typeof input === 'object' && input != null && 'elements' in (input as any)) {
     const el = (input as any).elements?.[0];
     if (!el) throw new Error('Empty collection');
