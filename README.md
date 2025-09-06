@@ -126,6 +126,7 @@ Highlights by category:
 - Content & attrs: `text`, `html`, `append`, `prepend`, `before`, `after`, `replaceWith`, `wrap*`, `empty`, `clone`, `attr/attrs`, `prop`, `val`, `data`
   - `.dataset(map)` to set multiple `data-*` attrs; `.aria(name[, value])` and `.aria(map)` helpers
 - Classes & CSS: `addClass/removeClass/toggleClass/hasClass`, `css`, `cssVar/cssVars`, `computed`
+  - `toggleClass(name[, force])` or `toggleClass({ name: boolean, ... })` for batch toggling
 - Visibility & layout: `show/hide/toggle/isVisible`, `width/height/inner*/outer*`, `offset/position/offsetParent`, `scrollTop/scrollLeft`, `rect`
 - Events: `on/once/off/trigger`, shortcuts like `click`, `focus`, `blur`, `hover`, pointer/touch helpers
   - `.trigger(type[, init])` accepts `EventInit | CustomEventInit` and defaults to `{ bubbles: true }`; non‑object becomes `{ detail }`.

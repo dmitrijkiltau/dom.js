@@ -70,7 +70,7 @@ Attributes, properties, values:
 - `.aria(name[, value])` or `.aria(map)` → convenience for `aria-*` attributes
 
 Classes & styles:
-- `.addClass(...names)`, `.removeClass(...names)`, `.toggleClass(names[, force])`, `.hasClass(name)`, `.replaceClass(oldClasses, newClasses)`
+- `.addClass(...names)`, `.removeClass(...names)`, `.toggleClass(names[, force])`, `.toggleClass(map)`, `.hasClass(name)`, `.replaceClass(oldClasses, newClasses)`
 - `.css(name[, value])` or `.css(map)`
 - `.cssVar(name[, value])`, `.cssVars(map)`
 - `.computed(names: "prop1 prop2" | string[])` → `{ name: value }`

@@ -53,6 +53,15 @@ test('aria(name, value) sets aria-* and aria(map) merges', () => {
   if ($a.aria('label') !== 'X') throw new Error('aria(name) did not read back value');
 });
 
+test('toggleClass(map) toggles multiple classes in batch', () => {
+  const $els = api('#a, #b');
+  $els.toggleClass({ active: true, hidden: false });
+  const a = document.getElementById('a');
+  const b = document.getElementById('b');
+  if (!a.classList.contains('active') || !b.classList.contains('active')) throw new Error('active should be added on both');
+  if (a.classList.contains('hidden') || b.classList.contains('hidden')) throw new Error('hidden should be removed on both');
+});
+
 test('beforeEach/afterEach call the callback for each element', () => {
   const $els = api('#a, #b');
   let before = 0, after = 0;

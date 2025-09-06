@@ -569,8 +569,19 @@ export class DOMCollection<T extends Element = Element> {
       el.classList.add(...newNames);
     });
   }
-  toggleClass(name: string, force?: boolean): this {
-    const allNames = String(name).split(/\s+/).filter(Boolean);
+  toggleClass(map: Record<string, boolean>): this;
+  toggleClass(name: string, force?: boolean): this;
+  toggleClass(nameOrMap: string | Record<string, boolean>, force?: boolean): this {
+    if (typeof nameOrMap === 'object') {
+      const entries = Object.entries(nameOrMap);
+      return this.each(el => {
+        for (const [key, shouldEnable] of entries) {
+          const names = String(key).split(/\s+/).filter(Boolean);
+          for (const n of names) el.classList.toggle(n, !!shouldEnable);
+        }
+      });
+    }
+    const allNames = String(nameOrMap).split(/\s+/).filter(Boolean);
     return this.each(el => {
       for (const n of allNames) el.classList.toggle(n, force as any);
     });
