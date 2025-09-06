@@ -10,6 +10,7 @@ export type RetryOptions = {
   retryDelay?: number;        // initial delay ms
   retryBackoff?: number;      // multiplier per attempt (e.g., 2)
   retryOn?: (res: Response | null, err: unknown, attempt: number) => boolean | Promise<boolean>;
+  respectRetryAfter?: boolean; // honor Retry-After/X-RateLimit-Reset header for delay
 };
 
 export type CacheOptions = {
@@ -60,9 +61,11 @@ export type HttpMethod = {
   withCache(opts?: CacheOptions): HttpMethod;
   withThrowOnError(on?: boolean): HttpMethod;
   withJSON(): HttpMethod;
+  withRetryAfter(): HttpMethod;
   // Utilities
   appendQuery(url: string, params?: QueryParams): string;
   abortable(): { controller: AbortController; signal: AbortSignal };
+  retryOnStatus(statuses: Array<number | [number, number]>, includeNetworkErrors?: boolean): (res: Response | null, err: unknown, attempt: number) => boolean | Promise<boolean>;
   // Cache management (global for this client)
   cache: {
     clear(): void;
@@ -254,7 +257,10 @@ function createClient(config: ClientConfig = {}): HttpMethod {
             if (timeoutId) clearTimeout(timeoutId);
             throw err;
           }
-          await delay(backoffDelay(baseDelay, factor, attempt));
+          // Compute delay, honoring Retry-After/X-RateLimit-Reset when enabled
+          const raMs = retry.respectRetryAfter ? computeRetryAfterDelayMs(resCtx.response) : null;
+          const waitMs = raMs != null ? raMs : backoffDelay(baseDelay, factor, attempt);
+          await delay(waitMs);
           attempt++;
           continue;
         }
@@ -301,10 +307,21 @@ function createClient(config: ClientConfig = {}): HttpMethod {
     withCache(opts?: CacheOptions) { return createClient({ ...cfg, cache: { ...(cfg.cache || {}), ...(opts || { enabled: true }) } }); },
     withThrowOnError(on: boolean = true) { return createClient({ ...cfg, throwOnError: on }); },
     withJSON() { return createClient({ ...cfg, defaultHeaders: { ...(cfg.defaultHeaders || {}), Accept: 'application/json' } }); },
+    withRetryAfter() { return createClient({ ...cfg, retry: { ...(cfg.retry || {}), respectRetryAfter: true } }); },
 
     // Utils
     appendQuery(url: string, params?: QueryParams) { return appendQuery(url, params || {}); },
     abortable() { const controller = new AbortController(); return { controller, signal: controller.signal }; },
+    retryOnStatus(statuses: Array<number | [number, number]>, includeNetworkErrors: boolean = true) {
+      const ranges = normalizeStatusList(statuses);
+      return (res: Response | null, err: unknown) => {
+        if (includeNetworkErrors && err) return true;
+        if (!res) return false;
+        const s = res.status;
+        for (const [a, b] of ranges) if (s >= a && s <= b) return true;
+        return false;
+      };
+    },
     cache: {
       clear() { cache.clear(); },
       delete(key: string) { cache.delete(key); },
@@ -408,6 +425,32 @@ async function handleErrorInterceptors(ints: Interceptors[], ctx: ErrorContext):
 }
 
 // ——— Upload progress helpers ———
+function normalizeStatusList(list: Array<number | [number, number]>): Array<[number, number]> {
+  const out: Array<[number, number]> = [];
+  for (const item of list) {
+    if (Array.isArray(item)) out.push([item[0], item[1]]);
+    else out.push([item, item]);
+  }
+  return out;
+}
+
+function computeRetryAfterDelayMs(res: Response): number | null {
+  try {
+    const ra = res.headers.get('Retry-After');
+    if (ra) {
+      const secs = parseInt(ra, 10);
+      if (!Number.isNaN(secs)) return Math.max(0, secs * 1000);
+      const dateMs = Date.parse(ra);
+      if (!Number.isNaN(dateMs)) return Math.max(0, dateMs - Date.now());
+    }
+    const xrl = res.headers.get('X-RateLimit-Reset');
+    if (xrl) {
+      const ts = parseInt(xrl, 10);
+      if (!Number.isNaN(ts)) return Math.max(0, (ts * 1000) - Date.now());
+    }
+  } catch {}
+  return null;
+}
 function fnv1a32Hex(str: string): string {
   let h = 0x811c9dc5; // offset basis
   for (let i = 0; i < str.length; i++) {

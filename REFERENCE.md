@@ -145,19 +145,21 @@ Requests:
     - `const fd = await http.post('/upload').then(r => r.formData())`
 
 Client builders (chainable):
-- `withBaseUrl(baseUrl)`, `withHeaders(headers)`, `withQuery(params)`, `withTimeout(ms)`, `withJSON()`
-- `withRetry({ retries, retryDelay, retryBackoff, retryOn })`, `withInterceptors({ onRequest, onResponse, onError })`
+- `withBaseUrl(baseUrl)`, `withHeaders(headers)`, `withQuery(params)`, `withTimeout(ms)`, `withJSON()`, `withRetryAfter()`
+- `withRetry({ retries, retryDelay, retryBackoff, retryOn, respectRetryAfter })`, `withInterceptors({ onRequest, onResponse, onError })`
 - `withCache({ enabled, ttl, key, methods })`, `withThrowOnError([true])`
 
 Per‑request options (subset): `baseUrl`, `query`, `headers`, `timeout`, `controller`/`signal`, `throwOnError`, `onUploadProgress`, `onDownloadProgress`, `retries`, `retryDelay`, `retryBackoff`, `retryOn`, `cacheKey`, `cacheTtl`, `noCache`.
 
 Utilities:
 - `http.appendQuery(url, params)`, `http.abortable()` → `{ controller, signal }`
+- `http.retryOnStatus([429, [500, 599]])` → build a `retryOn` predicate
 - Cache: `http.cache.clear/delete/get/set/computeKey`
 
 Notes:
 - Smart JSON: when `body` is a plain object, the client serializes it with `JSON.stringify` and sets `Content-Type: application/json` unless you already set a `Content-Type` header. Use `withJSON()` to also send `Accept: application/json` by default.
 - Caching guardrails: caches only `GET` by default. To cache other methods, pass `withCache({ enabled: true, methods: ['GET', 'POST'] })`. When caching non‑GET requests, the default cache key becomes `method:url:body=<hash>` where `<hash>` is a stable digest of the request body.
+- Retry ergonomics: `withRetryAfter()` respects `Retry-After` or `X-RateLimit-Reset` headers for backoff when retrying non‑OK responses; otherwise falls back to exponential backoff. Use `http.retryOnStatus([429, [500, 599]])` to quickly configure which statuses should trigger retries.
 
 ## Motion (motion module)
 

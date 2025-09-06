@@ -264,7 +264,8 @@ import { http } from "@dmitrijkiltau/dom.js/http";
 const api = http
   .withBaseUrl("/api")
   .withHeaders({ Authorization: "Bearer token" })
-  .withRetry({ retries: 2 })
+  .withRetry({ retries: 2, retryOn: http.retryOnStatus([429, [500, 599]]) })
+  .withRetryAfter()
   .withThrowOnError();
 
 const r = await api.get("/users", { query: { page: 1 } });
