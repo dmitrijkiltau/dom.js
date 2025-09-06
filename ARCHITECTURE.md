@@ -97,27 +97,14 @@ dom.js ships pure ESM with subpath exports to support three common patterns:
 
 These entry points are designed for good tree‑shaking in modern bundlers. See `README.md` for code samples and guidance on when to use each style.
 
-### Approximate Bundle Sizes (v1.5.1, min+gzip)
-
-| Module          | Size      | Notes                         |
-| --------------- | --------- | ----------------------------- |
-| Full Bundle     | ~10.6 KB  | Complete functionality        |
-| Core Only       | ~6.8 KB   | DOM manipulation + events     |
-| HTTP            | ~0.7 KB   | Fetch utilities               |
-| Templates       | ~2.8 KB   | Template engine               |
-| Forms           | ~1.7 KB   | Form helpers                  |
-| Motion          | ~6.5 KB   | Animations                    |
-
-Actual sizes depend on your bundler and configuration.
-
 ### Current Bundle Sizes (raw dist)
 
 <!-- AUTO-GENERATED: BUNDLE_SIZES_START -->
 | Module | ESM (KB) | CJS (KB) |
 | --- | --- | --- |
-| Full | 65.90 | 66.86 |
+| Full | 68.98 | 69.94 |
 | Core | 27.55 | 28.10 |
-| HTTP | 6.20 | 6.70 |
+| HTTP | 9.25 | 9.75 |
 | Templates | 16.66 | 17.26 |
 | Forms | 4.55 | 5.11 |
 | Motion | 31.51 | 32.05 |

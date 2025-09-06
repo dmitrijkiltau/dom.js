@@ -498,20 +498,17 @@ dom(".items").highlight();
 ## Browser Support & Size
 
 - Target: ES2020+ (modern evergreen browsers)
-- Bundle Size (min+gzip, ESM, v1.6.x):
-  - Full bundle: ~10–11 KB
-  - Core only: ~6–7 KB
-  - Modules (each): HTTP ~0.7 KB, Forms ~1.7 KB, Templates ~2.8 KB, Motion ~6.5 KB
 - Dependencies: Zero
+- Sizes: see the auto‑generated table below (raw minified dist). Gzipped sizes vary by bundler and project and are not hard‑coded here to avoid drift.
 
 ### Current Bundle Sizes (raw dist)
 
 <!-- AUTO-GENERATED: BUNDLE_SIZES_START -->
 | Module | ESM (KB) | CJS (KB) |
 | --- | --- | --- |
-| Full | 65.90 | 66.86 |
+| Full | 68.98 | 69.94 |
 | Core | 27.55 | 28.10 |
-| HTTP | 6.20 | 6.70 |
+| HTTP | 9.25 | 9.75 |
 | Templates | 16.66 | 17.26 |
 | Forms | 4.55 | 5.11 |
 | Motion | 31.51 | 32.05 |
