@@ -43,6 +43,48 @@ const api = Object.assign(function core<T extends Element = Element>(input?: Sel
   DOMCollection
 });
 
+// ——— Install SSR-safe stubs on DOMCollection ———
+// These mirror motion/scroll collection methods so code can call them on server.
+// Motion methods resolve immediately with the original collection; scroll methods no-op.
+(() => {
+  const proto: any = (DOMCollection as any).prototype;
+
+  // Motion: Promise-returning methods resolve immediately
+  const resolved = function <T>(this: T): Promise<T> { return Promise.resolve(this); };
+
+  proto.animate = function () { return resolved.call(this); };
+  proto.sequence = function () { return resolved.call(this); };
+  proto.stagger = function () { return resolved.call(this); };
+  proto.fadeIn = function () { return resolved.call(this); };
+  proto.fadeOut = function () { return resolved.call(this); };
+  proto.fadeToggle = function () { return resolved.call(this); };
+  proto.slideUp = function () { return resolved.call(this); };
+  proto.slideDown = function () { return resolved.call(this); };
+  proto.slideToggle = function () { return resolved.call(this); };
+  proto.pulse = function () { return resolved.call(this); };
+  proto.shake = function () { return resolved.call(this); };
+
+  // Visibility preset helper
+  proto.withVisible = function () {
+    const base = this;
+    return {
+      animate: () => Promise.resolve(base),
+      sequence: () => Promise.resolve(base),
+      fadeIn: () => Promise.resolve(base),
+      slideDown: () => Promise.resolve(base)
+    };
+  };
+
+  // Motion control: no-ops returning the collection
+  proto.pause = function () { return this; };
+  proto.resume = function () { return this; };
+  proto.cancel = function () { return this; };
+  proto.stop = function () { return this; };
+
+  // Scroll collection helpers: no-ops returning the collection
+  proto.scrollIntoView = function () { return this; };
+  proto.scrollIntoViewIfNeeded = function () { return this; };
+})();
+
 export type ServerDom = typeof api;
 export default api;
-
