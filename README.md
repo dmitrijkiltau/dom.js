@@ -175,7 +175,11 @@ isUnsafeHTML("<i>also trusted</i>"); // alias for readability
 ```
 
 Bindings overview:
-- `data-text`, `data-html`, `data-safe-html`, `data-attr-*`, `data-show`, `data-hide`
+- `data-text`, `data-html`, `data-safe-html`
+- `data-attr-*`, `data-on-*`
+- `data-show`, `data-hide`
+- `data-class-<name>` toggle classes by truthy expr
+- `data-style-<prop>` set/remove inline styles
 - `data-on-<type>="handler(args)"` (event is first arg implicitly)
 - `data-each="items as item, i [by key]"` (keyed loops supported)
 - `data-include="#tplId"` or renderer ref + optional `data-with`

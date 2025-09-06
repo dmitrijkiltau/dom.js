@@ -106,7 +106,11 @@ Functions:
 - Safety: `escapeHTML(str)`, `unsafeHTML(str)`, `isUnsafeHTML(str)` (alias)
 
 Bindings (overview):
-- `data-text`, `data-html`, `data-safe-html`, `data-attr-*`, `data-show`, `data-hide`
+- `data-text`, `data-html`, `data-safe-html`
+- `data-attr-*`, `data-on-*`
+- `data-show`, `data-hide`
+- `data-class-<name>`: toggle class on truthy
+- `data-style-<prop>`: set/remove inline style
 - `data-on-<type>="handler(args)"` (event passed as first arg implicitly)
 - Loops: `data-each="items as item, i [by key]"` (supports keyed diff; also `data-key`)
 - Includes: `data-include="#tplId"` or renderer ref, optional `data-with` for context

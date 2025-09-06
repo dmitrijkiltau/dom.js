@@ -181,6 +181,35 @@ function compilePlanNode(node: Element): Plan {
     bindings.push({ attach(el) { return { update(scope) { (el as HTMLElement).innerHTML = escapeHTML(acc(scope)); } }; } });
   }
 
+  // Toggle classes via data-class-<name>="expr"
+  for (const attr of Array.from(node.attributes)) {
+    if (!attr.name.startsWith('data-class-')) continue;
+    const original = attr.name; const className = original.replace('data-class-', ''); const expr = attr.value;
+    if (!className) { node.removeAttribute(original); continue; }
+    const acc = compileAccessor(expr);
+    node.removeAttribute(original);
+    bindings.push({ attach(el) { return { update(scope) {
+      const on = truthy(acc(scope));
+      const cl = (el as Element).classList;
+      if (on) cl.add(className); else cl.remove(className);
+    } }; } });
+  }
+
+  // Inline styles via data-style-<prop>="expr"
+  for (const attr of Array.from(node.attributes)) {
+    if (!attr.name.startsWith('data-style-')) continue;
+    const original = attr.name; const prop = original.replace('data-style-', ''); const expr = attr.value;
+    if (!prop) { node.removeAttribute(original); continue; }
+    const acc = compileAccessor(expr);
+    node.removeAttribute(original);
+    bindings.push({ attach(el) { return { update(scope) {
+      const style = (el as HTMLElement).style;
+      const val = acc(scope);
+      if (val === false || val == null || val === '') style.removeProperty(prop);
+      else style.setProperty(prop, String(val));
+    } }; } });
+  }
+
   // Snapshot attributes for data-attr-* and data-on-*
   for (const attr of Array.from(node.attributes)) {
     if (!attr.name.startsWith('data-attr-')) continue;
