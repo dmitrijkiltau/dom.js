@@ -1,13 +1,13 @@
-# @dk/dom-js
+# @klt/dom-js
 
 A lightweight, modular DOM manipulation library with chainable API, zero dependencies, and modern ES modules.
 
-[![npm version](https://badge.fury.io/js/@dmitrijkiltau%2F@dk/dom-js.svg)](https://www.npmjs.com/package/@dk/dom-js)
+[![npm version](https://badge.fury.io/js/@dmitrijkiltau%2F@klt/dom-js.svg)](https://www.npmjs.com/package/@klt/dom-js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Table of Contents
 
-- [@dk/dom-js](#domjs)
+- [@klt/dom-js](#domjs)
   - [Table of Contents](#table-of-contents)
   - [Features](#features)
   - [Install](#install)
@@ -45,31 +45,31 @@ A lightweight, modular DOM manipulation library with chainable API, zero depende
 ## Install
 
 ```bash
-npm install @dk/dom-js
+npm install @klt/dom-js
 ```
 
 ESM:
 
 ```js
-import dom from "@dk/dom-js";
+import dom from "@klt/dom-js";
 ```
 
 CDN (pinned):
 
 ```js
-import dom from "https://unpkg.com/@dk/dom-js@1.6.2/dist/index.js";
+import dom from "https://unpkg.com/@klt/dom-js@1.6.2/dist/index.js";
 ```
 
 CommonJS:
 
 ```js
-const dom = require("@dk/dom-js");
+const dom = require("@klt/dom-js");
 ```
 
 ## Quick Start
 
 ```js
-import dom from "@dk/dom-js";
+import dom from "@klt/dom-js";
 
 dom(".my-items")
   .addClass("active")
@@ -82,20 +82,20 @@ Choose what you need:
 
 ```js
 // 1) Full bundle (everything)
-import dom from "@dk/dom-js";
+import dom from "@klt/dom-js";
 
 // 2) Core only (DOM + events)
-import dom from "@dk/dom-js/core";
+import dom from "@klt/dom-js/core";
 
 // 3) Modular (cherry-pick)
-import dom from "@dk/dom-js/core";
-import { http } from "@dk/dom-js/http";
-import { renderTemplate, useTemplate, tpl } from "@dk/dom-js/template";
-import { onSubmit, serializeForm, toFormData, toQueryString, setForm, resetForm, validateForm } from "@dk/dom-js/forms";
-import { animate, animations } from "@dk/dom-js/motion";
-import { debounce, throttle, nextTick, raf, rafThrottle } from "@dk/dom-js/utils";
-import { onIntersect, inView, onResize, onMutation } from "@dk/dom-js/observers";
-import { scrollIntoView, scrollIntoViewIfNeeded, lockScroll, unlockScroll } from "@dk/dom-js/scroll";
+import dom from "@klt/dom-js/core";
+import { http } from "@klt/dom-js/http";
+import { renderTemplate, useTemplate, tpl } from "@klt/dom-js/template";
+import { onSubmit, serializeForm, toFormData, toQueryString, setForm, resetForm, validateForm } from "@klt/dom-js/forms";
+import { animate, animations } from "@klt/dom-js/motion";
+import { debounce, throttle, nextTick, raf, rafThrottle } from "@klt/dom-js/utils";
+import { onIntersect, inView, onResize, onMutation } from "@klt/dom-js/observers";
+import { scrollIntoView, scrollIntoViewIfNeeded, lockScroll, unlockScroll } from "@klt/dom-js/scroll";
 ```
 
 ## Core API Highlights
@@ -151,7 +151,7 @@ HTML templates with data binding, conditionals, loops, includes, safe escaping, 
 ``` 
 
 ```js
-import { renderTemplate, useTemplate, tpl, escapeHTML, unsafeHTML, isUnsafeHTML } from "@dk/dom-js/template";
+import { renderTemplate, useTemplate, tpl, escapeHTML, unsafeHTML, isUnsafeHTML } from "@klt/dom-js/template";
 
 const data = {
   title: "Docs",
@@ -195,13 +195,13 @@ Performance notes:
 
 Diagnostics (dev):
 - Enable dev logging for template binding errors and invalid expressions:
-  `import { setTemplateDevMode } from '@dk/dom-js/template'; setTemplateDevMode(true);`
+  `import { setTemplateDevMode } from '@klt/dom-js/template'; setTemplateDevMode(true);`
 - Logs include event handler exceptions, non-function handlers, include ref issues, and safe destroy/hydrate errors.
 
 ## Forms
 
 ```js
-import { onSubmit, serializeForm, toQueryString, toFormData, setForm, resetForm, validateForm } from "@dk/dom-js/forms";
+import { onSubmit, serializeForm, toQueryString, toFormData, setForm, resetForm, validateForm } from "@klt/dom-js/forms";
 
 onSubmit("#contact", async (data, ev) => {
   console.log("submit", data);
@@ -222,7 +222,7 @@ const { valid, errors } = validateForm("#my-form");
 Top‑level helpers work with `window`, `document`, Elements, and DOMCollections; collection methods are chainable.
 
 ```js
-import dom, { on, once, off, ready } from "@dk/dom-js";
+import dom, { on, once, off, ready } from "@klt/dom-js";
 
 // Multiple types + namespaces
 const stop = on(window, "scroll resize.ns", handler, { passive: true });
@@ -260,7 +260,7 @@ dom('#btn').trigger(ev);
 Fetch wrapper with baseUrl, default query/headers, retries, interceptors, cache, progress, and throw‑on‑error.
 
 ```js
-import { http } from "@dk/dom-js/http";
+import { http } from "@klt/dom-js/http";
 
 const api = http
   .withBaseUrl("/api")
@@ -302,7 +302,7 @@ await api.post('/upload', new Blob([/* ... */]), {
 ## Motion
 
 ```js
-import { animate, animations, sequence, stagger } from "@dk/dom-js/motion";
+import { animate, animations, sequence, stagger } from "@klt/dom-js/motion";
 
 const [kf, op] = animations.fadeIn(250);
 await animate(dom(".box").el(), kf, op).finished;
@@ -331,9 +331,9 @@ await dom('#row').withVisible('flex').slideDown(200);
 ## Utilities & Observers
 
 ```js
-import { debounce, throttle, nextTick, raf, rafThrottle } from "@dk/dom-js/utils";
-import { onIntersect, onResize, onMutation } from "@dk/dom-js/observers";
-import { scrollIntoView, scrollIntoViewIfNeeded, lockScroll, unlockScroll } from "@dk/dom-js/scroll";
+import { debounce, throttle, nextTick, raf, rafThrottle } from "@klt/dom-js/utils";
+import { onIntersect, onResize, onMutation } from "@klt/dom-js/observers";
+import { scrollIntoView, scrollIntoViewIfNeeded, lockScroll, unlockScroll } from "@klt/dom-js/scroll";
 
 const onType = debounce(() => {/* ... */}, 150);
 await nextTick(); await raf();
@@ -366,7 +366,7 @@ unlockScroll('#panel');
 ## SSR (Server‑Safe)
 
 ```js
-import dom from "@dk/dom-js/server";
+import dom from "@klt/dom-js/server";
 
 dom(".x");              // -> empty collection on server
 dom.on(window, "x");    // -> no-op unbinder on server
@@ -381,7 +381,7 @@ Environment safeguards: no `window`/`document` access at import time; `ready()` 
 
 ### Hydration (client)
 
-If your HTML was rendered using @dk/dom-js templates (so it contains the `if/each/include` anchor comments), you can hydrate the existing DOM instead of re‑creating it. This wires event listeners and bindings while preserving the server‑rendered markup.
+If your HTML was rendered using @klt/dom-js templates (so it contains the `if/each/include` anchor comments), you can hydrate the existing DOM instead of re‑creating it. This wires event listeners and bindings while preserving the server‑rendered markup.
 
 ```html
 <template id="user">
@@ -397,14 +397,14 @@ If your HTML was rendered using @dk/dom-js templates (so it contains the `if/eac
       </li>
     </ol>
   </div>
-  <!-- When rendered by @dk/dom-js, if/each/include are wrapped with comment anchors like `if:start`/`if:end`. -->
+  <!-- When rendered by @klt/dom-js, if/each/include are wrapped with comment anchors like `if:start`/`if:end`. -->
   <!-- Those anchors enable fast, reliable hydration. -->
   <!-- On the server, pre-render using the same template so anchors are present in the HTML. -->
 </template>
 ```
 
 ```js
-import { hydrateTemplate } from '@dk/dom-js/template';
+import { hydrateTemplate } from '@klt/dom-js/template';
 
 const root = document.querySelector('#root');
 const state = { count: 1, onClick: () => console.log('clicked'), showA: true, items: ['A','B'] };
@@ -439,7 +439,7 @@ dom('#list').on('click', 'a.item', (e, link) => link.focus());
 Augment `CustomEventMap` to type your custom events by name. Overloads on `dom.on`, `dom().on`, and `dom().once` pick up these types.
 
 ```ts
-declare module '@dk/dom-js' {
+declare module '@klt/dom-js' {
   interface CustomEventMap {
     'user:login': { id: string };
     'cart:updated': { items: number };
@@ -473,7 +473,7 @@ type FormShape = {
 const data1 = dom('form').serialize<FormShape>();
 
 // Forms module
-import { serializeForm, onSubmit } from '@dk/dom-js/forms';
+import { serializeForm, onSubmit } from '@klt/dom-js/forms';
 const data2 = serializeForm<FormShape>(document.querySelector('form')!);
 
 onSubmit<FormShape>('form', (data, ev) => {
@@ -485,7 +485,7 @@ onSubmit<FormShape>('form', (data, ev) => {
 ## Plugin System
 
 ```js
-import dom, { use } from "@dk/dom-js";
+import dom, { use } from "@klt/dom-js";
 
 use((api) => {
   api.flash = (selector) => api(selector).animate([{ opacity: 0 }, { opacity: 1 }], { duration: 150 });
@@ -503,7 +503,7 @@ dom(".items").highlight();
 Inject an access token on every request, and transparently refresh on 401. Uses `withInterceptors`, `withThrowOnError`, and optional `withRetryAfter`.
 
 ```ts
-import { http } from '@dk/dom-js/http'
+import { http } from '@klt/dom-js/http'
 
 let accessToken: string | null = null
 const getToken = () => accessToken
@@ -576,7 +576,7 @@ Use keys to preserve elements when reordering or updating items. You can specify
 ```
 
 ```js
-import { renderTemplate } from '@dk/dom-js/template'
+import { renderTemplate } from '@klt/dom-js/template'
 
 const view = renderTemplate('#todos-tpl', {
   todos: [
@@ -615,7 +615,7 @@ Add new methods to `dom` and `DOMCollection` with type‑safe augmentation. Ship
 
 ```ts
 // types.d.ts — in your app or plugin package
-declare module '@dk/dom-js' {
+declare module '@klt/dom-js' {
   interface Dom {
     flash(selector: string, ms?: number): Promise<void>
   }
@@ -627,7 +627,7 @@ declare module '@dk/dom-js' {
 
 ```ts
 // plugin.ts
-import dom, { use } from '@dk/dom-js'
+import dom, { use } from '@klt/dom-js'
 
 use((api) => {
   api.flash = async (selector: string, ms = 150) => {

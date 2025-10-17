@@ -108,7 +108,7 @@ export function addFormExamples() {
           </form>
           <div id="form-results"></div>
         `,
-        code: `import { onSubmit, serializeForm, toQueryString } from '@dk/dom-js';
+        code: `import { onSubmit, serializeForm, toQueryString } from '@klt/dom-js';
 
 // Handle form submission
 onSubmit('#demo-form', async (data, event) => {
@@ -178,7 +178,7 @@ console.log(data);`
           </div>
           <div id="populate-output" class="text-sm text-gray-700 bg-gray-100 p-3 rounded"></div>
         `,
-        code: `import { setForm, resetForm, serializeForm } from '@dk/dom-js/forms';
+        code: `import { setForm, resetForm, serializeForm } from '@klt/dom-js/forms';
 
 // Populate with nested values
 setForm('#populate-form', {
@@ -219,7 +219,7 @@ resetForm('#populate-form');`
           </div>
           <div id="validation-output" class="text-sm bg-gray-100 p-3 rounded text-gray-800"></div>
         `,
-        code: `import { validateForm, onSubmit } from '@dk/dom-js/forms';
+        code: `import { validateForm, onSubmit } from '@klt/dom-js/forms';
 
 // Validate manually
 const { valid, errors } = validateForm('#validation-form');

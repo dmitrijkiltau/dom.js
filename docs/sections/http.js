@@ -53,7 +53,7 @@ export function addHttpExamples() {
             </div>
           </div>
         `,
-        code: `import { http } from '@dk/dom-js';
+        code: `import { http } from '@klt/dom-js';
 
 // GET request
 try {
@@ -115,7 +115,7 @@ const html = await response.html();     // DOM Element`
                 <h5 class="font-medium mb-2">Default Headers</h5>
                 <div class="space-y-2">
                   <input id="auth-header" class="input text-sm" placeholder="Authorization" value="Bearer demo-token">
-                  <input id="client-header" class="input text-sm" placeholder="X-Client" value="@dk/dom-js-demo">
+                  <input id="client-header" class="input text-sm" placeholder="X-Client" value="@klt/dom-js-demo">
                   <input id="version-header" class="input text-sm" placeholder="X-Version" value="1.0">
                   <button id="headers-demo" class="btn btn-primary w-full text-sm">Test Headers</button>
                 </div>
@@ -136,7 +136,7 @@ const html = await response.html();     // DOM Element`
             </div>
           </div>
         `,
-        code: `import { http } from '@dk/dom-js';
+        code: `import { http } from '@klt/dom-js';
 
 // Create HTTP client with timeout
 const timeoutHttp = http.withTimeout(5000); // 5 second timeout
@@ -179,7 +179,7 @@ const response = await authedHttp.get('/endpoint', {
                 <div class="space-y-2">
                   <label class="block text-sm font-medium">Custom Headers</label>
                   <input id="auth-token" class="input text-sm" placeholder="Authorization token" value="Bearer sample-token">
-                  <input id="custom-header" class="input text-sm" placeholder="X-Custom-Header" value="@dk/dom-js-demo">
+                  <input id="custom-header" class="input text-sm" placeholder="X-Custom-Header" value="@klt/dom-js-demo">
                 </div>
               </div>
               <div>
@@ -198,7 +198,7 @@ const response = await authedHttp.get('/endpoint', {
             
             <div class="space-y-2">
               <label class="block text-sm font-medium">Request Body (for POST/PUT)</label>
-              <textarea id="request-body" class="input" rows="3" placeholder="JSON payload...">{ "message": "Hello from @dk/dom-js!", "timestamp": "2025-08-26T14:59:44.987Z" }</textarea>
+              <textarea id="request-body" class="input" rows="3" placeholder="JSON payload...">{ "message": "Hello from @klt/dom-js!", "timestamp": "2025-08-26T14:59:44.987Z" }</textarea>
             </div>
             
             <div class="flex space-x-2">
@@ -211,7 +211,7 @@ const response = await authedHttp.get('/endpoint', {
             </div>
           </div>
         `,
-        code: `import { http } from '@dk/dom-js';
+        code: `import { http } from '@klt/dom-js';
 
 // Advanced request with custom headers
 const customHeaders = {
@@ -222,7 +222,7 @@ const customHeaders = {
 
 try {
   const response = await http.post('/api/data', {
-    message: 'Hello from @dk/dom-js!',
+    message: 'Hello from @klt/dom-js!',
     timestamp: new Date().toISOString()
   }, {
     headers: customHeaders
@@ -389,8 +389,8 @@ const requestWithRetry = async (url, options = {}, maxRetries = 3) => {
     showLoading();
 
     const samplePost = {
-      title: 'Sample Post from @dk/dom-js',
-      body: 'This is a demonstration of the HTTP POST functionality in @dk/dom-js. This will be sent to the JSONPlaceholder API.',
+      title: 'Sample Post from @klt/dom-js',
+      body: 'This is a demonstration of the HTTP POST functionality in @klt/dom-js. This will be sent to the JSONPlaceholder API.',
       userId: 1
     };
 

@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
 /**
- * Feature demonstration and integration tests for @dk/dom-js
+ * Feature demonstration and integration tests for @klt/dom-js
  * Shows all the new functionality in action
  */
 
 import api, { dom, DOMCollection, animations, once } from '../dist/index.js';
 
-console.log('🎉 Running @dk/dom-js feature demonstrations...\n');
+console.log('🎉 Running @klt/dom-js feature demonstrations...\n');
 
 // Create a mock DOM environment for testing
 if (typeof document === 'undefined') {
@@ -46,5 +46,5 @@ console.log('   • After:  ~11KB ESM, ~12KB CJS');
 console.log('   • Added:  ~4KB for significant functionality increase');
 console.log('   • Still zero dependencies ✅');
 
-console.log('\n✨ All enhancements maintain the lightweight, chainable nature of @dk/dom-js!');
+console.log('\n✨ All enhancements maintain the lightweight, chainable nature of @klt/dom-js!');
 console.log('   The API surface has grown significantly while preserving simplicity.');

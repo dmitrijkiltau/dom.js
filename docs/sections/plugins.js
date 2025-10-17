@@ -12,7 +12,7 @@ export function addPluginExamples() {
     title: 'Plugin System',
     content: `
       <p class="text-gray-700 mb-4">
-        Extend @dk/dom-js with custom functionality using the plugin system.
+        Extend @klt/dom-js with custom functionality using the plugin system.
       </p>
     `
   }));
@@ -57,7 +57,7 @@ export function addPluginExamples() {
             </div>
           </div>
         `,
-        code: `import { use } from '@dk/dom-js';
+        code: `import { use } from '@klt/dom-js';
 
 // Flash effect plugin
 dom.use((api) => {
@@ -123,7 +123,7 @@ dom.typewriter('#output', 'Hello World!', { speed: 100 });`
                 <h5 class="font-medium">Highlight Plugin</h5>
                 <input id="search-text" placeholder="Type to highlight..." class="input text-sm">
                 <div class="demo-area border border-gray-300 rounded p-3 h-32 bg-gray-100 text-sm overflow-y-auto" id="highlight-content">
-                  <p>@dk/dom-js is a lightweight, modern DOM manipulation library that provides an intuitive chainable API with ES modules support and no dependencies.</p>
+                  <p>@klt/dom-js is a lightweight, modern DOM manipulation library that provides an intuitive chainable API with ES modules support and no dependencies.</p>
                   <p>It's designed for modern browsers and offers a chainable, intuitive API for DOM manipulation, templating, forms, events, HTTP requests, and animations.</p>
                 </div>
               </div>
@@ -204,7 +204,7 @@ dom.use((api) => {
 
 // Usage
 dom('#draggable-element').draggable({ axis: 'x' });
-dom('#content').highlight('@dk/dom-js');`
+dom('#content').highlight('@klt/dom-js');`
       },
       {
         id: 'collection-extensions',
@@ -603,7 +603,7 @@ dom('.list-item')
 
   dom('#typewriter-demo').on('click', () => {
     const messages = [
-      'Hello from @dk/dom-js!',
+      'Hello from @klt/dom-js!',
       'This is a typewriter effect!',
       'Plugins make extension easy!',
       'Build amazing things!',

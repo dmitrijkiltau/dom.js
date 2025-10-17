@@ -1,21 +1,21 @@
-# @dk/dom-js Reference
+# @klt/dom-js Reference
 
-This reference provides a compact, scan-friendly overview of @dk/dom-js: entries, modules, and API surfaces. It complements README.md (getting started) and ARCHITECTURE.md (design and DX).
+This reference provides a compact, scan-friendly overview of @klt/dom-js: entries, modules, and API surfaces. It complements README.md (getting started) and ARCHITECTURE.md (design and DX).
 
 ## Package Entries
 
 | Import                                  | Includes                                             | Import‑safe on server | Typical use |
 | --------------------------------------- | ---------------------------------------------------- | --------------------- | ----------- |
-| `@dk/dom-js`                 | Full bundle: core, templates, forms, http, motion…   | Yes (DOM used at call)| Easiest start |
-| `@dk/dom-js/core`            | Core DOM selection, traversal, events, utils bridge  | Yes                   | Minimal DOM toolkit |
-| `@dk/dom-js/http`            | HTTP client                                          | Yes                   | API calls only |
-| `@dk/dom-js/template`        | Template engine (render/use/mount, escape helpers)   | Yes                   | HTML templates |
-| `@dk/dom-js/forms`           | Form serialize/populate/reset/validate/submit        | Yes                   | Forms utilities |
-| `@dk/dom-js/motion`          | Animations and composition helpers                   | Yes                   | Web Animations |
-| `@dk/dom-js/utils`           | debounce/throttle/nextTick/raf(/rafThrottle)         | Yes                   | Scheduling & rate‑limit |
-| `@dk/dom-js/observers`       | onIntersect/onResize/onMutation wrappers             | Yes                   | Observers |
-| `@dk/dom-js/scroll`          | scrollIntoView + scroll lock                         | Yes                   | Scrolling |
-| `@dk/dom-js/server`          | Server‑safe entry (no real DOM ops)                  | Yes                   | SSR/Node import |
+| `@klt/dom-js`                 | Full bundle: core, templates, forms, http, motion…   | Yes (DOM used at call)| Easiest start |
+| `@klt/dom-js/core`            | Core DOM selection, traversal, events, utils bridge  | Yes                   | Minimal DOM toolkit |
+| `@klt/dom-js/http`            | HTTP client                                          | Yes                   | API calls only |
+| `@klt/dom-js/template`        | Template engine (render/use/mount, escape helpers)   | Yes                   | HTML templates |
+| `@klt/dom-js/forms`           | Form serialize/populate/reset/validate/submit        | Yes                   | Forms utilities |
+| `@klt/dom-js/motion`          | Animations and composition helpers                   | Yes                   | Web Animations |
+| `@klt/dom-js/utils`           | debounce/throttle/nextTick/raf(/rafThrottle)         | Yes                   | Scheduling & rate‑limit |
+| `@klt/dom-js/observers`       | onIntersect/onResize/onMutation wrappers             | Yes                   | Observers |
+| `@klt/dom-js/scroll`          | scrollIntoView + scroll lock                         | Yes                   | Scrolling |
+| `@klt/dom-js/server`          | Server‑safe entry (no real DOM ops)                  | Yes                   | SSR/Node import |
 
 Note: “Import‑safe on server” means modules do not access `window`/`document` at import time. DOM‑touching functions still require a browser.
 
@@ -180,14 +180,14 @@ Notes:
 
 - Generics: `dom<T>(selector)` → `DOMCollection<T>` for typed chains
 - Events: names map to DOM event types (top‑level and collection)
-- Custom events typing: augment `interface CustomEventMap {}` in `@dk/dom-js` to map names → detail payloads. Overloads enable:
+- Custom events typing: augment `interface CustomEventMap {}` in `@klt/dom-js` to map names → detail payloads. Overloads enable:
   - `dom.on(window|document|element, 'my:event', (e) => e.detail …)`
   - `dom('#btn').on<'my:event'>('my:event', (e) => e.detail …)`
 - Typed serialization:
   - `DOMCollection.prototype.serialize<T = Record<string, any>>(): T`
   - `serializeForm<T = Record<string, any>>(form): T` (forms module)
   - `onSubmit<T = Record<string, any>>(form, (data: T, ev) => …)` (forms module)
-- Augmentation: `declare module '@dk/dom-js' { interface Dom { … } }` then `dom.use(api => { /* add methods */ })`
+- Augmentation: `declare module '@klt/dom-js' { interface Dom { … } }` then `dom.use(api => { /* add methods */ })`
 Notes:
 - For explicit raw HTML intent, templates may use `data-html="unsafe(expr)"`.
 - Alternatively, return a wrapper from data using `unsafeHTML(x)` / `isUnsafeHTML(x)` and bind with `data-html="path"`.

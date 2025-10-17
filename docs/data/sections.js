@@ -6,20 +6,20 @@ export const sections = [
     content: `
       <div class="space-y-6">
         <p class="text-lg text-gray-800">
-          @dk/dom-js is a lightweight, modern DOM utility with a chainable API, zero dependencies, and first-class ES modules.
+          @klt/dom-js is a lightweight, modern DOM utility with a chainable API, zero dependencies, and first-class ES modules.
         </p>
 
         <div class="grid gap-6 md:grid-cols-2">
           <div class="bg-gray-50 rounded-lg p-4 border">
             <h4 class="text-lg font-semibold mb-2">Install</h4>
-            <pre class="code-block"><code>npm install @dk/dom-js</code></pre>
+            <pre class="code-block"><code>npm install @klt/dom-js</code></pre>
             <p class="text-sm text-gray-600 mt-2">Works with Vite, Next, webpack, and plain ES modules.</p>
           </div>
           <div class="bg-gray-50 rounded-lg p-4 border">
             <h4 class="text-lg font-semibold mb-2">CDN (try it now)</h4>
-            <pre class="code-block"><code>import dom from 'https://unpkg.com/@dk/dom-js/dist/index.js';</code></pre>
+            <pre class="code-block"><code>import dom from 'https://unpkg.com/@klt/dom-js/dist/index.js';</code></pre>
             <p class="text-sm text-gray-600 mt-2">Pin a version for stability:</p>
-            <pre class="code-block text-xs"><code>import dom from 'https://unpkg.com/@dk/dom-js@1.5.1/dist/index.js';</code></pre>
+            <pre class="code-block text-xs"><code>import dom from 'https://unpkg.com/@klt/dom-js@1.5.1/dist/index.js';</code></pre>
           </div>
         </div>
 
@@ -34,17 +34,17 @@ export const sections = [
             <pre class="code-block"><code class="language-javascript" data-import-code></code></pre>
 
             <!-- Hidden raw code variants -->
-            <pre class="hidden" data-variant="full"><code data-no-highlight>import dom from '@dk/dom-js';</code></pre>
-            <pre class="hidden" data-variant="core"><code data-no-highlight>import dom from '@dk/dom-js/core';</code></pre>
-            <pre class="hidden" data-variant="modular"><code data-no-highlight>import dom from '@dk/dom-js/core';
-import { http } from '@dk/dom-js/http';</code></pre>
+            <pre class="hidden" data-variant="full"><code data-no-highlight>import dom from '@klt/dom-js';</code></pre>
+            <pre class="hidden" data-variant="core"><code data-no-highlight>import dom from '@klt/dom-js/core';</code></pre>
+            <pre class="hidden" data-variant="modular"><code data-no-highlight>import dom from '@klt/dom-js/core';
+import { http } from '@klt/dom-js/http';</code></pre>
           </div>
           <p class="text-sm text-blue-700 mt-2">See <a class="underline" href="#installation">Installation</a> and <a class="underline" href="#modular-architecture">Modular Architecture</a> for details.</p>
         </div>
 
         <div>
           <h4 class="text-lg font-semibold mb-2">30‑second example</h4>
-          <pre class="code-block"><code>import dom from '@dk/dom-js';
+          <pre class="code-block"><code>import dom from '@klt/dom-js';
 
 dom('#app').html('&lt;button class="btn"&gt;Click&lt;/button&gt;');
 
@@ -87,7 +87,7 @@ dom('.btn')
       <div class="space-y-6">
         <div>
           <h4 class="text-lg font-semibold mb-2">npm</h4>
-          <pre class="code-block"><code>npm install @dk/dom-js</code></pre>
+          <pre class="code-block"><code>npm install @klt/dom-js</code></pre>
         </div>
         
         <div class="bg-blue-50 border-l-4 border-blue-400 p-4">
@@ -95,7 +95,7 @@ dom('.btn')
             <div class="ml-3">
               <h4 class="text-lg font-medium text-blue-900 mb-3">🏗️ Modular Architecture</h4>
               <p class="text-blue-700 mb-3">
-                @dk/dom-js now features a modular architecture for optimal bundle sizes. Choose the import style that fits your needs:
+                @klt/dom-js now features a modular architecture for optimal bundle sizes. Choose the import style that fits your needs:
               </p>
             </div>
           </div>
@@ -112,18 +112,18 @@ dom('.btn')
             </div>
             <pre class="code-block"><code class="language-javascript" data-import-code></code></pre>
 
-            <pre class="hidden" data-variant="full-esm"><code data-no-highlight>import dom from '@dk/dom-js';
+            <pre class="hidden" data-variant="full-esm"><code data-no-highlight>import dom from '@klt/dom-js';
 
 // Everything included
 dom('.elements').fadeIn(200);
 await dom.http.get('/api/data');</code></pre>
-            <pre class="hidden" data-variant="core-esm"><code data-no-highlight>import dom from '@dk/dom-js/core';
+            <pre class="hidden" data-variant="core-esm"><code data-no-highlight>import dom from '@klt/dom-js/core';
 
 // DOM + events only
 dom('.elements').addClass('active').on('click', handler);</code></pre>
-            <pre class="hidden" data-variant="modular-esm"><code data-no-highlight>import dom from '@dk/dom-js/core';
-import { http } from '@dk/dom-js/http';
-import { renderTemplate } from '@dk/dom-js/template';
+            <pre class="hidden" data-variant="modular-esm"><code data-no-highlight>import dom from '@klt/dom-js/core';
+import { http } from '@klt/dom-js/http';
+import { renderTemplate } from '@klt/dom-js/template';
 
 // Import only what you need
 const res = await http.get('/api');
@@ -142,11 +142,11 @@ const el = renderTemplate('#template', data);</code></pre>
             </div>
             <pre class="code-block"><code class="language-javascript" data-import-code></code></pre>
 
-            <pre class="hidden" data-variant="cdn-full"><code data-no-highlight>import dom from 'https://unpkg.com/@dk/dom-js/dist/index.js';</code></pre>
-            <pre class="hidden" data-variant="cdn-core"><code data-no-highlight>import dom from 'https://unpkg.com/@dk/dom-js/dist/core.js';</code></pre>
-            <pre class="hidden" data-variant="cdn-pinned"><code data-no-highlight>import dom from 'https://unpkg.com/@dk/dom-js@1.5.1/dist/index.js';
+            <pre class="hidden" data-variant="cdn-full"><code data-no-highlight>import dom from 'https://unpkg.com/@klt/dom-js/dist/index.js';</code></pre>
+            <pre class="hidden" data-variant="cdn-core"><code data-no-highlight>import dom from 'https://unpkg.com/@klt/dom-js/dist/core.js';</code></pre>
+            <pre class="hidden" data-variant="cdn-pinned"><code data-no-highlight>import dom from 'https://unpkg.com/@klt/dom-js@1.5.1/dist/index.js';
 // Core pinned:
-// import dom from 'https://unpkg.com/@dk/dom-js@1.5.1/dist/core.js';</code></pre>
+// import dom from 'https://unpkg.com/@klt/dom-js@1.5.1/dist/core.js';</code></pre>
           </div>
           
         </div>
@@ -161,10 +161,10 @@ const el = renderTemplate('#template', data);</code></pre>
             <pre class="code-block"><code class="language-javascript" data-import-code></code></pre>
 
             <pre class="hidden" data-variant="cjs-full"><code data-no-highlight>// Full bundle
-const dom = require('@dk/dom-js');</code></pre>
+const dom = require('@klt/dom-js');</code></pre>
             <pre class="hidden" data-variant="cjs-modular"><code data-no-highlight>// Modular subpath imports
-const { http } = require('@dk/dom-js/http');
-const { renderTemplate } = require('@dk/dom-js/template');</code></pre>
+const { http } = require('@klt/dom-js/http');
+const { renderTemplate } = require('@klt/dom-js/template');</code></pre>
           </div>
         </div>
       </div>
@@ -175,7 +175,7 @@ const { renderTemplate } = require('@dk/dom-js/template');</code></pre>
     title: 'Modular Architecture',
     content: `
       <p class="text-lg text-gray-700 mb-6">
-        @dk/dom-js features a flexible modular architecture that allows you to import only what you need, 
+        @klt/dom-js features a flexible modular architecture that allows you to import only what you need, 
         resulting in significantly smaller bundle sizes while maintaining 100% backward compatibility.
       </p>
 
@@ -186,7 +186,7 @@ const { renderTemplate } = require('@dk/dom-js/template');</code></pre>
               <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded mr-2">Full Bundle</span>
               Unchanged Experience
             </h4>
-            <pre class="code-block mb-3"><code>import dom from '@dk/dom-js';
+            <pre class="code-block mb-3"><code>import dom from '@klt/dom-js';
 
 // All features available (~13KB total)
 dom('.elements')
@@ -205,7 +205,7 @@ const element = dom.renderTemplate('#template', data);</code></pre>
               <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded mr-2">Core Only</span>
               43% Smaller
             </h4>
-            <pre class="code-block mb-3"><code>import dom from '@dk/dom-js/core';
+            <pre class="code-block mb-3"><code>import dom from '@klt/dom-js/core';
 
 // Core functionality only (~7KB total)
 dom('.elements')
@@ -227,9 +227,9 @@ dom('.elements')
             Maximum Flexibility
           </h4>
           <pre class="code-block mb-3"><code>// Import only what you need
-import dom from '@dk/dom-js/core';
-import { http } from '@dk/dom-js/http';
-import { renderTemplate } from '@dk/dom-js/template';
+import dom from '@klt/dom-js/core';
+import { http } from '@klt/dom-js/http';
+import { renderTemplate } from '@klt/dom-js/template';
 
 // Use core DOM functionality  
 dom('.elements').addClass('active');
@@ -319,7 +319,7 @@ const element = renderTemplate('#template', data);</code></pre>
     title: 'Core API',
     content: `
       <p class="text-gray-700 mb-4">
-        The core of @dk/dom-js is the <code class="bg-gray-200 px-2 py-1 rounded">dom()</code> function, 
+        The core of @klt/dom-js is the <code class="bg-gray-200 px-2 py-1 rounded">dom()</code> function, 
         which selects elements and returns a DOMCollection for chaining operations.
       </p>
       
@@ -330,12 +330,12 @@ const element = renderTemplate('#template', data);</code></pre>
             <div class="grid gap-4 md:grid-cols-2">
               <div>
                 <h5 class="font-medium text-gray-800 mb-2">Full Bundle</h5>
-                <pre class="text-sm bg-gray-100 p-2 rounded"><code>import dom from '@dk/dom-js';
+                <pre class="text-sm bg-gray-100 p-2 rounded"><code>import dom from '@klt/dom-js';
 // All features available</code></pre>
               </div>
               <div>
                 <h5 class="font-medium text-gray-800 mb-2">Core Only (43% smaller)</h5>
-                <pre class="text-sm bg-gray-100 p-2 rounded"><code>import dom from '@dk/dom-js/core';
+                <pre class="text-sm bg-gray-100 p-2 rounded"><code>import dom from '@klt/dom-js/core';
 // DOM manipulation + events only</code></pre>
               </div>
             </div>
@@ -391,11 +391,11 @@ dom('.buttons')
             <div class="grid gap-4 md:grid-cols-2">
               <div>
                 <h5 class="font-medium text-gray-800 mb-2">Full Bundle</h5>
-                <pre class="text-sm bg-gray-100 p-2 rounded"><code>import dom, { debounce, throttle, nextTick, raf, rafThrottle } from '@dk/dom-js';</code></pre>
+                <pre class="text-sm bg-gray-100 p-2 rounded"><code>import dom, { debounce, throttle, nextTick, raf, rafThrottle } from '@klt/dom-js';</code></pre>
               </div>
               <div>
                 <h5 class="font-medium text-gray-800 mb-2">Modular Import</h5>
-                <pre class="text-sm bg-gray-100 p-2 rounded"><code>import { debounce, throttle, nextTick, raf, rafThrottle } from '@dk/dom-js/utils';</code></pre>
+                <pre class="text-sm bg-gray-100 p-2 rounded"><code>import { debounce, throttle, nextTick, raf, rafThrottle } from '@klt/dom-js/utils';</code></pre>
               </div>
             </div>
           </div>
@@ -418,11 +418,11 @@ dom('.buttons')
             <div class="grid gap-4 md:grid-cols-2">
               <div>
                 <h5 class="font-medium text-gray-800 mb-2">Full Bundle</h5>
-                <pre class="text-sm bg-gray-100 p-2 rounded"><code>import dom, { onIntersect, onResize, onMutation } from '@dk/dom-js';</code></pre>
+                <pre class="text-sm bg-gray-100 p-2 rounded"><code>import dom, { onIntersect, onResize, onMutation } from '@klt/dom-js';</code></pre>
               </div>
               <div>
                 <h5 class="font-medium text-gray-800 mb-2">Modular Import</h5>
-                <pre class="text-sm bg-gray-100 p-2 rounded"><code>import { onIntersect, onResize, onMutation } from '@dk/dom-js/observers';</code></pre>
+                <pre class="text-sm bg-gray-100 p-2 rounded"><code>import { onIntersect, onResize, onMutation } from '@klt/dom-js/observers';</code></pre>
               </div>
             </div>
           </div>
@@ -482,7 +482,7 @@ dom('.buttons')
     title: 'Templates',
     content: `
       <p class="text-gray-700 mb-4">
-        @dk/dom-js provides a powerful template system with data binding using HTML template elements.
+        @klt/dom-js provides a powerful template system with data binding using HTML template elements.
         Templates support <code class="bg-gray-200 px-1 rounded">data-text</code>, 
         <code class="bg-gray-200 px-1 rounded">data-html</code>, and 
         <code class="bg-gray-200 px-1 rounded">data-attr-*</code> attributes for dynamic content.
@@ -495,11 +495,11 @@ dom('.buttons')
             <div class="grid gap-4 md:grid-cols-2">
               <div>
                 <h5 class="font-medium text-blue-800 mb-2">Full Bundle</h5>
-                <pre class="text-sm bg-blue-100 p-2 rounded"><code>import dom, { renderTemplate, useTemplate } from '@dk/dom-js';</code></pre>
+                <pre class="text-sm bg-blue-100 p-2 rounded"><code>import dom, { renderTemplate, useTemplate } from '@klt/dom-js';</code></pre>
               </div>
               <div>
                 <h5 class="font-medium text-blue-800 mb-2">Modular Import</h5>
-                <pre class="text-sm bg-blue-100 p-2 rounded"><code>import { renderTemplate, useTemplate } from '@dk/dom-js/template';</code></pre>
+                <pre class="text-sm bg-blue-100 p-2 rounded"><code>import { renderTemplate, useTemplate } from '@klt/dom-js/template';</code></pre>
               </div>
             </div>
           </div>
@@ -546,11 +546,11 @@ dom('.buttons')
             <div class="grid gap-4 md:grid-cols-2">
               <div>
                 <h5 class="font-medium text-green-800 mb-2">Full Bundle</h5>
-                <pre class="text-sm bg-green-100 p-2 rounded"><code>import dom, { onSubmit, serializeForm } from '@dk/dom-js';</code></pre>
+                <pre class="text-sm bg-green-100 p-2 rounded"><code>import dom, { onSubmit, serializeForm } from '@klt/dom-js';</code></pre>
               </div>
               <div>
                 <h5 class="font-medium text-green-800 mb-2">Modular Import</h5>
-                <pre class="text-sm bg-green-100 p-2 rounded"><code>import { onSubmit, serializeForm, toQueryString } from '@dk/dom-js/forms';</code></pre>
+                <pre class="text-sm bg-green-100 p-2 rounded"><code>import { onSubmit, serializeForm, toQueryString } from '@klt/dom-js/forms';</code></pre>
               </div>
             </div>
           </div>
@@ -579,8 +579,8 @@ dom('.buttons')
         <div>
           <h4 class="text-lg font-semibold mb-2">Mixed Usage Example</h4>
           <pre class="code-block"><code>// Core + Forms modular approach
-import dom from '@dk/dom-js/core';
-import { onSubmit } from '@dk/dom-js/forms';
+import dom from '@klt/dom-js/core';
+import { onSubmit } from '@klt/dom-js/forms';
 
 onSubmit('#contact-form', async (data, ev) => {
   dom('#status').text('Submitting...');
@@ -637,11 +637,11 @@ dom(element).on('mouseenter mouseleave', handler);</code></pre>
             <div class="grid gap-4 md:grid-cols-2">
               <div>
                 <h5 class="font-medium text-purple-800 mb-2">Full Bundle</h5>
-                <pre class="text-sm bg-purple-100 p-2 rounded"><code>import dom, { http } from '@dk/dom-js';</code></pre>
+                <pre class="text-sm bg-purple-100 p-2 rounded"><code>import dom, { http } from '@klt/dom-js';</code></pre>
               </div>
               <div>
                 <h5 class="font-medium text-purple-800 mb-2">Modular Import</h5>
-                <pre class="text-sm bg-purple-100 p-2 rounded"><code>import { http } from '@dk/dom-js/http';</code></pre>
+                <pre class="text-sm bg-purple-100 p-2 rounded"><code>import { http } from '@klt/dom-js/http';</code></pre>
               </div>
             </div>
           </div>
@@ -672,8 +672,8 @@ dom(element).on('mouseenter mouseleave', handler);</code></pre>
         <div>
           <h4 class="text-lg font-semibold mb-2">Mixed Usage Example</h4>
           <pre class="code-block"><code>// Core + HTTP modular approach
-import dom from '@dk/dom-js/core';
-import { http } from '@dk/dom-js/http';
+import dom from '@klt/dom-js/core';
+import { http } from '@klt/dom-js/http';
 
 dom('#load-data').on('click', async () => {
   const response = await http.get('/api/users');
@@ -704,12 +704,12 @@ dom('#load-data').on('click', async () => {
             <div class="grid gap-4 md:grid-cols-2">
               <div>
                 <h5 class="font-medium text-indigo-800 mb-2">Full Bundle</h5>
-                <pre class="text-sm bg-indigo-100 p-2 rounded"><code>import dom from '@dk/dom-js';
+                <pre class="text-sm bg-indigo-100 p-2 rounded"><code>import dom from '@klt/dom-js';
 // .fadeIn(), .slideUp(), etc. available</code></pre>
               </div>
               <div>
                 <h5 class="font-medium text-indigo-800 mb-2">Modular Import</h5>
-                <pre class="text-sm bg-indigo-100 p-2 rounded"><code>import { animate, animations } from '@dk/dom-js/motion';</code></pre>
+                <pre class="text-sm bg-indigo-100 p-2 rounded"><code>import { animate, animations } from '@klt/dom-js/motion';</code></pre>
               </div>
             </div>
           </div>
@@ -740,8 +740,8 @@ dom('.box').animate([
 });
 
 // Modular usage
-import dom from '@dk/dom-js/core';
-import { animate, animations } from '@dk/dom-js/motion';
+import dom from '@klt/dom-js/core';
+import { animate, animations } from '@klt/dom-js/motion';
 
 const element = dom('.fade').el();
 const [keyframes, options] = animations.fadeIn(500);
@@ -766,7 +766,7 @@ animate(element, keyframes, options);</code></pre>
     title: 'Plugin System',
     content: `
       <p class="text-gray-700 mb-4">
-        Extend @dk/dom-js with custom functionality using the plugin system.
+        Extend @klt/dom-js with custom functionality using the plugin system.
         Plugins can add new methods to the dom object and DOMCollection prototype.
       </p>
       <div class="space-y-4">

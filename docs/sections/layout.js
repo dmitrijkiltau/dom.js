@@ -128,7 +128,7 @@ dom('#box').scrollTop(0).scrollLeft(0);`
             <div id="siv-log" class="text-sm text-gray-700 bg-gray-100 p-3 rounded"></div>
           </div>
         `,
-        code: `import { scrollIntoView, scrollIntoViewIfNeeded } from '@dk/dom-js/scroll';
+        code: `import { scrollIntoView, scrollIntoViewIfNeeded } from '@klt/dom-js/scroll';
 
 scrollIntoView('#item-15', { container: '#list', behavior: 'smooth', block: 'center' });
 scrollIntoView('#item-5', { container: '#list', behavior: 'smooth', block: 'start' });

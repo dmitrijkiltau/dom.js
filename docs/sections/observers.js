@@ -29,7 +29,7 @@ export function addObserverExamples() {
             <div class="text-sm text-gray-700 bg-gray-100 p-3 rounded h-24 overflow-auto" id="io-log"></div>
           </div>
         `,
-        code: `import { onIntersect } from '@dk/dom-js/observers';
+        code: `import { onIntersect } from '@klt/dom-js/observers';
 
 const stop = onIntersect('.lazy', (entry, el) => {
   if (entry.isIntersecting) {
@@ -51,7 +51,7 @@ const stop = onIntersect('.lazy', (entry, el) => {
             <div class="text-sm text-gray-700 bg-gray-100 p-3 rounded h-24 overflow-auto" id="resize-log"></div>
           </div>
         `,
-        code: `import { onResize } from '@dk/dom-js/observers';
+        code: `import { onResize } from '@klt/dom-js/observers';
 
 onResize('#box', (entry, el) => {
   console.log(entry.contentRect.width, entry.contentRect.height);
@@ -71,7 +71,7 @@ onResize('#box', (entry, el) => {
             <div class="text-sm text-gray-700 bg-gray-100 p-3 rounded h-24 overflow-auto" id="mut-log"></div>
           </div>
         `,
-        code: `import { onMutation } from '@dk/dom-js/observers';
+        code: `import { onMutation } from '@klt/dom-js/observers';
 
 onMutation('#list', (records, el) => console.log(records), { childList: true, subtree: true });`
       }

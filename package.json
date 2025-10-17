@@ -1,5 +1,5 @@
 {
-  "name": "@dk/dom-js",
+  "name": "@klt/dom-js",
   "version": "1.6.37",
   "description": "A lightweight, modular DOM manipulation library with chainable API, zero dependencies, and modern ES modules.",
   "type": "module",
@@ -8,11 +8,11 @@
   "types": "dist/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dmitrijkiltau/@dk/dom-js.git"
+    "url": "git+https://github.com/dmitrijkiltau/@klt/dom-js.git"
   },
-  "homepage": "https://github.com/dmitrijkiltau/@dk/dom-js#readme",
+  "homepage": "https://github.com/dmitrijkiltau/@klt/dom-js#readme",
   "bugs": {
-    "url": "https://github.com/dmitrijkiltau/@dk/dom-js/issues"
+    "url": "https://github.com/dmitrijkiltau/@klt/dom-js/issues"
   },
   "author": "Dmitrij Kiltau <info@kiltau.com> (https://github.com/dmitrijkiltau)",
   "license": "MIT",
@@ -99,7 +99,7 @@
     "dom",
     "utility",
     "chainable",
-    "@dk/dom-js",
+    "@klt/dom-js",
     "modular",
     "lightweight",
     "esm",

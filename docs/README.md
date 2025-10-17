@@ -1,10 +1,10 @@
-# @dk/dom-js Documentation
+# @klt/dom-js Documentation
 
-Interactive documentation for @dk/dom-js built with:
+Interactive documentation for @klt/dom-js built with:
 
 - **TailwindCSS 4**: utility-first styling
 - **Vite**: fast dev/build
-- **@dk/dom-js**: the docs use the library itself
+- **@klt/dom-js**: the docs use the library itself
 - **Prism.js**: code highlighting
 
 ## Features

@@ -1,5 +1,5 @@
 {
-  "name": "@dk/dom-js-docs",
+  "name": "@klt/dom-js-docs",
   "version": "1.1.10",
   "type": "module",
   "scripts": {
@@ -8,7 +8,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@dk/dom-js": "file:..",
+    "@klt/dom-js": "file:..",
     "prismjs": "^1.30.0"
   },
   "devDependencies": {

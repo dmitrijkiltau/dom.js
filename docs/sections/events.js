@@ -37,7 +37,7 @@ export function addEventExamples() {
             <div id="event-log" class="text-sm text-gray-600 max-h-32 overflow-y-auto bg-gray-100 p-3 border border-gray-300 rounded"></div>
           </div>
         `,
-        code: `import { on, off } from '@dk/dom-js';
+        code: `import { on, off } from '@klt/dom-js';
 
 // Direct event binding
 dom('#add-button').on('click', () => {
