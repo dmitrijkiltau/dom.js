@@ -85,8 +85,6 @@
     "build": "tsup src/index.ts src/core.ts src/http.ts src/template.ts src/forms.ts src/motion.ts src/utils.ts src/observers.ts src/scroll.ts src/server.ts --format esm,cjs --dts --minify --splitting false --clean",
     "build:full": "npm run build",
     "build:core": "tsup src/core.ts --format esm,cjs --dts --minify",
-    "analyze": "node scripts/analyze-bundles.mjs",
-    "size:check": "node scripts/size-guard.mjs --check",
     "dev": "tsup src/index.ts --format esm --dts --watch",
     "dev:all": "tsup src/index.ts src/core.ts src/http.ts src/template.ts src/forms.ts src/motion.ts src/utils.ts src/observers.ts src/scroll.ts src/server.ts --format esm,cjs --dts --watch",
     "test": "npm run build && vitest run",

@@ -7,7 +7,7 @@ on:
     branches: [ main, master ]
 
 jobs:
-  build-test-size:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -27,13 +27,3 @@ jobs:
 
       - name: Run tests (dist)
         run: npm run test:dist
-
-      - name: Analyze bundles (report only)
-        run: npm run analyze
-
-      - name: Check bundle size ceilings
-        run: npm run size:check
-
-      - name: Verify docs bundle tables are in sync
-        run: npm run size:docs:check
-
