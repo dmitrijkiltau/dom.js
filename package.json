@@ -14,11 +14,7 @@
   "bugs": {
     "url": "https://github.com/dmitrijkiltau/@dk/dom-js/issues"
   },
-  "author": {
-    "name": "Dmitrij Kiltau",
-    "email": "info@kiltau.com",
-    "url": "https://github.com/dmitrijkiltau"
-  },
+  "author": "Dmitrij Kiltau <info@kiltau.com> (https://github.com/dmitrijkiltau)",
   "license": "MIT",
   "engines": {
     "node": ">=16.0.0"
@@ -128,5 +124,9 @@
     "typescript": "^5.9.3",
     "vite": "^7.1.10",
     "vite-tsconfig-paths": "^5.1.4"
+  },
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
   }
 }
