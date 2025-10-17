@@ -7,7 +7,7 @@ A lightweight, modular DOM manipulation library with chainable API, zero depende
 
 ## Table of Contents
 
-- [@klt/dom-js](#domjs)
+- [@klt/dom-js](#kltdom-js)
   - [Table of Contents](#table-of-contents)
   - [Features](#features)
   - [Install](#install)
@@ -21,10 +21,17 @@ A lightweight, modular DOM manipulation library with chainable API, zero depende
   - [Motion](#motion)
   - [Utilities \& Observers](#utilities--observers)
   - [SSR (Server‑Safe)](#ssr-serversafe)
+    - [Hydration (client)](#hydration-client)
   - [TypeScript](#typescript)
+    - [Custom Event Typing](#custom-event-typing)
+    - [Typed Serialization](#typed-serialization)
   - [Plugin System](#plugin-system)
   - [Advanced Recipes](#advanced-recipes)
+    - [HTTP interceptors: auth header + refresh](#http-interceptors-auth-header--refresh)
+    - [Templates: keyed lists (stable DOM for reorder/patch)](#templates-keyed-lists-stable-dom-for-reorderpatch)
+    - [Plugins with module augmentation (TypeScript)](#plugins-with-module-augmentation-typescript)
   - [Browser Support](#browser-support)
+  - [Links](#links)
   - [Security](#security)
   - [Contributing](#contributing)
   - [License](#license)
@@ -57,7 +64,7 @@ import dom from "@klt/dom-js";
 CDN (pinned):
 
 ```js
-import dom from "https://unpkg.com/@klt/dom-js@1.6.2/dist/index.js";
+import dom from "https://unpkg.com/@klt/dom-js@1.6.38/dist/index.js";
 ```
 
 CommonJS:
