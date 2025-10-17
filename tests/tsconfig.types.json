@@ -9,8 +9,8 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@dmitrijkiltau/dom.js": ["../dist/index.d.ts"],
-      "@dmitrijkiltau/dom.js/*": ["../dist/*.d.ts"]
+      "@dk/dom-js": ["../dist/index.d.ts"],
+      "@dk/dom-js/*": ["../dist/*.d.ts"]
     }
   },
   "include": [

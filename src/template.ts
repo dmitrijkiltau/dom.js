@@ -5,11 +5,11 @@ let TEMPLATE_DEV = false;
 export function setTemplateDevMode(enabled: boolean) { TEMPLATE_DEV = !!enabled; }
 function devError(context: string, err?: unknown) {
   if (!TEMPLATE_DEV) return;
-  try { console.error(`[dom.js][template] ${context}`, err); } catch {}
+  try { console.error(`[@dk/dom-js][template] ${context}`, err); } catch {}
 }
 function devWarn(context: string, detail?: unknown) {
   if (!TEMPLATE_DEV) return;
-  try { console.warn(`[dom.js][template] ${context}`, detail); } catch {}
+  try { console.warn(`[@dk/dom-js][template] ${context}`, detail); } catch {}
 }
 
 // ——— Public API ———

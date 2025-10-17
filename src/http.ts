@@ -10,12 +10,14 @@ export type RetryOptions = {
   retryDelay?: number;        // initial delay ms
   retryBackoff?: number;      // multiplier per attempt (e.g., 2)
   retryOn?: (res: Response | null, err: unknown, attempt: number) => boolean | Promise<boolean>;
+  respectRetryAfter?: boolean; // honor Retry-After/X-RateLimit-Reset header for delay
 };
 
 export type CacheOptions = {
   enabled?: boolean;
   ttl?: number; // ms
   key?: (ctx: { method: string; url: string; init: HttpInit }) => string;
+  methods?: string[]; // which HTTP methods to cache, default ['GET']
 };
 
 export type HttpInit = RequestInit & RetryOptions & {
@@ -25,6 +27,7 @@ export type HttpInit = RequestInit & RetryOptions & {
   controller?: AbortController; // optional explicit controller
   throwOnError?: boolean; // per-request override
   onUploadProgress?: (p: { loaded: number; total?: number; percent?: number }) => void;
+  onDownloadProgress?: (p: { loaded: number; total?: number; percent?: number }) => void;
   cacheKey?: string;
   cacheTtl?: number; // overrides default ttl
   noCache?: boolean;
@@ -57,9 +60,12 @@ export type HttpMethod = {
   withRetry(opts: RetryOptions): HttpMethod;
   withCache(opts?: CacheOptions): HttpMethod;
   withThrowOnError(on?: boolean): HttpMethod;
+  withJSON(): HttpMethod;
+  withRetryAfter(): HttpMethod;
   // Utilities
   appendQuery(url: string, params?: QueryParams): string;
   abortable(): { controller: AbortController; signal: AbortSignal };
+  retryOnStatus(statuses: Array<number | [number, number]>, includeNetworkErrors?: boolean): (res: Response | null, err: unknown, attempt: number) => boolean | Promise<boolean>;
   // Cache management (global for this client)
   cache: {
     clear(): void;
@@ -122,14 +128,16 @@ function createClient(config: ClientConfig = {}): HttpMethod {
 
   async function request(method: string, url: string, body?: any, init?: HttpInit): Promise<WrappedResponse> {
     const mergedInit: HttpInit = { ...(init || {}) };
+    // Detect if caller passed a plain object as body (pre-serialization)
+    const originalBody = (body !== undefined) ? body : (mergedInit as any).body;
+    const isJsonBody = isPlainObject(originalBody);
     if (body !== undefined) mergedInit.body = serialize(body);
     // Merge headers
     const h = new Headers({ ...(cfg.defaultHeaders || {}) });
     if (mergedInit.headers) new Headers(mergedInit.headers).forEach((v, k) => h.set(k, v));
 
-    // Content-Type for JSON bodies (not FormData/Blob)
-    const rawBody = (mergedInit as any).body;
-    if (rawBody && !(rawBody instanceof FormData) && !(rawBody instanceof Blob) && !h.has('Content-Type')) h.set('Content-Type', 'application/json');
+    // Content-Type for plain-object JSON bodies (only when not explicitly set)
+    if (isJsonBody && !h.has('Content-Type')) h.set('Content-Type', 'application/json');
     mergedInit.headers = h;
 
     // Base URL + query
@@ -144,6 +152,7 @@ function createClient(config: ClientConfig = {}): HttpMethod {
     const throwOnError = mergedInit.throwOnError ?? cfg.throwOnError ?? false;
 
     // Upload progress wrapping
+    const rawBody = (mergedInit as any).body;
     if (mergedInit.onUploadProgress && rawBody && canStreamBody(rawBody)) {
       const { stream, total } = makeProgressStream(rawBody, mergedInit.onUploadProgress);
       mergedInit.body = stream as any;
@@ -166,7 +175,12 @@ function createClient(config: ClientConfig = {}): HttpMethod {
 
     // Caching pre-check
     const cacheOpts = cfg.cache || {};
-    const cacheEnabled = (cacheOpts.enabled ?? false) && method === 'GET' && !mergedInit.noCache;
+    // Allow only GET by default; users can opt into other methods via cache.methods
+    const allowedMethods = cacheOpts.methods ?? ['GET'];
+    const cacheEnabled = (cacheOpts.enabled ?? false) && allowedMethods.includes(method) && !mergedInit.noCache;
+    // Precompute a stable body hash for non-GET caching scenarios before body may be converted to a stream
+    const preBodyHash = method !== 'GET' ? computeBodyHash(originalBody) : null;
+    if (preBodyHash) (mergedInit as any).__bodyHash = preBodyHash;
     const cacheKey = mergedInit.cacheKey || (cacheOpts.key ? cacheOpts.key(reqCtx) : defaultCacheKey(reqCtx));
     if (cacheEnabled) {
       const cached = cache.get(cacheKey);
@@ -190,8 +204,36 @@ function createClient(config: ClientConfig = {}): HttpMethod {
     while (attempt < maxAttempts) {
       try {
         const res = await fetch(reqCtx.url, { ...reqCtx.init, method: reqCtx.method });
+        // Inject download progress monitoring when supported
+        let resForHandlers = res;
+        if (reqCtx.init.onDownloadProgress && typeof ReadableStream !== 'undefined' && res.body) {
+          try {
+            const totalHeader = res.headers.get('Content-Length');
+            const total = totalHeader ? parseInt(totalHeader, 10) : undefined;
+            let loaded = 0;
+            const ts = new TransformStream<Uint8Array, Uint8Array>({
+              transform(chunk, controller) {
+                loaded += chunk?.byteLength || 0;
+                const percent = total != null ? (loaded / total) * 100 : undefined;
+                try {
+                  const payload: { loaded: number; total?: number; percent?: number } = { loaded };
+                  if (total != null) (payload as any).total = total;
+                  if (percent != null) (payload as any).percent = percent;
+                  reqCtx.init.onDownloadProgress!(payload);
+                } catch {}
+                controller.enqueue(chunk);
+              }
+            });
+            const stream = res.body.pipeThrough(ts);
+            resForHandlers = new Response(stream, { headers: res.headers, status: res.status, statusText: res.statusText });
+            try { (resForHandlers as any).url = (res as any).url || reqCtx.url; } catch {}
+          } catch {
+            // If anything fails, fall back to original response
+            resForHandlers = res;
+          }
+        }
         // Post-response interceptors (allow response replacement)
-        let resCtx: ResponseContext = { method: reqCtx.method, url: reqCtx.url, init: reqCtx.init, response: res };
+        let resCtx: ResponseContext = { method: reqCtx.method, url: reqCtx.url, init: reqCtx.init, response: resForHandlers };
         for (const ints of (cfg.interceptors || [])) {
           if (!ints.onResponse) continue;
           const out = await ints.onResponse(resCtx);
@@ -215,7 +257,10 @@ function createClient(config: ClientConfig = {}): HttpMethod {
             if (timeoutId) clearTimeout(timeoutId);
             throw err;
           }
-          await delay(backoffDelay(baseDelay, factor, attempt));
+          // Compute delay, honoring Retry-After/X-RateLimit-Reset when enabled
+          const raMs = retry.respectRetryAfter ? computeRetryAfterDelayMs(resCtx.response) : null;
+          const waitMs = raMs != null ? raMs : backoffDelay(baseDelay, factor, attempt);
+          await delay(waitMs);
           attempt++;
           continue;
         }
@@ -261,10 +306,22 @@ function createClient(config: ClientConfig = {}): HttpMethod {
     withRetry(opts: RetryOptions) { return createClient({ ...cfg, retry: { ...(cfg.retry || {}), ...opts } }); },
     withCache(opts?: CacheOptions) { return createClient({ ...cfg, cache: { ...(cfg.cache || {}), ...(opts || { enabled: true }) } }); },
     withThrowOnError(on: boolean = true) { return createClient({ ...cfg, throwOnError: on }); },
+    withJSON() { return createClient({ ...cfg, defaultHeaders: { ...(cfg.defaultHeaders || {}), Accept: 'application/json' } }); },
+    withRetryAfter() { return createClient({ ...cfg, retry: { ...(cfg.retry || {}), respectRetryAfter: true } }); },
 
     // Utils
     appendQuery(url: string, params?: QueryParams) { return appendQuery(url, params || {}); },
     abortable() { const controller = new AbortController(); return { controller, signal: controller.signal }; },
+    retryOnStatus(statuses: Array<number | [number, number]>, includeNetworkErrors: boolean = true) {
+      const ranges = normalizeStatusList(statuses);
+      return (res: Response | null, err: unknown) => {
+        if (includeNetworkErrors && err) return true;
+        if (!res) return false;
+        const s = res.status;
+        for (const [a, b] of ranges) if (s >= a && s <= b) return true;
+        return false;
+      };
+    },
     cache: {
       clear() { cache.clear(); },
       delete(key: string) { cache.delete(key); },
@@ -285,6 +342,9 @@ function wrap(r: Response, controller?: AbortController) {
     status: r.status,
     text: () => r.text(),
     json: <T = unknown>() => r.json() as Promise<T>,
+    blob: () => r.blob(),
+    arrayBuffer: () => r.arrayBuffer(),
+    formData: () => r.formData(),
     html: () => r.text().then(s => new DOMParser().parseFromString(s, 'text/html')),
     okOrThrow: () => { if (!r.ok) throw new HttpError(`HTTP ${r.status}`, r, (r as any).url || ''); return self; },
     controller,
@@ -323,8 +383,14 @@ export function appendQuery(url: string, params: QueryParams): string {
 }
 
 function defaultCacheKey(ctx: { method: string; url: string; init: HttpInit }) {
-  // Cache by method + url (+ body hash for non-GET if opted-in later)
-  return `${ctx.method}:${ctx.url}`;
+  // Cache by method + url (+ body hash for non-GET when caching non-GET is enabled)
+  let key = `${ctx.method}:${ctx.url}`;
+  if (ctx.method !== 'GET') {
+    const pre = (ctx.init as any).__bodyHash as string | undefined;
+    const bh = pre || computeBodyHashFromInit(ctx.init);
+    if (bh) key += `:body=${bh}`;
+  }
+  return key;
 }
 
 function cloneResponse(res: Response): Response {
@@ -359,6 +425,117 @@ async function handleErrorInterceptors(ints: Interceptors[], ctx: ErrorContext):
 }
 
 // ——— Upload progress helpers ———
+function normalizeStatusList(list: Array<number | [number, number]>): Array<[number, number]> {
+  const out: Array<[number, number]> = [];
+  for (const item of list) {
+    if (Array.isArray(item)) out.push([item[0], item[1]]);
+    else out.push([item, item]);
+  }
+  return out;
+}
+
+function computeRetryAfterDelayMs(res: Response): number | null {
+  try {
+    const ra = res.headers.get('Retry-After');
+    if (ra) {
+      const secs = parseInt(ra, 10);
+      if (!Number.isNaN(secs)) return Math.max(0, secs * 1000);
+      const dateMs = Date.parse(ra);
+      if (!Number.isNaN(dateMs)) return Math.max(0, dateMs - Date.now());
+    }
+    const xrl = res.headers.get('X-RateLimit-Reset');
+    if (xrl) {
+      const ts = parseInt(xrl, 10);
+      if (!Number.isNaN(ts)) return Math.max(0, (ts * 1000) - Date.now());
+    }
+  } catch {}
+  return null;
+}
+function fnv1a32Hex(str: string): string {
+  let h = 0x811c9dc5; // offset basis
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    // 32-bit FNV-1a prime 16777619
+    h = (h >>> 0) + ((h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24));
+  }
+  // convert to unsigned 32-bit hex
+  return (h >>> 0).toString(16).padStart(8, '0');
+}
+
+function hashBytesHex(bytes: Uint8Array): string {
+  // Efficiently hash bytes by mapping to a string of char codes in chunks
+  let h = 0x811c9dc5 >>> 0;
+  const fnvPrime = 0x01000193; // 16777619
+  for (let i = 0; i < bytes.length; i++) {
+    h ^= (bytes[i] ?? 0);
+    h = Math.imul(h, fnvPrime) >>> 0;
+  }
+  return h.toString(16).padStart(8, '0');
+}
+
+function stableStringify(value: any): string {
+  const seen = new WeakSet();
+  const helper = (v: any): any => {
+    if (v === null || typeof v !== 'object') return v;
+    if (seen.has(v)) return '[Circular]';
+    seen.add(v);
+    if (Array.isArray(v)) return v.map(helper);
+    const keys = Object.keys(v).sort();
+    const out: Record<string, any> = {};
+    for (const k of keys) out[k] = helper(v[k]);
+    return out;
+  };
+  return JSON.stringify(helper(value));
+}
+
+function describeFormData(fd: FormData): string {
+  const parts: string[] = [];
+  // FormData preserves order; to be stable independent of construction order, sort by key+desc
+  for (const [k, v] of (Array.from(fd as any) as Array<[string, any]>)) {
+    let desc: string;
+    if (typeof v === 'string') desc = `s:${v}`;
+    else {
+      const blob = v as Blob & { name?: string };
+      const name = (blob as any).name || '';
+      desc = `b:${blob.size}:${blob.type || ''}:${name}`;
+    }
+    parts.push(`${k}=${desc}`);
+  }
+  parts.sort();
+  return parts.join('&');
+}
+
+function computeBodyHashFromInit(init: HttpInit): string | null {
+  try { return computeBodyHash((init as any).body); } catch { return null; }
+}
+
+function computeBodyHash(body: any): string | null {
+  try {
+    if (body == null) return '0';
+    if (typeof body === 'string') return fnv1a32Hex('s:' + body);
+    if (typeof URLSearchParams !== 'undefined' && body instanceof URLSearchParams) return fnv1a32Hex('u:' + body.toString());
+    if (body instanceof Blob) return fnv1a32Hex(`b:${body.size}:${body.type || ''}`);
+    if (body instanceof ArrayBuffer) return hashBytesHex(new Uint8Array(body));
+    if (ArrayBuffer.isView(body)) return hashBytesHex(new Uint8Array(body.buffer, body.byteOffset, body.byteLength));
+    if (typeof FormData !== 'undefined' && body instanceof FormData) return fnv1a32Hex('f:' + describeFormData(body));
+    if (typeof ReadableStream !== 'undefined' && body instanceof ReadableStream) return 'stream';
+    if (typeof body === 'object') return fnv1a32Hex('j:' + stableStringify(body));
+    return fnv1a32Hex('x:' + String(body));
+  } catch {
+    return null;
+  }
+}
+function isPlainObject(value: any): value is Record<string, any> {
+  if (value == null || typeof value !== 'object') return false;
+  if (value instanceof FormData) return false;
+  if (value instanceof Blob) return false;
+  if (value instanceof ArrayBuffer) return false;
+  if (ArrayBuffer.isView(value)) return false;
+  if (typeof URLSearchParams !== 'undefined' && value instanceof URLSearchParams) return false;
+  if (typeof ReadableStream !== 'undefined' && value instanceof ReadableStream) return false;
+  return true;
+}
+
 function canStreamBody(body: any): boolean {
   return typeof ReadableStream !== 'undefined' && (typeof body === 'string' || body instanceof Blob || body instanceof ArrayBuffer || ArrayBuffer.isView(body));
 }

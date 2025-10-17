@@ -1,13 +1,13 @@
-# dom.js
+# @dk/dom-js
 
 A lightweight, modular DOM manipulation library with chainable API, zero dependencies, and modern ES modules.
 
-[![npm version](https://badge.fury.io/js/@dmitrijkiltau%2Fdom.js.svg)](https://www.npmjs.com/package/@dmitrijkiltau/dom.js)
+[![npm version](https://badge.fury.io/js/@dmitrijkiltau%2F@dk/dom-js.svg)](https://www.npmjs.com/package/@dk/dom-js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Table of Contents
 
-- [dom.js](#domjs)
+- [@dk/dom-js](#domjs)
   - [Table of Contents](#table-of-contents)
   - [Features](#features)
   - [Install](#install)
@@ -23,7 +23,8 @@ A lightweight, modular DOM manipulation library with chainable API, zero depende
   - [SSR (Server‑Safe)](#ssr-serversafe)
   - [TypeScript](#typescript)
   - [Plugin System](#plugin-system)
-  - [Browser Support \& Size](#browser-support--size)
+  - [Advanced Recipes](#advanced-recipes)
+  - [Browser Support](#browser-support)
   - [Security](#security)
   - [Contributing](#contributing)
   - [License](#license)
@@ -44,31 +45,31 @@ A lightweight, modular DOM manipulation library with chainable API, zero depende
 ## Install
 
 ```bash
-npm install @dmitrijkiltau/dom.js
+npm install @dk/dom-js
 ```
 
 ESM:
 
 ```js
-import dom from "@dmitrijkiltau/dom.js";
+import dom from "@dk/dom-js";
 ```
 
 CDN (pinned):
 
 ```js
-import dom from "https://unpkg.com/@dmitrijkiltau/dom.js@1.6.2/dist/index.js";
+import dom from "https://unpkg.com/@dk/dom-js@1.6.2/dist/index.js";
 ```
 
 CommonJS:
 
 ```js
-const dom = require("@dmitrijkiltau/dom.js");
+const dom = require("@dk/dom-js");
 ```
 
 ## Quick Start
 
 ```js
-import dom from "@dmitrijkiltau/dom.js";
+import dom from "@dk/dom-js";
 
 dom(".my-items")
   .addClass("active")
@@ -81,20 +82,20 @@ Choose what you need:
 
 ```js
 // 1) Full bundle (everything)
-import dom from "@dmitrijkiltau/dom.js";
+import dom from "@dk/dom-js";
 
 // 2) Core only (DOM + events)
-import dom from "@dmitrijkiltau/dom.js/core";
+import dom from "@dk/dom-js/core";
 
 // 3) Modular (cherry-pick)
-import dom from "@dmitrijkiltau/dom.js/core";
-import { http } from "@dmitrijkiltau/dom.js/http";
-import { renderTemplate, useTemplate, tpl } from "@dmitrijkiltau/dom.js/template";
-import { onSubmit, serializeForm, toFormData, toQueryString, setForm, resetForm, validateForm } from "@dmitrijkiltau/dom.js/forms";
-import { animate, animations } from "@dmitrijkiltau/dom.js/motion";
-import { debounce, throttle, nextTick, raf, rafThrottle } from "@dmitrijkiltau/dom.js/utils";
-import { onIntersect, inView, onResize, onMutation } from "@dmitrijkiltau/dom.js/observers";
-import { scrollIntoView, scrollIntoViewIfNeeded, lockScroll, unlockScroll } from "@dmitrijkiltau/dom.js/scroll";
+import dom from "@dk/dom-js/core";
+import { http } from "@dk/dom-js/http";
+import { renderTemplate, useTemplate, tpl } from "@dk/dom-js/template";
+import { onSubmit, serializeForm, toFormData, toQueryString, setForm, resetForm, validateForm } from "@dk/dom-js/forms";
+import { animate, animations } from "@dk/dom-js/motion";
+import { debounce, throttle, nextTick, raf, rafThrottle } from "@dk/dom-js/utils";
+import { onIntersect, inView, onResize, onMutation } from "@dk/dom-js/observers";
+import { scrollIntoView, scrollIntoViewIfNeeded, lockScroll, unlockScroll } from "@dk/dom-js/scroll";
 ```
 
 ## Core API Highlights
@@ -150,7 +151,7 @@ HTML templates with data binding, conditionals, loops, includes, safe escaping, 
 ``` 
 
 ```js
-import { renderTemplate, useTemplate, tpl, escapeHTML, unsafeHTML, isUnsafeHTML } from "@dmitrijkiltau/dom.js/template";
+import { renderTemplate, useTemplate, tpl, escapeHTML, unsafeHTML, isUnsafeHTML } from "@dk/dom-js/template";
 
 const data = {
   title: "Docs",
@@ -194,13 +195,13 @@ Performance notes:
 
 Diagnostics (dev):
 - Enable dev logging for template binding errors and invalid expressions:
-  `import { setTemplateDevMode } from '@dmitrijkiltau/dom.js/template'; setTemplateDevMode(true);`
+  `import { setTemplateDevMode } from '@dk/dom-js/template'; setTemplateDevMode(true);`
 - Logs include event handler exceptions, non-function handlers, include ref issues, and safe destroy/hydrate errors.
 
 ## Forms
 
 ```js
-import { onSubmit, serializeForm, toQueryString, toFormData, setForm, resetForm, validateForm } from "@dmitrijkiltau/dom.js/forms";
+import { onSubmit, serializeForm, toQueryString, toFormData, setForm, resetForm, validateForm } from "@dk/dom-js/forms";
 
 onSubmit("#contact", async (data, ev) => {
   console.log("submit", data);
@@ -221,7 +222,7 @@ const { valid, errors } = validateForm("#my-form");
 Top‑level helpers work with `window`, `document`, Elements, and DOMCollections; collection methods are chainable.
 
 ```js
-import dom, { on, once, off, ready } from "@dmitrijkiltau/dom.js";
+import dom, { on, once, off, ready } from "@dk/dom-js";
 
 // Multiple types + namespaces
 const stop = on(window, "scroll resize.ns", handler, { passive: true });
@@ -259,22 +260,49 @@ dom('#btn').trigger(ev);
 Fetch wrapper with baseUrl, default query/headers, retries, interceptors, cache, progress, and throw‑on‑error.
 
 ```js
-import { http } from "@dmitrijkiltau/dom.js/http";
+import { http } from "@dk/dom-js/http";
 
 const api = http
   .withBaseUrl("/api")
   .withHeaders({ Authorization: "Bearer token" })
-  .withRetry({ retries: 2 })
+  .withRetry({ retries: 2, retryOn: http.retryOnStatus([429, [500, 599]]) })
+  .withRetryAfter()
   .withThrowOnError();
 
 const r = await api.get("/users", { query: { page: 1 } });
 const users = await r.json();
+
+// Smart JSON: plain objects are serialized and Content-Type set automatically
+await api.post('/users', { name: 'Ada' }); // sends JSON with Content-Type: application/json
+
+// JSON-focused client (adds Accept: application/json by default)
+const apiJson = api.withJSON();
+const created = await apiJson.post('/users', { name: 'Lin' }).then(r => r.json());
+
+// Opt-in caching for non‑GET methods (includes body hash in key)
+const apiCached = api.withCache({ enabled: true, methods: ['GET', 'POST'] });
+await apiCached.post('/users', { name: 'Mia' }, { cacheTtl: 5_000 });
+
+// Download and upload progress
+await api.get('/big-file', {
+  onDownloadProgress: ({ loaded, total, percent }) => {
+    if (total != null) console.log(`Downloaded ${Math.round(percent)}%`);
+    else console.log(`Downloaded ${loaded} bytes`);
+  }
+});
+
+await api.post('/upload', new Blob([/* ... */]), {
+  onUploadProgress: ({ loaded, total, percent }) => {
+    if (total != null) console.log(`Uploaded ${Math.round(percent)}%`);
+    else console.log(`Uploaded ${loaded} bytes`);
+  }
+});
 ```
 
 ## Motion
 
 ```js
-import { animate, animations, sequence, stagger } from "@dmitrijkiltau/dom.js/motion";
+import { animate, animations, sequence, stagger } from "@dk/dom-js/motion";
 
 const [kf, op] = animations.fadeIn(250);
 await animate(dom(".box").el(), kf, op).finished;
@@ -303,9 +331,9 @@ await dom('#row').withVisible('flex').slideDown(200);
 ## Utilities & Observers
 
 ```js
-import { debounce, throttle, nextTick, raf, rafThrottle } from "@dmitrijkiltau/dom.js/utils";
-import { onIntersect, onResize, onMutation } from "@dmitrijkiltau/dom.js/observers";
-import { scrollIntoView, scrollIntoViewIfNeeded, lockScroll, unlockScroll } from "@dmitrijkiltau/dom.js/scroll";
+import { debounce, throttle, nextTick, raf, rafThrottle } from "@dk/dom-js/utils";
+import { onIntersect, onResize, onMutation } from "@dk/dom-js/observers";
+import { scrollIntoView, scrollIntoViewIfNeeded, lockScroll, unlockScroll } from "@dk/dom-js/scroll";
 
 const onType = debounce(() => {/* ... */}, 150);
 await nextTick(); await raf();
@@ -338,7 +366,7 @@ unlockScroll('#panel');
 ## SSR (Server‑Safe)
 
 ```js
-import dom from "@dmitrijkiltau/dom.js/server";
+import dom from "@dk/dom-js/server";
 
 dom(".x");              // -> empty collection on server
 dom.on(window, "x");    // -> no-op unbinder on server
@@ -353,7 +381,7 @@ Environment safeguards: no `window`/`document` access at import time; `ready()` 
 
 ### Hydration (client)
 
-If your HTML was rendered using dom.js templates (so it contains the `if/each/include` anchor comments), you can hydrate the existing DOM instead of re‑creating it. This wires event listeners and bindings while preserving the server‑rendered markup.
+If your HTML was rendered using @dk/dom-js templates (so it contains the `if/each/include` anchor comments), you can hydrate the existing DOM instead of re‑creating it. This wires event listeners and bindings while preserving the server‑rendered markup.
 
 ```html
 <template id="user">
@@ -369,14 +397,14 @@ If your HTML was rendered using dom.js templates (so it contains the `if/each/in
       </li>
     </ol>
   </div>
-  <!-- When rendered by dom.js, if/each/include are wrapped with comment anchors like `if:start`/`if:end`. -->
+  <!-- When rendered by @dk/dom-js, if/each/include are wrapped with comment anchors like `if:start`/`if:end`. -->
   <!-- Those anchors enable fast, reliable hydration. -->
   <!-- On the server, pre-render using the same template so anchors are present in the HTML. -->
 </template>
 ```
 
 ```js
-import { hydrateTemplate } from '@dmitrijkiltau/dom.js/template';
+import { hydrateTemplate } from '@dk/dom-js/template';
 
 const root = document.querySelector('#root');
 const state = { count: 1, onClick: () => console.log('clicked'), showA: true, items: ['A','B'] };
@@ -411,7 +439,7 @@ dom('#list').on('click', 'a.item', (e, link) => link.focus());
 Augment `CustomEventMap` to type your custom events by name. Overloads on `dom.on`, `dom().on`, and `dom().once` pick up these types.
 
 ```ts
-declare module '@dmitrijkiltau/dom.js' {
+declare module '@dk/dom-js' {
   interface CustomEventMap {
     'user:login': { id: string };
     'cart:updated': { items: number };
@@ -445,7 +473,7 @@ type FormShape = {
 const data1 = dom('form').serialize<FormShape>();
 
 // Forms module
-import { serializeForm, onSubmit } from '@dmitrijkiltau/dom.js/forms';
+import { serializeForm, onSubmit } from '@dk/dom-js/forms';
 const data2 = serializeForm<FormShape>(document.querySelector('form')!);
 
 onSubmit<FormShape>('form', (data, ev) => {
@@ -457,7 +485,7 @@ onSubmit<FormShape>('form', (data, ev) => {
 ## Plugin System
 
 ```js
-import dom, { use } from "@dmitrijkiltau/dom.js";
+import dom, { use } from "@dk/dom-js";
 
 use((api) => {
   api.flash = (selector) => api(selector).animate([{ opacity: 0 }, { opacity: 1 }], { duration: 150 });
@@ -468,28 +496,159 @@ await dom.flash(".message");
 dom(".items").highlight();
 ```
 
-## Browser Support & Size
+## Advanced Recipes
+
+### HTTP interceptors: auth header + refresh
+
+Inject an access token on every request, and transparently refresh on 401. Uses `withInterceptors`, `withThrowOnError`, and optional `withRetryAfter`.
+
+```ts
+import { http } from '@dk/dom-js/http'
+
+let accessToken: string | null = null
+const getToken = () => accessToken
+const setToken = (t: string | null) => (accessToken = t)
+
+let refreshing: Promise<string> | null = null
+function refreshOnce() {
+  if (!refreshing) {
+    refreshing = (async () => {
+      const r = await http.post('/auth/refresh', { /* refresh_token, cookies, etc. */ })
+      const data = await r.json<{ access_token: string }>()
+      setToken(data.access_token)
+      return data.access_token
+    })().finally(() => (refreshing = null))
+  }
+  return refreshing!
+}
+
+const api = http
+  .withBaseUrl('/api')
+  .withThrowOnError()
+  .withRetryAfter()
+  .withRetry({ retries: 1 })
+  .withInterceptors({
+    async onRequest(ctx) {
+      const token = getToken()
+      if (!token) return ctx
+      const headers = new Headers(ctx.init.headers || {})
+      headers.set('Authorization', `Bearer ${token}`)
+      return { ...ctx, init: { ...ctx.init, headers } }
+    },
+    async onError(ctx) {
+      const err = ctx.error
+      // Only handle unauthorized for non-refresh endpoints; avoid loops via marker
+      const httpErr = err as any
+      if (!(httpErr && httpErr.status === 401) || /\/auth\/refresh/.test(ctx.url)) return
+      const headers = new Headers(ctx.init.headers || {})
+      if (headers.get('X-Retried') === '1') return // already retried once
+      const newToken = await refreshOnce()
+      headers.set('Authorization', `Bearer ${newToken}`)
+      headers.set('X-Retried', '1')
+      const res = await fetch(ctx.url, { ...ctx.init, headers, method: ctx.method })
+      return { method: ctx.method, url: ctx.url, init: { ...ctx.init, headers }, response: res }
+    }
+  })
+
+// Usage
+const users = await api.get('/users').then(r => r.json())
+```
+
+Notes:
+- Prefer single‑flight refresh to avoid the thundering herd. Share the refresh promise and replay waiting requests after it resolves.
+- Guard against infinite loops (e.g., mark retried requests with a header, or skip refresh endpoint).
+- Combine with `http.retryOnStatus([429, [500, 599]])` if you want status‑based retries.
+
+### Templates: keyed lists (stable DOM for reorder/patch)
+
+Use keys to preserve elements when reordering or updating items. You can specify the key inline with `by` or via `data-key`.
+
+```html
+<template id="todos-tpl">
+  <ul>
+    <!-- Inline key expression -->
+    <li data-each="todos as t by t.id">
+      <input type="checkbox" data-prop-checked="t.done">
+      <span data-text="t.title"></span>
+    </li>
+  </ul>
+</template>
+```
+
+```js
+import { renderTemplate } from '@dk/dom-js/template'
+
+const view = renderTemplate('#todos-tpl', {
+  todos: [
+    { id: 1, title: 'A', done: false },
+    { id: 2, title: 'B', done: true }
+  ]
+})
+document.querySelector('#app').appendChild(view.node)
+
+// Reorder + update one item — DOM nodes with the same key are preserved
+view.update({
+  todos: [
+    { id: 2, title: 'B!', done: false }, // same key (2): text/checked update in place
+    { id: 1, title: 'A', done: false }
+  ]
+})
+```
+
+Alternative with `data-key`:
+
+```html
+<template id="todos-tpl2">
+  <ul>
+    <li data-each="todos as t" data-key="t.id">
+      <span data-text="t.title"></span>
+    </li>
+  </ul>
+  <!-- data-key is equivalent to `by t.id` in data-each -->
+  <!-- Use stable keys; avoid array indexes to enable efficient diffing. -->
+</template>
+```
+
+### Plugins with module augmentation (TypeScript)
+
+Add new methods to `dom` and `DOMCollection` with type‑safe augmentation. Ship plugins as side‑effect‑free ESM.
+
+```ts
+// types.d.ts — in your app or plugin package
+declare module '@dk/dom-js' {
+  interface Dom {
+    flash(selector: string, ms?: number): Promise<void>
+  }
+  interface DOMCollection<T extends Element = Element> {
+    highlight(): DOMCollection<T>
+  }
+}
+```
+
+```ts
+// plugin.ts
+import dom, { use } from '@dk/dom-js'
+
+use((api) => {
+  api.flash = async (selector: string, ms = 150) => {
+    const anim = api(selector).animate([{ opacity: 0 }, { opacity: 1 }], { duration: ms })
+    await anim.finished
+  }
+  api.DOMCollection.prototype.highlight = function () {
+    return this.addClass('highlight')
+  }
+})
+
+// usage
+await dom.flash('.message')
+dom('.items').highlight()
+```
+
+## Browser Support
 
 - Target: ES2020+ (modern evergreen browsers)
-- Bundle Size (min+gzip, ESM, v1.6.x):
-  - Full bundle: ~10–11 KB
-  - Core only: ~6–7 KB
-  - Modules (each): HTTP ~0.7 KB, Forms ~1.7 KB, Templates ~2.8 KB, Motion ~6.5 KB
 - Dependencies: Zero
-
-### Current Bundle Sizes (raw dist)
-
-<!-- AUTO-GENERATED: BUNDLE_SIZES_START -->
-| Module | ESM (KB) | CJS (KB) |
-| --- | --- | --- |
-| Full | 65.90 | 66.86 |
-| Core | 27.55 | 28.10 |
-| HTTP | 6.20 | 6.70 |
-| Templates | 16.66 | 17.26 |
-| Forms | 4.55 | 5.11 |
-| Motion | 31.51 | 32.05 |
-
-_Note: raw minified dist file sizes (not gzip)._<!-- AUTO-GENERATED: BUNDLE_SIZES_END -->
+- Focus: modular builds let bundlers shake out unused code
 
 ## Links
 

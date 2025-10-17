@@ -1,6 +1,6 @@
-# dom.js Architecture Guide
+# @dk/dom-js Architecture Guide
 
-This document explains how dom.js is structured and why it’s built this way. It’s written for maintainers and contributors. For installation, import options, and API usage, see `README.md`.
+This document explains how @dk/dom-js is structured and why it’s built this way. It’s written for maintainers and contributors. For installation, import options, and API usage, see `README.md`.
 
 ## Principles
 
@@ -42,9 +42,9 @@ Responsibilities are intentionally narrow so features can be combined without dr
 Example augmentation:
 
 ```ts
-import dom, { type DOMCollection } from '@dmitrijkiltau/dom.js';
+import dom, { type DOMCollection } from '@dk/dom-js';
 
-declare module '@dmitrijkiltau/dom.js' {
+declare module '@dk/dom-js' {
   interface Dom {
     flash(selector: string): Promise<DOMCollection>;
   }
@@ -63,7 +63,7 @@ dom.use(api => {
 
 ## SSR/Non‑DOM Environments
 
-Use `@dmitrijkiltau/dom.js/server` to import in Node/SSR. It exposes the same callable `dom()` with safe no‑ops for DOM operations while keeping `http` and utilities available.
+Use `@dk/dom-js/server` to import in Node/SSR. It exposes the same callable `dom()` with safe no‑ops for DOM operations while keeping `http` and utilities available.
 
 Environment safeguards:
 - No `window`/`document` access at import time in any module
@@ -89,40 +89,13 @@ API: `hydrateTemplate(ref, root, data)` returns `{ el, update, destroy }` simila
 
 ## Bundling & Imports
 
-dom.js ships pure ESM with subpath exports to support three common patterns:
+@dk/dom-js ships pure ESM with subpath exports to support three common patterns:
 
-- Full bundle: `@dmitrijkiltau/dom.js` (everything included)
-- Core only: `@dmitrijkiltau/dom.js/core` (DOM + events)
+- Full bundle: `@dk/dom-js` (everything included)
+- Core only: `@dk/dom-js/core` (DOM + events)
 - Modular: import individual modules (e.g. `.../http`, `.../template`)
 
 These entry points are designed for good tree‑shaking in modern bundlers. See `README.md` for code samples and guidance on when to use each style.
-
-### Approximate Bundle Sizes (v1.5.1, min+gzip)
-
-| Module          | Size      | Notes                         |
-| --------------- | --------- | ----------------------------- |
-| Full Bundle     | ~10.6 KB  | Complete functionality        |
-| Core Only       | ~6.8 KB   | DOM manipulation + events     |
-| HTTP            | ~0.7 KB   | Fetch utilities               |
-| Templates       | ~2.8 KB   | Template engine               |
-| Forms           | ~1.7 KB   | Form helpers                  |
-| Motion          | ~6.5 KB   | Animations                    |
-
-Actual sizes depend on your bundler and configuration.
-
-### Current Bundle Sizes (raw dist)
-
-<!-- AUTO-GENERATED: BUNDLE_SIZES_START -->
-| Module | ESM (KB) | CJS (KB) |
-| --- | --- | --- |
-| Full | 65.90 | 66.86 |
-| Core | 27.55 | 28.10 |
-| HTTP | 6.20 | 6.70 |
-| Templates | 16.66 | 17.26 |
-| Forms | 4.55 | 5.11 |
-| Motion | 31.51 | 32.05 |
-
-_Note: raw minified dist file sizes (not gzip)._<!-- AUTO-GENERATED: BUNDLE_SIZES_END -->
 
 ## Template Engine (Plan/Program)
 

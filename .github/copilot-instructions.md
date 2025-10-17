@@ -1,4 +1,4 @@
-## dom.js – AI Contributor Guide (concise)
+## @dk/dom-js – AI Contributor Guide (concise)
 
 High‑signal notes so an AI can make safe, high‑value changes fast. Reflect current code; don’t invent abstractions.
 

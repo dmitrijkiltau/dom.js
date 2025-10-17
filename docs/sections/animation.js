@@ -138,7 +138,7 @@ dom('#spinner').animate([
             <div id="preset-output" class="text-sm text-gray-600 bg-gray-100 p-3 rounded"></div>
           </div>
         `,
-        code: `import { animations } from '@dmitrijkiltau/dom.js';
+        code: `import { animations } from '@dk/dom-js';
 
 // Use built-in animation presets
 dom('.element').fadeIn(300);
