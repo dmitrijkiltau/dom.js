@@ -4,18 +4,18 @@ This reference provides a compact, scan-friendly overview of @dk/dom-js: entries
 
 ## Package Entries
 
-| Import                                  | Includes                                             | Import‑safe on server | Approx size (min+gzip) | Typical use |
-| --------------------------------------- | ---------------------------------------------------- | --------------------- | ---------------------- | ----------- |
-| `@dk/dom-js`                 | Full bundle: core, templates, forms, http, motion…   | Yes (DOM used at call)| ~10–11 KB              | Easiest start |
-| `@dk/dom-js/core`            | Core DOM selection, traversal, events, utils bridge  | Yes                   | ~6–7 KB                | Minimal DOM toolkit |
-| `@dk/dom-js/http`            | HTTP client                                          | Yes                   | ~0.7 KB                | API calls only |
-| `@dk/dom-js/template`        | Template engine (render/use/mount, escape helpers)   | Yes                   | ~2.8 KB                | HTML templates |
-| `@dk/dom-js/forms`           | Form serialize/populate/reset/validate/submit        | Yes                   | ~1.7 KB                | Forms utilities |
-| `@dk/dom-js/motion`          | Animations and composition helpers                   | Yes                   | ~6.5 KB                | Web Animations |
-| `@dk/dom-js/utils`           | debounce/throttle/nextTick/raf(/rafThrottle)         | Yes                   | tiny                   | Scheduling & rate‑limit |
-| `@dk/dom-js/observers`       | onIntersect/onResize/onMutation wrappers             | Yes                   | tiny                   | Observers |
-| `@dk/dom-js/scroll`          | scrollIntoView + scroll lock                         | Yes                   | tiny                   | Scrolling |
-| `@dk/dom-js/server`          | Server‑safe entry (no real DOM ops)                  | Yes                   | —                      | SSR/Node import |
+| Import                                  | Includes                                             | Import‑safe on server | Typical use |
+| --------------------------------------- | ---------------------------------------------------- | --------------------- | ----------- |
+| `@dk/dom-js`                 | Full bundle: core, templates, forms, http, motion…   | Yes (DOM used at call)| Easiest start |
+| `@dk/dom-js/core`            | Core DOM selection, traversal, events, utils bridge  | Yes                   | Minimal DOM toolkit |
+| `@dk/dom-js/http`            | HTTP client                                          | Yes                   | API calls only |
+| `@dk/dom-js/template`        | Template engine (render/use/mount, escape helpers)   | Yes                   | HTML templates |
+| `@dk/dom-js/forms`           | Form serialize/populate/reset/validate/submit        | Yes                   | Forms utilities |
+| `@dk/dom-js/motion`          | Animations and composition helpers                   | Yes                   | Web Animations |
+| `@dk/dom-js/utils`           | debounce/throttle/nextTick/raf(/rafThrottle)         | Yes                   | Scheduling & rate‑limit |
+| `@dk/dom-js/observers`       | onIntersect/onResize/onMutation wrappers             | Yes                   | Observers |
+| `@dk/dom-js/scroll`          | scrollIntoView + scroll lock                         | Yes                   | Scrolling |
+| `@dk/dom-js/server`          | Server‑safe entry (no real DOM ops)                  | Yes                   | SSR/Node import |
 
 Note: “Import‑safe on server” means modules do not access `window`/`document` at import time. DOM‑touching functions still require a browser.
 

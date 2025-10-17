@@ -24,7 +24,7 @@ A lightweight, modular DOM manipulation library with chainable API, zero depende
   - [TypeScript](#typescript)
   - [Plugin System](#plugin-system)
   - [Advanced Recipes](#advanced-recipes)
-  - [Browser Support \& Size](#browser-support--size)
+  - [Browser Support](#browser-support)
   - [Security](#security)
   - [Contributing](#contributing)
   - [License](#license)
@@ -644,25 +644,11 @@ await dom.flash('.message')
 dom('.items').highlight()
 ```
 
-## Browser Support & Size
+## Browser Support
 
 - Target: ES2020+ (modern evergreen browsers)
 - Dependencies: Zero
-- Sizes: see the auto‑generated table below (raw minified dist). Gzipped sizes vary by bundler and project and are not hard‑coded here to avoid drift.
-
-### Current Bundle Sizes (raw dist)
-
-<!-- AUTO-GENERATED: BUNDLE_SIZES_START -->
-| Module | ESM (KB) | CJS (KB) |
-| --- | --- | --- |
-| Full | 68.98 | 69.94 |
-| Core | 27.55 | 28.10 |
-| HTTP | 9.25 | 9.75 |
-| Templates | 16.66 | 17.26 |
-| Forms | 4.55 | 5.11 |
-| Motion | 31.51 | 32.05 |
-
-_Note: raw minified dist file sizes (not gzip)._<!-- AUTO-GENERATED: BUNDLE_SIZES_END -->
+- Focus: modular builds let bundlers shake out unused code
 
 ## Links
 
