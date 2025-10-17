@@ -3,7 +3,7 @@
 import fs from 'fs';
 import path from 'path';
 
-console.log('📊 dom.js Bundle Analysis\n');
+console.log('📊 @dk/dom-js Bundle Analysis\n');
 
 const distDir = 'dist';
 

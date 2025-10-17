@@ -38,7 +38,7 @@ export function addUtilitiesExamples() {
             <div id="util-log" class="text-sm text-gray-700 bg-gray-100 p-3 rounded h-24 overflow-auto"></div>
           </div>
         `,
-        code: `import { debounce, throttle } from '@dmitrijkiltau/dom.js/utils';
+        code: `import { debounce, throttle } from '@dk/dom-js/utils';
 
 const log = (msg) => console.log(msg);
 const onType = debounce((e) => log('debounced: ' + e.target.value), 200);
@@ -60,7 +60,7 @@ dom('#scroll-box').on('scroll', onScroll);`
             <div id="sched-box" class="border rounded h-24 overflow-auto bg-gray-50 p-2 text-sm text-gray-700"></div>
           </div>
         `,
-        code: `import { nextTick, raf, rafThrottle } from '@dmitrijkiltau/dom.js/utils';
+        code: `import { nextTick, raf, rafThrottle } from '@dk/dom-js/utils';
 
 const out = [];
 await nextTick(); out.push('nextTick resolved');

@@ -1,10 +1,10 @@
 // Type-only test to validate module augmentation and typing of plugins.
 // Compiled via tests/tsconfig.types.json with noEmit.
 
-import dom, { DOMCollection } from '@dmitrijkiltau/dom.js';
+import dom, { DOMCollection } from '@dk/dom-js';
 
 // 1) Augment the Dom interface with a new method signature
-declare module '@dmitrijkiltau/dom.js' {
+declare module '@dk/dom-js' {
   interface Dom {
     highlight(selector: string): DOMCollection;
   }

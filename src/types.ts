@@ -32,7 +32,7 @@ export type EventFromName<TTarget, TName extends string> =
 // Consumers can augment this interface via module augmentation to strongly type
 // custom event names to their `detail` payloads, e.g.:
 //
-// declare module '@dmitrijkiltau/dom.js' {
+// declare module '@dk/dom-js' {
 //   interface CustomEventMap {
 //     'user:login': { id: string };
 //   }
@@ -61,14 +61,14 @@ export type ElementHandler<K extends string, El extends Element = Element> =
   Handler<K extends keyof GlobalEventHandlersEventMap ? GlobalEventHandlersEventMap[K] : Event, El>;
 
 // Public API surface for module augmentation (plugins can extend this)
-// Consumers may augment this interface via `declare module '@dmitrijkiltau/dom.js' { interface Dom { ... } }`
+// Consumers may augment this interface via `declare module '@dk/dom-js' { interface Dom { ... } }`
 /**
  * Public API surface for the default export. This is intentionally empty here
  * and is merged with the actual callable + properties in `src/index.ts`.
  *
  * Plugin authors can augment this interface to add custom API surface:
  *
- * declare module '@dmitrijkiltau/dom.js' {
+ * declare module '@dk/dom-js' {
  *   interface Dom {
  *     flash(selector: string): Promise<DOMCollection>;
  *   }

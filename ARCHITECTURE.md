@@ -1,6 +1,6 @@
-# dom.js Architecture Guide
+# @dk/dom-js Architecture Guide
 
-This document explains how dom.js is structured and why it’s built this way. It’s written for maintainers and contributors. For installation, import options, and API usage, see `README.md`.
+This document explains how @dk/dom-js is structured and why it’s built this way. It’s written for maintainers and contributors. For installation, import options, and API usage, see `README.md`.
 
 ## Principles
 
@@ -42,9 +42,9 @@ Responsibilities are intentionally narrow so features can be combined without dr
 Example augmentation:
 
 ```ts
-import dom, { type DOMCollection } from '@dmitrijkiltau/dom.js';
+import dom, { type DOMCollection } from '@dk/dom-js';
 
-declare module '@dmitrijkiltau/dom.js' {
+declare module '@dk/dom-js' {
   interface Dom {
     flash(selector: string): Promise<DOMCollection>;
   }
@@ -63,7 +63,7 @@ dom.use(api => {
 
 ## SSR/Non‑DOM Environments
 
-Use `@dmitrijkiltau/dom.js/server` to import in Node/SSR. It exposes the same callable `dom()` with safe no‑ops for DOM operations while keeping `http` and utilities available.
+Use `@dk/dom-js/server` to import in Node/SSR. It exposes the same callable `dom()` with safe no‑ops for DOM operations while keeping `http` and utilities available.
 
 Environment safeguards:
 - No `window`/`document` access at import time in any module
@@ -89,10 +89,10 @@ API: `hydrateTemplate(ref, root, data)` returns `{ el, update, destroy }` simila
 
 ## Bundling & Imports
 
-dom.js ships pure ESM with subpath exports to support three common patterns:
+@dk/dom-js ships pure ESM with subpath exports to support three common patterns:
 
-- Full bundle: `@dmitrijkiltau/dom.js` (everything included)
-- Core only: `@dmitrijkiltau/dom.js/core` (DOM + events)
+- Full bundle: `@dk/dom-js` (everything included)
+- Core only: `@dk/dom-js/core` (DOM + events)
 - Modular: import individual modules (e.g. `.../http`, `.../template`)
 
 These entry points are designed for good tree‑shaking in modern bundlers. See `README.md` for code samples and guidance on when to use each style.

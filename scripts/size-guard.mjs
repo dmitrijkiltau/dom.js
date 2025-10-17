@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Size guard + docs sync for dom.js
+// Size guard + docs sync for @dk/dom-js
 // Usage:
 //   node scripts/size-guard.mjs --check           # fail if ceilings exceeded
 //   node scripts/size-guard.mjs --check-docs      # fail if docs not in sync

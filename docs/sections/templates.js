@@ -12,7 +12,7 @@ export function addTemplateExamples() {
     title: 'Template System',
     content: `
       <p class="text-gray-700 mb-4">
-        dom.js provides a powerful template system with data binding using HTML template elements.
+        @dk/dom-js provides a powerful template system with data binding using HTML template elements.
       </p>
     `
   }));
@@ -47,7 +47,7 @@ export function addTemplateExamples() {
 </template>
 
 // JavaScript
-import { useTemplate, renderTemplate } from '@dmitrijkiltau/dom.js';
+import { useTemplate, renderTemplate } from '@dk/dom-js';
 
 // Create reusable render function
 const renderItem = useTemplate('#template-demo-item');
@@ -258,12 +258,12 @@ const element = renderTemplate('#enhanced-demo-template', templateData);`
               <div class="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <strong>Full Bundle:</strong><br>
-                  <code class="text-xs">import dom, { renderTemplate } from '@dmitrijkiltau/dom.js';</code><br>
+                  <code class="text-xs">import dom, { renderTemplate } from '@dk/dom-js';</code><br>
                   <span class="text-gray-600">~13KB total</span>
                 </div>
                 <div>
                   <strong>Templates Only:</strong><br>
-                  <code class="text-xs">import { renderTemplate } from '@dmitrijkiltau/dom.js/template';</code><br>
+                  <code class="text-xs">import { renderTemplate } from '@dk/dom-js/template';</code><br>
                   <span class="text-green-700 font-semibold">~130B + chunks</span>
                 </div>
               </div>
@@ -293,11 +293,11 @@ const element = renderTemplate('#enhanced-demo-template', templateData);`
           </template>
         `,
         code: `// Option 1: Full Bundle Import
-import dom, { renderTemplate, useTemplate } from '@dmitrijkiltau/dom.js';
+import dom, { renderTemplate, useTemplate } from '@dk/dom-js';
 
 // Option 2: Modular Import (Much Smaller!)  
-import { renderTemplate, useTemplate } from '@dmitrijkiltau/dom.js/template';
-// + import dom from '@dmitrijkiltau/dom.js/core'; // if you need DOM manipulation
+import { renderTemplate, useTemplate } from '@dk/dom-js/template';
+// + import dom from '@dk/dom-js/core'; // if you need DOM manipulation
 
 // Usage is identical regardless of import method:
 const template = useTemplate('#my-template');
@@ -310,8 +310,8 @@ const element = renderTemplate('#my-template', {
 });
 
 // If using modular imports with core:
-import dom from '@dmitrijkiltau/dom.js/core';
-import { renderTemplate } from '@dmitrijkiltau/dom.js/template';
+import dom from '@dk/dom-js/core';
+import { renderTemplate } from '@dk/dom-js/template';
 
 dom('#container').append(
   renderTemplate('#template', data)
@@ -361,12 +361,12 @@ dom('#container').append(
           </template>
         `,
         code: `// Server (Node): pre-render HTML using the template
-import { renderTemplate } from '@dmitrijkiltau/dom.js/template';
+import { renderTemplate } from '@dk/dom-js/template';
 const html = renderTemplate('#tpl', { count: 1, show: true, items: ['A','B'] });
 // send html.outerHTML to client
 
 // Client: hydrate existing DOM without re-creating nodes
-import { hydrateTemplate } from '@dmitrijkiltau/dom.js/template';
+import { hydrateTemplate } from '@dk/dom-js/template';
 const root = document.querySelector('#hydr-root');
 const inst = hydrateTemplate('#tpl', root, { count: 1, onClick: () => {}, show: true, items: ['A','B'] });
 inst.update({ count: 2, items: ['C','D'] });

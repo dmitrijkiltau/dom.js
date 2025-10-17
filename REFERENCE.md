@@ -1,21 +1,21 @@
-# dom.js Reference
+# @dk/dom-js Reference
 
-This reference provides a compact, scan-friendly overview of dom.js: entries, modules, and API surfaces. It complements README.md (getting started) and ARCHITECTURE.md (design and DX).
+This reference provides a compact, scan-friendly overview of @dk/dom-js: entries, modules, and API surfaces. It complements README.md (getting started) and ARCHITECTURE.md (design and DX).
 
 ## Package Entries
 
 | Import                                  | Includes                                             | Import‑safe on server | Approx size (min+gzip) | Typical use |
 | --------------------------------------- | ---------------------------------------------------- | --------------------- | ---------------------- | ----------- |
-| `@dmitrijkiltau/dom.js`                 | Full bundle: core, templates, forms, http, motion…   | Yes (DOM used at call)| ~10–11 KB              | Easiest start |
-| `@dmitrijkiltau/dom.js/core`            | Core DOM selection, traversal, events, utils bridge  | Yes                   | ~6–7 KB                | Minimal DOM toolkit |
-| `@dmitrijkiltau/dom.js/http`            | HTTP client                                          | Yes                   | ~0.7 KB                | API calls only |
-| `@dmitrijkiltau/dom.js/template`        | Template engine (render/use/mount, escape helpers)   | Yes                   | ~2.8 KB                | HTML templates |
-| `@dmitrijkiltau/dom.js/forms`           | Form serialize/populate/reset/validate/submit        | Yes                   | ~1.7 KB                | Forms utilities |
-| `@dmitrijkiltau/dom.js/motion`          | Animations and composition helpers                   | Yes                   | ~6.5 KB                | Web Animations |
-| `@dmitrijkiltau/dom.js/utils`           | debounce/throttle/nextTick/raf(/rafThrottle)         | Yes                   | tiny                   | Scheduling & rate‑limit |
-| `@dmitrijkiltau/dom.js/observers`       | onIntersect/onResize/onMutation wrappers             | Yes                   | tiny                   | Observers |
-| `@dmitrijkiltau/dom.js/scroll`          | scrollIntoView + scroll lock                         | Yes                   | tiny                   | Scrolling |
-| `@dmitrijkiltau/dom.js/server`          | Server‑safe entry (no real DOM ops)                  | Yes                   | —                      | SSR/Node import |
+| `@dk/dom-js`                 | Full bundle: core, templates, forms, http, motion…   | Yes (DOM used at call)| ~10–11 KB              | Easiest start |
+| `@dk/dom-js/core`            | Core DOM selection, traversal, events, utils bridge  | Yes                   | ~6–7 KB                | Minimal DOM toolkit |
+| `@dk/dom-js/http`            | HTTP client                                          | Yes                   | ~0.7 KB                | API calls only |
+| `@dk/dom-js/template`        | Template engine (render/use/mount, escape helpers)   | Yes                   | ~2.8 KB                | HTML templates |
+| `@dk/dom-js/forms`           | Form serialize/populate/reset/validate/submit        | Yes                   | ~1.7 KB                | Forms utilities |
+| `@dk/dom-js/motion`          | Animations and composition helpers                   | Yes                   | ~6.5 KB                | Web Animations |
+| `@dk/dom-js/utils`           | debounce/throttle/nextTick/raf(/rafThrottle)         | Yes                   | tiny                   | Scheduling & rate‑limit |
+| `@dk/dom-js/observers`       | onIntersect/onResize/onMutation wrappers             | Yes                   | tiny                   | Observers |
+| `@dk/dom-js/scroll`          | scrollIntoView + scroll lock                         | Yes                   | tiny                   | Scrolling |
+| `@dk/dom-js/server`          | Server‑safe entry (no real DOM ops)                  | Yes                   | —                      | SSR/Node import |
 
 Note: “Import‑safe on server” means modules do not access `window`/`document` at import time. DOM‑touching functions still require a browser.
 
@@ -180,14 +180,14 @@ Notes:
 
 - Generics: `dom<T>(selector)` → `DOMCollection<T>` for typed chains
 - Events: names map to DOM event types (top‑level and collection)
-- Custom events typing: augment `interface CustomEventMap {}` in `@dmitrijkiltau/dom.js` to map names → detail payloads. Overloads enable:
+- Custom events typing: augment `interface CustomEventMap {}` in `@dk/dom-js` to map names → detail payloads. Overloads enable:
   - `dom.on(window|document|element, 'my:event', (e) => e.detail …)`
   - `dom('#btn').on<'my:event'>('my:event', (e) => e.detail …)`
 - Typed serialization:
   - `DOMCollection.prototype.serialize<T = Record<string, any>>(): T`
   - `serializeForm<T = Record<string, any>>(form): T` (forms module)
   - `onSubmit<T = Record<string, any>>(form, (data: T, ev) => …)` (forms module)
-- Augmentation: `declare module '@dmitrijkiltau/dom.js' { interface Dom { … } }` then `dom.use(api => { /* add methods */ })`
+- Augmentation: `declare module '@dk/dom-js' { interface Dom { … } }` then `dom.use(api => { /* add methods */ })`
 Notes:
 - For explicit raw HTML intent, templates may use `data-html="unsafe(expr)"`.
 - Alternatively, return a wrapper from data using `unsafeHTML(x)` / `isUnsafeHTML(x)` and bind with `data-html="path"`.
